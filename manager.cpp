@@ -15,7 +15,6 @@
 #include "object3D.h"
 #include "objectX.h"
 #include "objectBillboard.h"
-#include "meshfield.h"
 
 //*****************************************************************************
 // 静的メンバ変数宣言
@@ -150,9 +149,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 
 	// ブロックマネージャーの初期化
 	m_pBlockManager->Init();
-
-	//// メッシュフィールドの生成
-	//CMeshfield::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), 1200.0f, 1200.0f);
 
 	// プレイヤーの生成
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -343,9 +339,6 @@ void CManager::Update(void)
 	float deltaTime = 1.0f / 60.0f; // 60fps
 	m_pDynamicsWorld->stepSimulation(deltaTime);
 
-	//// 衝突判定チェック
-	//CManager::CheckCollisions();
-
 	// ジョイパッドの更新
 	m_pInputJoypad->Update();
 
@@ -389,71 +382,4 @@ void CManager::Draw(void)
 bool CManager::GetisPaused(void)
 {
 	return m_isPaused;
-}
-//=============================================================================
-// 当たり判定処理
-//=============================================================================
-void CManager::CheckCollisions(void)
-{
-	auto world = GetPhysicsWorld();
-
-	if (!world)
-	{
-		return;
-	}
-
-	//int numObjects = world->getNumCollisionObjects();
-
-	int numManifolds = world->getDispatcher()->getNumManifolds();
-
-	for (int i = 0; i < numManifolds; i++)
-	{
-		btPersistentManifold* manifold = world->getDispatcher()->getManifoldByIndexInternal(i);
-		const btCollisionObject* obA = manifold->getBody0();
-		const btCollisionObject* obB = manifold->getBody1();
-
-		// ここでユーザーポインタからオブジェクトを取り出す
-		void* userA = obA->getUserPointer();
-		void* userB = obB->getUserPointer();
-
-		// プレイヤーとブロックかどうか判定
-		CPlayer* player = NULL;
-		CBlock* block = NULL;
-
-		if (!userA || !userB)
-		{
-			continue;
-		}
-
-		// 片方がプレイヤー、もう片方がブロックかチェック
-		player = dynamic_cast<CPlayer*>((CObject*)userA);
-		block = dynamic_cast<CBlock*>((CObjectX*)userB);
-
-		if (!player || !block)
-		{
-			// 逆の可能性もあるので反転チェック
-			player = dynamic_cast<CPlayer*>((CObject*)userB);
-			block = dynamic_cast<CBlock*>((CObjectX*)userA);
-		}
-
-		if (!player || !block)
-		{
-			continue;
-		}
-
-		int numContacts = manifold->getNumContacts();
-
-		for (int j = 0; j < numContacts; j++)
-		{
-			btManifoldPoint& pt = manifold->getContactPoint(j);
-
-			if (pt.getDistance() < 0.f)
-			{// プレイヤーとブロックが衝突中
-				
-
-				// 複数接触あっても処理が重複しないよう
-				break;
-			}
-		}
-	}
 }
