@@ -1056,7 +1056,7 @@ CSwitchBlock::CSwitchBlock()
 	SetType(TYPE_SWITCH);
 
 	// ’l‚ÌƒNƒŠƒA
-	m_closedPos = GetPos();
+	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
 }
 //=============================================================================
