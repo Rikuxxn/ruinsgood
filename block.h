@@ -73,9 +73,6 @@ public:
 	void ReleasePhysics(void);															// Physics破棄用
 	void CreatePhysicsFromParts(void);
 
-	// TYPE_SWITCHの関数
-	void UpdateSwitch(void);
-
 	//*****************************************************************************
 	// flagment関数
 	//*****************************************************************************
@@ -108,6 +105,7 @@ public:
 	const ColliderPart& GetColliderBlade(void) const { return m_colliderBlade; }
 	bool IsEditMode(void) const { return m_isEditMode; }
 	btScalar GetMassByType(TYPE type);
+
 private:
 	char m_szPath[MAX_PATH];		// ファイルパス
 	TYPE m_Type;					// 種類

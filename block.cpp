@@ -187,9 +187,6 @@ void CBlock::Uninit(void)
 //=============================================================================
 void CBlock::Update(void)
 {
-	//// スイッチの処理
-	//UpdateSwitch();
-
 	// 静的ブロックは Transform を手動で更新
 	if (IsStaticBlock() || IsEditMode())
 	{
@@ -307,100 +304,6 @@ void CBlock::UpdateCollider(void)
 
 	CreatePhysics(Pos, m_colliderSize);
 }
-////=============================================================================
-//// スイッチ(感圧)の処理
-////=============================================================================
-//void CBlock::UpdateSwitch(void)
-//{
-//	if (m_Type != TYPE_SWITCH)
-//	{// 対象のブロックじゃなかったら
-//		return;
-//	}
-//
-//	// スイッチの AABB を取得
-//	D3DXVECTOR3 swPos = GetPos();
-//	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチのサイズ（中心原点）
-//	D3DXVECTOR3 scale = GetSize();
-//
-//	D3DXVECTOR3 swSize;
-//
-//	// 拡大率を適用する
-//	swSize.x = modelSize.x * scale.x;
-//	swSize.y = modelSize.y * scale.y;
-//	swSize.z = modelSize.z * scale.z;
-//
-//	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
-//	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
-//
-//	float totalMass = 0.0f;
-//
-//	for (CBlock* block : CBlockManager::GetAllBlocks())
-//	{
-//		if (block == this || block->IsStaticBlock())
-//		{
-//			continue; // 自分 or 静的ブロックは無視
-//		}
-//
-//		// ブロックの AABB を取得
-//		D3DXVECTOR3 pos = block->GetPos();
-//		D3DXVECTOR3 size = block->GetModelSize();
-//		D3DXVECTOR3 min = pos - size * 0.5f;
-//		D3DXVECTOR3 max = pos + size * 0.5f;
-//
-//		// AABB同士の交差チェック
-//		bool isOverlap =
-//			swMin.x <= max.x && swMax.x >= min.x &&
-//			swMin.y <= max.y && swMax.y >= min.y &&
-//			swMin.z <= max.z && swMax.z >= min.z;
-//
-//		if (isOverlap)
-//		{
-//			btScalar invMass = block->GetRigidBody()->getInvMass();
-//			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
-//
-//			totalMass += mass;
-//		}
-//	}
-//
-//	// 質量のしきい値を超えていたら沈む
-//	const float massThreshold = 12.0f;
-//
-//	if (totalMass >= massThreshold)
-//	{
-//		// 押されている（下に少し沈む）
-//		D3DXVECTOR3 pos = GetPos();
-//		pos.y = m_closedPos.y - 10.0f; // 下に沈める
-//
-//		SetPos(pos);
-//
-//		SetEditMode(true); // 動かすためにキネマティック
-//
-//		m_isSwitchOn = true;
-//	}
-//
-//	if (!m_isSwitchOn)
-//	{
-//		return;
-//	}
-//
-//	// 水位上昇処理
-//	for (CBlock* block : CBlockManager::GetAllBlocks())
-//	{
-//		if (block->GetType() != TYPE_WATER)
-//		{
-//			continue;
-//		}
-//
-//		D3DXVECTOR3 waterPos = block->GetPos();
-//
-//		if (waterPos.y < -280.0f)
-//		{
-//			// 徐々に水位を上げる
-//			waterPos.y += 0.5f;
-//			block->SetPos(waterPos);
-//		}
-//	}
-//}
 //=============================================================================
 // 描画処理
 //=============================================================================
