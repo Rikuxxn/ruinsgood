@@ -29,8 +29,8 @@ void ToggleFullScreen(HWND hWnd);// ウィンドウをフルスクリーン
 //=============================================================================
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
-	//// メモリリーク検知
-	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF);
+	// メモリリーク検知
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF);
 	//_CrtSetBreakAlloc(157);// リークの原因のnewに強制的にブレークポイントを発生させる
 
 	int nCountFPS = 0;// FPSカウンター
