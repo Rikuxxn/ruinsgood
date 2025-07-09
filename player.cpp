@@ -896,7 +896,11 @@ void CPlayer::RespawnToCheckpoint(void)
 		trans.setOrigin(btVector3(respawnPos.x, respawnPos.y, respawnPos.z));
 
 		pRigid->setWorldTransform(trans);
-		pRigid->getMotionState()->setWorldTransform(trans);
+
+		if (pRigid->getMotionState())
+		{
+			pRigid->getMotionState()->setWorldTransform(trans);
+		}
 	}
 }
 //=============================================================================

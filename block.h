@@ -119,10 +119,10 @@ private:
 	D3DXVECTOR3 m_prevSize;			// 前回のサイズ
 	D3DXVECTOR3 m_colliderSize;		// コライダーサイズ
 	D3DXVECTOR3 m_colliderOffset;	// コライダーの位置
-	std::vector<btCollisionShape*> m_childShapes;
+	bool m_isEditMode;				// 編集中かどうか
 	ColliderPart m_colliderHandle;  // 棒の部分
 	ColliderPart m_colliderBlade;   // 刃の部分
-	bool m_isEditMode;				// 編集中かどうか
+	std::vector<btCollisionShape*> m_childShapes;
 
 };
 
@@ -138,8 +138,8 @@ public:
 	void Update(void) override;
 
 private:
-	void ApplyToBlocks(void);    // 他ブロックに浮力
-	void ApplyToPlayer(void);    // プレイヤーに浮力
+	void ApplyToBlocks(void);   // 他ブロックに浮力
+	void ApplyToPlayer(void);   // プレイヤーに浮力
 };
 
 //*****************************************************************************

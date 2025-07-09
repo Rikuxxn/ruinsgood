@@ -208,6 +208,7 @@ void CBlock::Update(void)
 
 		m_pRigidBody->setWorldTransform(trans);
 		m_pRigidBody->getMotionState()->setWorldTransform(trans);
+
 	}
 	else
 	{
@@ -1071,6 +1072,8 @@ CSwitchBlock::~CSwitchBlock()
 //=============================================================================
 void CSwitchBlock::Update(void)
 {
+	m_closedPos = GetPos();
+
 	// スイッチの AABB を取得
 	D3DXVECTOR3 swPos = GetPos();
 	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチのサイズ（中心原点）
@@ -1121,11 +1124,14 @@ void CSwitchBlock::Update(void)
 
 	if (totalMass >= massThreshold)
 	{
+		D3DXVECTOR3 pos = swPos;
 		// 押されている（下に少し沈む）
-		D3DXVECTOR3 pos = GetPos();
-		pos.y = m_closedPos.y - 10.0f; // 下に沈める
+		pos.y -= 1.0f; // 下に沈める
 
-		SetPos(pos);
+		if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
+		{
+			SetPos(pos);
+		}
 
 		SetEditMode(true); // 動かすためにキネマティック
 

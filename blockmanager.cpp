@@ -394,6 +394,33 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 				selectedBlock->GetRigidBody()->setWorldTransform(transform);
 				selectedBlock->GetRigidBody()->getMotionState()->setWorldTransform(transform);
 			}
+			//if (isEditMode)
+			//{
+			//	btRigidBody* pBody = selectedBlock->GetRigidBody();
+
+			//	if (pBody && pBody->getMotionState())
+			//	{
+			//		btTransform transform;
+			//		transform.setIdentity();
+
+			//		btVector3 btPos(pos.x + selectedBlock->GetColliderOffset().x,
+			//			pos.y + selectedBlock->GetColliderOffset().y,
+			//			pos.z + selectedBlock->GetColliderOffset().z);
+			//		transform.setOrigin(btPos);
+
+			//		D3DXMATRIX matRot;
+			//		D3DXMatrixRotationYawPitchRoll(&matRot, rotRad.y, rotRad.x, rotRad.z);
+
+			//		D3DXQUATERNION dq;
+			//		D3DXQuaternionRotationMatrix(&dq, &matRot);
+
+			//		btQuaternion btRot(dq.x, dq.y, dq.z, dq.w);
+			//		transform.setRotation(btRot);
+
+			//		pBody->setWorldTransform(transform);
+			//		pBody->getMotionState()->setWorldTransform(transform);
+			//	}
+			//}
 		}
 		else
 		{
@@ -417,8 +444,11 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 			{
 				m_nNumAll--;		// 総数のカウントダウン
 
-				// 選択中のブロックを削除
-				m_blocks[m_selectedIdx]->Uninit();
+				if (m_blocks[m_selectedIdx])
+				{
+					// 選択中のブロックを削除
+					m_blocks[m_selectedIdx]->Uninit();
+				}
 
 				m_blocks.erase(m_blocks.begin() + m_selectedIdx);
 

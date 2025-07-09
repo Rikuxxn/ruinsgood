@@ -90,12 +90,10 @@ private:
 	static CObjectX* m_pObjectX;				// Xファイルオブジェクトへのポインタ
 	static CBlockManager* m_pBlockManager;		// ブロックマネージャーへのポインタ
 	static CImGuiManager* m_pImGuiManager;		// ImGuiマネージャーへのポインタ
+	int m_fps;									// FPS値
+	static bool m_isPaused;						// trueならポーズ中
 
-	static std::vector<CBlock*> m_blocks;  // 複数のブロックを保持
-	int m_fps;
-	static bool m_isPaused; // trueならポーズ中
-
-	btBroadphaseInterface* m_pBroadphase;						// おおまか衝突判定のクラスへのポインタ
+	btBroadphaseInterface* m_pBroadphase;						// 衝突判定のクラスへのポインタ
 	btDefaultCollisionConfiguration* m_pCollisionConfiguration ;// 衝突検出の設定を管理するクラスへのポインタ
 	btCollisionDispatcher* m_pDispatcher;						// 実際に衝突判定処理を実行するクラスへのポインタ
 	btSequentialImpulseConstraintSolver* m_pSolver;				// 物理シミュレーションの制約ソルバーへのポインタ

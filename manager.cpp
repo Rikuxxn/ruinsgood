@@ -172,8 +172,8 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 	// コロンの生成
 	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 10.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
 
-	//// ポーズの生成
-	//m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
+	// ポーズの生成
+	m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
 
 	//m_pSound->Play(CSound::SOUND_LABEL_GAMEBGM);
 
@@ -208,16 +208,6 @@ void CManager::Uninit(void)
 
 	// サウンドの終了処理
 	m_pSound->Uninit();
-
-	// ポーズの破棄
-	if (m_pPause != NULL)
-	{
-		// ポーズの終了処理
-		m_pPause->Uninit();
-
-		delete m_pPause;
-		m_pPause = NULL;
-	}
 
 	// キーボードの破棄
 	if (m_pInputKeyboard != NULL)
@@ -336,8 +326,7 @@ void CManager::Update(void)
 		return;
 	}
 
-	float deltaTime = 1.0f / 60.0f; // 60fps
-	m_pDynamicsWorld->stepSimulation(deltaTime);
+	m_pDynamicsWorld->stepSimulation((btScalar)m_fps);
 
 	// ジョイパッドの更新
 	m_pInputJoypad->Update();

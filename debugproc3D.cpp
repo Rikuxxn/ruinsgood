@@ -254,6 +254,7 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
 
     // ƒ[ƒ‹ƒh•ÏŠ·Žæ“¾
     btTransform transform;
+
     rigidBody->getMotionState()->getWorldTransform(transform);
 
     btVector3 pos = transform.getOrigin();

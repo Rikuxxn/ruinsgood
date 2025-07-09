@@ -116,6 +116,8 @@ void CPause::Uninit(void)
 		m_pVtxBuff->Release();
 		m_pVtxBuff = NULL;
 	}
+
+	this->Release();
 }
 //=============================================================================
 // 更新処理

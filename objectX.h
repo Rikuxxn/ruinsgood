@@ -19,7 +19,7 @@
 class CObjectX : public CObject
 {
 public:
-	CObjectX();
+	CObjectX(int nPriority = 3);
 	virtual ~CObjectX();
 
 	static CObjectX* Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size);

@@ -27,7 +27,6 @@ public:
 	{
 		TYPE_NONE = 0,
 		TYPE_PLAYER,
-		TYPE_ENEMY,
 		TYPE_MAX
 	}TYPE;
 
@@ -40,9 +39,11 @@ public:
 	static void UpdateAll(void);
 	static void DrawAll(void);
 	static int GetNumObject(void);
-	static CObject* GetObject(int nPriority,int nIdx);
 	void SetType(TYPE type);
 	TYPE GetType(void);
+	void Destroy(void);
+	void DestroyFlaggedObjects(void);
+
 protected:
 	void Release(void);
 
@@ -54,6 +55,7 @@ private:
 	static int m_nNumAll;						// オブジェクトの総数
 	TYPE m_type;								// 種類
 	int m_nPriority;							// 優先順位の位置
+	bool m_bDeath;								// 死亡フラグ
 };
 
 #endif
