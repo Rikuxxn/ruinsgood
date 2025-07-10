@@ -32,12 +32,13 @@ public:
 	D3DXVECTOR3 GetRot(void);
 	D3DXVECTOR3 GetSize(void);		// 拡大率
 	D3DXVECTOR3 GetModelSize(void);	// モデルの元サイズ
+	virtual D3DXCOLOR GetCol(void) const;
+	D3DXCOLOR GetMaterialColor(void) const;
+
 	void SetPath(const char* path);
 	void SetSize(D3DXVECTOR3 size);
 	void SetPos(D3DXVECTOR3 pos);
 	void SetRot(D3DXVECTOR3 rot);
-	virtual D3DXCOLOR GetCol(void) const;
-	D3DXCOLOR GetMaterialColor(void) const;
 
 private:
 	int* m_nIdxTexture;

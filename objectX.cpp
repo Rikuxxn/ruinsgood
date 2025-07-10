@@ -171,14 +171,14 @@ void CObjectX::Uninit(void)
 		m_nIdxTexture = NULL;
 	}
 
-	//メッシュの破棄
+	// メッシュの破棄
 	if (m_pMesh != NULL)
 	{
 		m_pMesh->Release();
 		m_pMesh = NULL;
 	}
 
-	//マテリアルの破棄
+	// マテリアルの破棄
 	if (m_pBuffMat != NULL)
 	{
 		m_pBuffMat->Release();
@@ -210,7 +210,6 @@ void CObjectX::Draw(void)
 	CRenderer* renderer = CManager::GetRenderer();
 	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
 
-	//pDevice->SetRenderState(D3DRS_LIGHTING, TRUE); // ライティング有効
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);// 法線正規化を有効にする
 
 	// 計算用マトリックス
@@ -284,7 +283,6 @@ void CObjectX::Draw(void)
 		m_pMesh->DrawSubset(nCntMat);
 	}
 
-	//pDevice->SetRenderState(D3DRS_LIGHTING, FALSE); // ライティング無効
 	pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);// 法線正規化を無効にする
 
 	// 保存していたマテリアルを戻す

@@ -783,6 +783,7 @@ btScalar CBlock::GetMassByType(TYPE type)
 	case TYPE_ROCK:		return 10.0f;	// 岩
 	case TYPE_BRIDGE:	return 8.0f;	// 橋
 	case TYPE_RAFT:		return 6.0f;	// イカダ
+	case TYPE_AXE:		return 80.0f;	// 斧
 	default:			return 2.0f;	// デフォルト質量
 	}
 }
@@ -865,12 +866,13 @@ void CWaterBlock::ApplyToBlocks(void)
 		if (pRigid && !block->IsStaticBlock())
 		{
 			btVector3 velocity = pRigid->getLinearVelocity();
+
 			if (velocity.getY() < B_maxLiftSpeed)
 			{
 				// 浮かばせる目標上向き速度
 				const float targetUpSpeed = 130.0f; // 浮上スピード
 				const float maxUpSpeed = 120.0f;    // 上限速度
-				const float forceScale = 0.1f;		// 差分にかける係数（反応の速さ）
+				const float forceScale = 0.12f;		// 差分にかける係数（反応の速さ）
 
 				btVector3 velocity = pRigid->getLinearVelocity();
 
@@ -893,7 +895,6 @@ void CWaterBlock::ApplyToBlocks(void)
 				// 水中では回転を止めて安定させる
 				pRigid->setAngularVelocity(btVector3(0, 0, 0));
 			}
-
 		}
 	}
 }
@@ -1125,6 +1126,7 @@ void CSwitchBlock::Update(void)
 	if (totalMass >= massThreshold)
 	{
 		D3DXVECTOR3 pos = swPos;
+
 		// 押されている（下に少し沈む）
 		pos.y -= 1.0f; // 下に沈める
 

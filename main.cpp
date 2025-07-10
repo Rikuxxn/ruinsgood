@@ -204,11 +204,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _
 		pImGuiManager = NULL;
 	}
 
-//#ifdef _DEBUG
-//	// 最終メモリリークチェック
-//	_CrtDumpMemoryLeaks();
-//#endif
-
 	// 分解能を戻す
 	timeEndPeriod(1);
 

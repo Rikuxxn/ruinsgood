@@ -65,16 +65,16 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 	// デバイスのプレゼンテーションパラメータの設定
 	ZeroMemory(&m_d3dpp, sizeof(m_d3dpp));							// パラメータのゼロクリア
 
-	m_d3dpp.BackBufferWidth = SCREEN_WIDTH;						// ゲーム画面サイズ（幅）
+	m_d3dpp.BackBufferWidth = SCREEN_WIDTH;							// ゲーム画面サイズ（幅）
 	m_d3dpp.BackBufferHeight = SCREEN_HEIGHT;						// ゲーム画面サイズ（高さ）
 	m_d3dpp.BackBufferFormat = d3ddm.Format;						// バックバッファの形式
 	m_d3dpp.BackBufferCount = 1;									// バックバッファの数
-	m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;					// ダブルバッファの切り替え
-	m_d3dpp.EnableAutoDepthStencil = TRUE;						// デプスバッファとステンシルバッファを作成
+	m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;						// ダブルバッファの切り替え
+	m_d3dpp.EnableAutoDepthStencil = TRUE;							// デプスバッファとステンシルバッファを作成
 	m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;					// デプスバッファとして16bitを使う
-	m_d3dpp.Windowed = bWindow;									// ウインドウモード
+	m_d3dpp.Windowed = bWindow;										// ウインドウモード
 	m_d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;	// リフレッシュレート
-	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;	// インターバル
+	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;		// インターバル
 
 	// DirectX3Dデバイスの生成
 	if (FAILED(m_pD3D->CreateDevice(D3DADAPTER_DEFAULT,

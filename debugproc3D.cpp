@@ -279,7 +279,6 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
 
     btCollisionShape* shape = rigidBody->getCollisionShape();
 
-
     switch (shape->getShapeType())
     {
     case BOX_SHAPE_PROXYTYPE:
@@ -306,7 +305,7 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
             {0,4},{1,5},{2,6},{3,7}
         };
 
-        for (int i = 0; i < 12; ++i)
+        for (int i = 0; i < 12; i++)
         {
             DrawLine3D(v[indices[i][0]], v[indices[i][1]], color);
         }
@@ -319,7 +318,7 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
         const int kSegments = 16;
         D3DXVECTOR3 center(0, 0, 0);
 
-        for (int i = 0; i < kSegments; ++i)
+        for (int i = 0; i < kSegments; i++)
         {
             float t1 = (2.0f * D3DX_PI * i) / kSegments;
             float t2 = (2.0f * D3DX_PI * (i + 1)) / kSegments;
@@ -346,7 +345,7 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
         const btCompoundShape* compound = static_cast<const btCompoundShape*>(shape);
         int numChildren = compound->getNumChildShapes();
 
-        for (int i = 0; i < numChildren; ++i)
+        for (int i = 0; i < numChildren; i++)
         {
             const btCollisionShape* childShape = compound->getChildShape(i);
             const btTransform& childTrans = compound->getChildTransform(i);
@@ -397,7 +396,7 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
                     {0,4},{1,5},{2,6},{3,7}
                 };
 
-                for (int j = 0; j < 12; ++j)
+                for (int j = 0; j < 12; j++)
                 {
                     DrawLine3D(v[indices[j][0]], v[indices[j][1]], color);
                 }
@@ -410,7 +409,7 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
                 const int kSegments = 16;
                 D3DXVECTOR3 center(0, 0, 0);
 
-                for (int j = 0; j < kSegments; ++j)
+                for (int j = 0; j < kSegments; j++)
                 {
                     float t1 = (2.0f * D3DX_PI * j) / kSegments;
                     float t2 = (2.0f * D3DX_PI * (j + 1)) / kSegments;

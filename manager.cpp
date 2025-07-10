@@ -52,7 +52,7 @@ CManager::CManager()
 	// 値のクリア
 	m_fps					  = 0;
 	m_isPaused				  = false;
-	m_pBroadphase			  = NULL;	// おおまか衝突判定のクラスへのポインタ
+	m_pBroadphase			  = NULL;	// 衝突判定のクラスへのポインタ
 	m_pCollisionConfiguration = NULL;	// 衝突検出の設定を管理するクラスへのポインタ
 	m_pDispatcher			  = NULL;	// 実際に衝突判定処理を実行するクラスへのポインタ
 	m_pSolver				  = NULL;	// 物理シミュレーションの制約ソルバーへのポインタ
