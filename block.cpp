@@ -72,12 +72,12 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 		pRock = dynamic_cast<CRockBlock*>(pBlock);
 		if (pRock)
 		{
-			pRock->AddPathPoint(D3DXVECTOR3(2810.0f, pos.y, -2821.5f));
-			pRock->AddPathPoint(D3DXVECTOR3(2718.0f, pos.y, -3045.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(1958.5f, pos.y, -3815.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(1746.0f, pos.y, -3898.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, pos.y, -3898.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(-1631.5f, pos.y, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
+			pRock->AddPathPoint(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(1958.5f, 217.0f, -3815.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
 		}
 
 		break;
@@ -1205,7 +1205,7 @@ CAxeBlock::CAxeBlock()
 //=============================================================================
 CAxeBlock::~CAxeBlock()
 {
-
+	// なし
 }
 //=============================================================================
 // 斧ブロックの更新処理
@@ -1226,7 +1226,7 @@ CRockBlock::CRockBlock()
 	// 値のクリア
 	m_pathPoints = {};
 	m_currentTargetIndex = 0;
-	m_speed = 1050.0f;
+	m_speed = 2250.0f;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1240,19 +1240,28 @@ CRockBlock::~CRockBlock()
 //=============================================================================
 void CRockBlock::Update(void)
 {
-	CBlock::Update(); // 通常のブロック更新
+	CBlock::Update(); // 共通処理
 
-	const float RESET_HEIGHT = -500.0f;
+	const float RESET_HEIGHT = -550.0f;
 
 	if (GetPos().y < RESET_HEIGHT)
 	{
-		//ReleasePhysics();  // 物理削除
+		SetEditMode(true);
 
-		//this->Release();
-		return;
+		D3DXVECTOR3 rockPos = GetPos();
+
+		// リスポーン位置
+		D3DXVECTOR3 respawnPos(2815.5f, 700.0f, -1989.0f);
+
+		rockPos = respawnPos;
+
+		SetPos(rockPos);
+		UpdateCollider();
+
+		SetEditMode(false);
 	}
 
-	//MoveToTarget();  // チェックポイントへ向けて移動
+	MoveToTarget();  // チェックポイントへ向けて移動
 }
 //=============================================================================
 // 通過ポイント追加処理
