@@ -136,10 +136,16 @@ public:
 	~CWaterBlock();
 	
 	void Update(void) override;
+	void SetInWater(bool flag);
+	void AddWaterStayTime(void);
+	void ResetWaterStayTime(void);
 
 private:
 	void ApplyToBlocks(void);   // 他ブロックに浮力
 	void ApplyToPlayer(void);   // プレイヤーに浮力
+
+	int m_waterStayTime;				// 水中滞在時間（秒）
+	bool m_isInWater;					// 今水中にいるか
 
 };
 
@@ -204,6 +210,7 @@ public:
 	~CRockBlock();
 
 	void Update(void) override;
+	void Respawn(void);
 	void AddPathPoint(const D3DXVECTOR3& point);// チェックポイント追加
 
 private:

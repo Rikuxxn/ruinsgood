@@ -817,6 +817,11 @@ btScalar CBlock::GetMassByType(TYPE type)
 CWaterBlock::CWaterBlock()
 {
 	SetType(TYPE_WATER);
+
+	// 値のクリア
+	m_waterStayTime = 0;				// 水中滞在時間（秒）
+	m_isInWater = false;				// 今水中にいるか
+
 }
 //=============================================================================
 // 水ブロックのデストラクタ
@@ -992,17 +997,53 @@ void CWaterBlock::ApplyToPlayer(void)
 			}
 
 			// 水中にいるフラグON
-			pPlayer->SetInWater(true); // フラグ用関数
+			SetInWater(true); // フラグ用関数
 
 			// タイマー更新
-			pPlayer->AddWaterStayTime(1.0f / 60.0f); // 毎フレーム加算
+			AddWaterStayTime(); 
 		}
 		else
 		{
-			pPlayer->SetInWater(false);
-			pPlayer->ResetWaterStayTime();
+			SetInWater(false);
+			ResetWaterStayTime();
 		}
 	}
+}
+//=============================================================================
+// 水中にいるフラグ設定処理
+//=============================================================================
+void CWaterBlock::SetInWater(bool flag)
+{
+	m_isInWater = flag;
+}
+//=============================================================================
+// 水中滞在時間の設定
+//=============================================================================
+void CWaterBlock::AddWaterStayTime(void)
+{
+	if (m_isInWater)
+	{
+		m_waterStayTime++;
+
+		if (m_waterStayTime >= 180) // 3秒以上滞在したら
+		{
+			CPlayer* pPlayer = CManager::GetPlayer();
+
+			pPlayer->RespawnToCheckpoint(); // 任意の場所へリスポーン
+			m_waterStayTime = 0;
+		}
+	}
+	else
+	{
+		m_waterStayTime = 0;
+	}
+}
+//=============================================================================
+// 水中滞在時間のリセット
+//=============================================================================
+void CWaterBlock::ResetWaterStayTime(void)
+{
+	m_waterStayTime = 0;
 }
 
 
@@ -1242,9 +1283,18 @@ CRockBlock::~CRockBlock()
 //=============================================================================
 void CRockBlock::Update(void)
 {
-	CBlock::Update(); // 共通処理
+	CBlock::Update();	// 共通処理
 
-	const float RESET_HEIGHT = -550.0f;
+	Respawn();			// リスポーン処理
+
+	//MoveToTarget();		// チェックポイントへ向けて移動
+}
+//=============================================================================
+// リスポーン処理
+//=============================================================================
+void CRockBlock::Respawn(void)
+{
+	const float RESET_HEIGHT = -480.0f;
 
 	if (GetPos().y < RESET_HEIGHT)
 	{
@@ -1273,8 +1323,6 @@ void CRockBlock::Update(void)
 		// 動的に戻す
 		SetEditMode(false);
 	}
-
-	MoveToTarget();  // チェックポイントへ向けて移動
 }
 //=============================================================================
 // 通過ポイント追加処理
@@ -1307,7 +1355,7 @@ void CRockBlock::MoveToTarget(void)
 	D3DXVECTOR3 dir = targetPos - currentPos;
 	float dist = D3DXVec3Length(&dir);
 
-	if (dist < 100.0f)  // 十分近づいたら次のポイントへ
+	if (dist < 100.0f)  // ある程度近づいたら次のポイントへ
 	{
 		m_currentTargetIndex++;
 		return;
@@ -1320,10 +1368,10 @@ void CRockBlock::MoveToTarget(void)
 
 	if (m_currentTargetIndex >= 6)
 	{// インデックスが 6 を超えたら
-		float fSpeedDown = 0.01f;
+		float fSpeedDown = 0.001f;
 
 		// 減速させる
-		force = btVector3((dir.x * m_speed) * fSpeedDown, 0.0f, (dir.z * m_speed) * fSpeedDown);
+		force = btVector3(dir.x * (m_speed * fSpeedDown), 0.0f, dir.z * (m_speed * fSpeedDown));
 	}
 	else
 	{// 通常
