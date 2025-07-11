@@ -18,21 +18,20 @@
 CCamera::CCamera()
 {
 	// 値のクリア
-	m_posV = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 視点
-	m_posVDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 目的の視点
-	m_posR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 注視点
-	m_posRDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// 目的の注視点
-	m_vecU = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 上方向ベクトル
-	m_mtxProjection = {};							// プロジェクションマトリックス
-	m_mtxView = {};									// ビューマトリックス
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);			// 向き
-	m_fDistance = 0.0f;								// 視点から注視点の距離
+	m_posV				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 視点
+	m_posVDest			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 目的の視点
+	m_posR				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 注視点
+	m_posRDest			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 目的の注視点
+	m_vecU				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 上方向ベクトル
+	m_mtxProjection		= {};							// プロジェクションマトリックス
+	m_mtxView			= {};							// ビューマトリックス
+	m_rot				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 向き
+	m_fDistance			= 0.0f;							// 視点から注視点の距離
 #ifdef _DEBUG
-	m_Mode = MODE_EDIT;								// カメラのモード
+	m_Mode = MODE_EDIT;									// カメラのモード
 #else
 	m_Mode = MODE_GAME;
 #endif
-	m_bCheck = false;								// チェックされたかどうか
 }
 //=============================================================================
 // デストラクタ

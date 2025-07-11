@@ -65,7 +65,7 @@ public:
 	static CBlock* CreateFromType(TYPE type, D3DXVECTOR3 pos);													// タイプ指定でブロックの生成
 	void CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size);										// コライダーの生成
 	void CreatePhysicsFromScale(const D3DXVECTOR3& scale);														// ブロックスケールによるコライダーの生成
-	HRESULT Init(void);
+	virtual HRESULT Init(void);
 	void Uninit(void);
 	virtual void Update(void);
 	void UpdateCollider(void);
@@ -140,6 +140,7 @@ public:
 private:
 	void ApplyToBlocks(void);   // 他ブロックに浮力
 	void ApplyToPlayer(void);   // プレイヤーに浮力
+
 };
 
 //*****************************************************************************
@@ -179,21 +180,6 @@ private:
 };
 
 //*****************************************************************************
-// 岩ブロッククラス
-//*****************************************************************************
-class CRockBlock : public CBlock
-{
-public:
-	CRockBlock();
-	~CRockBlock();
-
-	void Update(void) override;
-
-private:
-
-};
-
-//*****************************************************************************
 // 斧ブロッククラス
 //*****************************************************************************
 class CAxeBlock : public CBlock
@@ -206,6 +192,26 @@ public:
 
 private:
 
+};
+
+//*****************************************************************************
+// 岩ブロッククラス
+//*****************************************************************************
+class CRockBlock : public CBlock
+{
+public:
+	CRockBlock();
+	~CRockBlock();
+
+	void Update(void) override;
+	void AddPathPoint(const D3DXVECTOR3& point);// チェックポイント追加
+
+private:
+	std::vector<D3DXVECTOR3> m_pathPoints;  // チェックポイントの配列
+	int m_currentTargetIndex;               // 今の目標地点インデックス
+	float m_speed;							// 力の強さ（速度の代わり）
+
+	void MoveToTarget(void);				// 転がし処理
 };
 
 

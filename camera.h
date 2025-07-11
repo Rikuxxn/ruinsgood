@@ -54,7 +54,6 @@ private:
 	D3DXVECTOR3 m_rot;			// 向き
 	float m_fDistance;			// 視点から注視点の距離
 	MODE m_Mode;				// カメラのモード
-	bool m_bCheck;				// チェックされたかどうか(GUI)
 };
 
 #endif

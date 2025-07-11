@@ -156,9 +156,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 	// JSONの読み込み
 	m_pBlockManager->LoadFromJson("data/block_info.json");
 
-	//// ビルボードの生成
-	//CObjectBillboard::Create(CObjectBillboard::TYPE_ONE, D3DXVECTOR3(0.0f, 20.0f, -350.0f), 120.0f, 60.0f);
-
 	//// スコアの生成
 	//m_pScore = CScore::Create(920.0f, 10.0f, 42.0f, 58.0f);
 
@@ -340,12 +337,15 @@ void CManager::Update(void)
 	// ライトの更新
 	m_pLight->Update();
 
-#ifdef _DEBUG
-	// ブロックマネージャーの情報の更新
-	m_pBlockManager->UpdateInfo();
+	// ブロックマネージャーの更新処理
+	m_pBlockManager->Update();
 
-	// ブロックマネージャーのドラッグ処理の更新
-	m_pBlockManager->UpdateDraggingBlock();
+#ifdef _DEBUG
+	//// ブロックマネージャーの情報の更新
+	//m_pBlockManager->UpdateInfo();
+
+	//// ブロックマネージャーのドラッグ処理の更新
+	//m_pBlockManager->UpdateDraggingBlock();
 #endif
 	// レンダラーの更新
 	m_pRenderer->Update();

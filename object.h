@@ -42,7 +42,7 @@ public:
 	void SetType(TYPE type);
 	TYPE GetType(void);
 	void Destroy(void);
-	void DestroyFlaggedObjects(void);
+	bool GetDeath(void) { return m_bDeath; }
 
 protected:
 	void Release(void);

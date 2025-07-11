@@ -48,6 +48,7 @@ CBlock::~CBlock()
 CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size, TYPE type)
 {
 	CBlock* pBlock = NULL;
+	CRockBlock* pRock = NULL;
 
 	// タイプごとに派生クラスへ分岐
 	switch (type)
@@ -60,6 +61,25 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 		break;
 	case TYPE_SWITCH:
 		pBlock = new CSwitchBlock();
+		break;
+	case TYPE_AXE:
+		pBlock = new CAxeBlock();
+		break;
+	case TYPE_ROCK:
+		pBlock = new CRockBlock();
+
+		// チェックポイントを設定
+		pRock = dynamic_cast<CRockBlock*>(pBlock);
+		if (pRock)
+		{
+			pRock->AddPathPoint(D3DXVECTOR3(2810.0f, pos.y, -2821.5f));
+			pRock->AddPathPoint(D3DXVECTOR3(2718.0f, pos.y, -3045.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(1958.5f, pos.y, -3815.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(1746.0f, pos.y, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, pos.y, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(-1631.5f, pos.y, -3898.0f));
+		}
+
 		break;
 	default:
 		pBlock = new CBlock();
@@ -778,7 +798,7 @@ btScalar CBlock::GetMassByType(TYPE type)
 	switch (type)
 	{
 	case TYPE_WOODBOX:	return 4.0f;	// 木箱
-	case TYPE_TORCH2:	return 5.0f;	// 置き型トーチ
+	case TYPE_TORCH2:	return 6.0f;	// 置き型トーチ
 	case TYPE_PILLAR:	return 55.0f;	// 柱
 	case TYPE_ROCK:		return 10.0f;	// 岩
 	case TYPE_BRIDGE:	return 8.0f;	// 橋
@@ -810,6 +830,8 @@ void CWaterBlock::Update(void)
 {
 	ApplyToBlocks();// ブロックを浮かせる
 	ApplyToPlayer();// プレイヤーを浮かせる
+
+	CBlock::Update();// 共通処理
 }
 //=============================================================================
 // 水ブロックのブロック浮遊処理
@@ -960,6 +982,7 @@ void CWaterBlock::ApplyToPlayer(void)
 		if (pRigid)
 		{
 			btVector3 velocity = pRigid->getLinearVelocity();
+
 			if (velocity.getY() < P_maxLiftSpeed)
 			{
 				velocity.setY(velocity.getY() + P_waterLiftPower);
@@ -967,7 +990,7 @@ void CWaterBlock::ApplyToPlayer(void)
 			}
 
 			// 水中にいるフラグON
-			pPlayer->SetInWater(true); // フラグ用関数（下記追加）
+			pPlayer->SetInWater(true); // フラグ用関数
 
 			// タイマー更新
 			pPlayer->AddWaterStayTime(1.0f / 60.0f); // 毎フレーム加算
@@ -1094,7 +1117,7 @@ void CSwitchBlock::Update(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block == this || block->IsStaticBlock())
+		if (block == this || block->IsStaticBlock() || block->GetType() == TYPE_ROCK)
 		{
 			continue; // 自分 or 静的ブロックは無視
 		}
@@ -1164,4 +1187,116 @@ void CSwitchBlock::Update(void)
 	}
 
 	CBlock::Update(); // 共通処理
+}
+
+
+//=============================================================================
+// 斧ブロックのコンストラクタ
+//=============================================================================
+CAxeBlock::CAxeBlock()
+{
+	SetType(TYPE_AXE);
+
+	// 値のクリア
+
+}
+//=============================================================================
+// 斧ブロックのデストラクタ
+//=============================================================================
+CAxeBlock::~CAxeBlock()
+{
+
+}
+//=============================================================================
+// 斧ブロックの更新処理
+//=============================================================================
+void CAxeBlock::Update(void)
+{
+	CBlock::Update();// 共通処理
+}
+
+
+//=============================================================================
+// 岩ブロックのコンストラクタ
+//=============================================================================
+CRockBlock::CRockBlock()
+{
+	SetType(TYPE_ROCK);
+
+	// 値のクリア
+	m_pathPoints = {};
+	m_currentTargetIndex = 0;
+	m_speed = 1050.0f;
+}
+//=============================================================================
+// 岩ブロックのデストラクタ
+//=============================================================================
+CRockBlock::~CRockBlock()
+{
+	// なし
+}
+//=============================================================================
+// 岩ブロックの更新処理
+//=============================================================================
+void CRockBlock::Update(void)
+{
+	CBlock::Update(); // 通常のブロック更新
+
+	const float RESET_HEIGHT = -500.0f;
+
+	if (GetPos().y < RESET_HEIGHT)
+	{
+		//ReleasePhysics();  // 物理削除
+
+		//this->Release();
+		return;
+	}
+
+	//MoveToTarget();  // チェックポイントへ向けて移動
+}
+//=============================================================================
+// 通過ポイント追加処理
+//=============================================================================
+void CRockBlock::AddPathPoint(const D3DXVECTOR3& point)
+{
+	m_pathPoints.push_back(point);
+}
+//=============================================================================
+// 目標に向かって移動する処理
+//=============================================================================
+void CRockBlock::MoveToTarget(void)
+{
+	if (m_pathPoints.empty() || m_currentTargetIndex >= (int)m_pathPoints.size())
+	{
+		return;
+	}
+
+	btRigidBody* pRigid = GetRigidBody();
+
+	if (!pRigid)
+	{
+		return;
+	}
+
+	D3DXVECTOR3 currentPos = GetPos();
+	D3DXVECTOR3 targetPos = m_pathPoints[m_currentTargetIndex];
+
+	// ターゲット方向ベクトル
+	D3DXVECTOR3 dir = targetPos - currentPos;
+	float dist = D3DXVec3Length(&dir);
+
+	if (dist < 50.0f)  // 十分近づいたら次のポイントへ
+	{
+		m_currentTargetIndex++;
+		return;
+	}
+
+	// 正規化
+	D3DXVec3Normalize(&dir, &dir);
+
+	// Z軸中心で転がす
+	btVector3 force(dir.x * m_speed, 0.0f, dir.z * m_speed);
+
+	// 適用中の速度に加えるのではなく
+	pRigid->applyCentralForce(force);
 }

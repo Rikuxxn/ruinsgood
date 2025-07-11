@@ -862,9 +862,13 @@ void CPlayer::AddWaterStayTime(float delta)
 
 		if (m_waterStayTime >= 3.0f) // 3秒以上滞在したら
 		{
-			RespawnToCheckpoint(); // 任意の場所へリスポーン処理（下記追加）
+			RespawnToCheckpoint(); // 任意の場所へリスポーン
 			m_waterStayTime = 0.0f;
 		}
+	}
+	else
+	{
+		m_waterStayTime = 0.0f;
 	}
 }
 //=============================================================================

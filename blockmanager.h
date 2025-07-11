@@ -25,10 +25,11 @@ public:
     static CBlock* CreateBlock(CBlock::TYPE type, D3DXVECTOR3 pos);
     void Init(void);
     void Uninit(void);
+    void Update(void);
     void UpdateInfo(void); // ImGui‚Å‚Ì‘€ìŠÖ”‚ğ‚±‚±‚ÅŒÄ‚Ô—p
     void SaveToJson(const char* filename);
     void LoadFromJson(const char* filename);
-    //static CBlock* FindNearbyHoldableBlock(float maxDistance);
+    void RespawnRock(void);
 
      //*****************************************************************************
     // ImGui‚Å‚Ì‘€ìŠÖ”

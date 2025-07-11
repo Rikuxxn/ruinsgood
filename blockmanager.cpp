@@ -72,17 +72,26 @@ void CBlockManager::Init(void)
 //=============================================================================
 void CBlockManager::Uninit(void)
 {
-	//for (auto block : m_blocks)
-	//{
-	//	if (block)
-	//	{
-	//		block->Uninit();  // 内部解放処理（Physics含む）
-	//		delete block;     // メモリ解放
-	//	}
-	//}
-
 	// 動的配列を空にする (サイズを0にする)
 	m_blocks.clear();
+}
+//=============================================================================
+// 更新処理
+//=============================================================================
+void CBlockManager::Update(void)
+{
+#ifdef _DEBUG
+
+	// 情報の更新
+	UpdateInfo();
+
+	// ドラッグ処理の更新
+	UpdateDraggingBlock();
+
+#endif
+
+	//// 岩ブロックの再生成
+	//RespawnRock();
 }
 //=============================================================================
 // 情報の更新処理
@@ -394,33 +403,6 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 				selectedBlock->GetRigidBody()->setWorldTransform(transform);
 				selectedBlock->GetRigidBody()->getMotionState()->setWorldTransform(transform);
 			}
-			//if (isEditMode)
-			//{
-			//	btRigidBody* pBody = selectedBlock->GetRigidBody();
-
-			//	if (pBody && pBody->getMotionState())
-			//	{
-			//		btTransform transform;
-			//		transform.setIdentity();
-
-			//		btVector3 btPos(pos.x + selectedBlock->GetColliderOffset().x,
-			//			pos.y + selectedBlock->GetColliderOffset().y,
-			//			pos.z + selectedBlock->GetColliderOffset().z);
-			//		transform.setOrigin(btPos);
-
-			//		D3DXMATRIX matRot;
-			//		D3DXMatrixRotationYawPitchRoll(&matRot, rotRad.y, rotRad.x, rotRad.z);
-
-			//		D3DXQUATERNION dq;
-			//		D3DXQuaternionRotationMatrix(&dq, &matRot);
-
-			//		btQuaternion btRot(dq.x, dq.y, dq.z, dq.w);
-			//		transform.setRotation(btRot);
-
-			//		pBody->setWorldTransform(transform);
-			//		pBody->getMotionState()->setWorldTransform(transform);
-			//	}
-			//}
 		}
 		else
 		{
@@ -946,39 +928,61 @@ void CBlockManager::LoadFromJson(const char* filename)
 	}
 }
 //=============================================================================
+// 岩ブロックの再生成
+//=============================================================================
+void CBlockManager::RespawnRock(void)
+{
+	for (size_t i = 0; i < m_blocks.size(); ++i)
+	{
+		CBlock* block = m_blocks[i];
+
+		if (block == NULL || block->GetType() != CBlock::TYPE_ROCK)
+		{
+			continue;
+		}
+
+		//if (block->GetDeath())
+		//{
+			// 削除前に保存
+			D3DXVECTOR3 rot = block->GetRot();
+			D3DXVECTOR3 size(D3DXVECTOR3(1.4f,1.4f,1.4f));
+			
+			// 削除
+			block->Uninit();
+			m_blocks.erase(m_blocks.begin() + i);
+
+			// 再生成位置
+			D3DXVECTOR3 respawnPos(2815.5f, 670.0f, 1989.0f);
+
+			// 再生成
+			CBlock* newBlock = CreateBlock(CBlock::TYPE_ROCK, respawnPos);
+
+			block->SetRot(rot);
+			block->SetSize(size);
+			block->UpdateCollider();
+
+			// チェックポイントの設定
+			if (CRockBlock* rock = dynamic_cast<CRockBlock*>(newBlock))
+			{
+				rock->AddPathPoint(D3DXVECTOR3(2810.0f, respawnPos.y, -2821.5f));
+				rock->AddPathPoint(D3DXVECTOR3(2718.0f, respawnPos.y, -3045.0f));
+				rock->AddPathPoint(D3DXVECTOR3(1958.5f, respawnPos.y, -3815.0f));
+				rock->AddPathPoint(D3DXVECTOR3(1746.0f, respawnPos.y, -3898.0f));
+				rock->AddPathPoint(D3DXVECTOR3(-660.0f, respawnPos.y, -3898.0f));
+				rock->AddPathPoint(D3DXVECTOR3(-1631.5f, respawnPos.y, -3898.0f));
+			}
+
+			// リストに追加
+			m_blocks.push_back(newBlock);
+
+			break; // 一度だけ処理
+		//}
+	}
+}
+//=============================================================================
 // 全ブロックの取得
 //=============================================================================
 const std::vector<CBlock*>& CBlockManager::GetAllBlocks(void)
 {
 	return m_blocks;
 }
-////=============================================================================
-//// プレイヤーの近くにある持てるブロックを探す処理
-////=============================================================================
-//CBlock* CBlockManager::FindNearbyHoldableBlock(float maxDistance)
-//{
-//	CBlock* closestBlock = NULL;
-//	float closestDist = maxDistance;
-//
-//	// プレイヤーの取得
-//	CPlayer* pPlayer = CManager::GetPlayer();
-//
-//	D3DXVECTOR3 playerPos = pPlayer->GetPos();
-//
-//	// 例えばゲーム内の全ブロックリストを走査
-//	for (CBlock* block : CBlockManager::GetAllBlocks())
-//	{
-//		if (block->IsStaticBlock()) continue;  // 持てるブロックか？
-//
-//		D3DXVECTOR3 blockPos = block->GetPos();
-//		float dist = D3DXVec3Length(&(blockPos - playerPos));
-//
-//		if (dist < closestDist)
-//		{
-//			closestDist = dist;
-//			closestBlock = block;
-//		}
-//	}
-//
-//	return closestBlock;  // 見つからなければ nullptr
-//}
