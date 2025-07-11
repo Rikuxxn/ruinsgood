@@ -72,10 +72,12 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 		pRock = dynamic_cast<CRockBlock*>(pBlock);
 		if (pRock)
 		{
+			pRock->AddPathPoint(D3DXVECTOR3(2812.5f, 217.0f, -1989.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
 			pRock->AddPathPoint(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(1958.5f, 217.0f, -3815.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
 		}
@@ -800,7 +802,7 @@ btScalar CBlock::GetMassByType(TYPE type)
 	case TYPE_WOODBOX:	return 4.0f;	// 木箱
 	case TYPE_TORCH2:	return 6.0f;	// 置き型トーチ
 	case TYPE_PILLAR:	return 55.0f;	// 柱
-	case TYPE_ROCK:		return 10.0f;	// 岩
+	case TYPE_ROCK:		return 100.0f;	// 岩
 	case TYPE_BRIDGE:	return 8.0f;	// 橋
 	case TYPE_RAFT:		return 6.0f;	// イカダ
 	case TYPE_AXE:		return 80.0f;	// 斧
@@ -1226,7 +1228,7 @@ CRockBlock::CRockBlock()
 	// 値のクリア
 	m_pathPoints = {};
 	m_currentTargetIndex = 0;
-	m_speed = 2250.0f;
+	m_speed = 86500.0f;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1246,18 +1248,29 @@ void CRockBlock::Update(void)
 
 	if (GetPos().y < RESET_HEIGHT)
 	{
+		// 動かすためにキネマティックにする
 		SetEditMode(true);
 
+		// 岩ブロックの位置を取得
 		D3DXVECTOR3 rockPos = GetPos();
+		D3DXVECTOR3 rockRot = GetRot();
 
-		// リスポーン位置
-		D3DXVECTOR3 respawnPos(2815.5f, 700.0f, -1989.0f);
+		D3DXVECTOR3 respawnPos(2815.5f, 700.0f, -1989.0f);// リスポーン位置
+		D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
 
 		rockPos = respawnPos;
+		rockRot = rot;
 
 		SetPos(rockPos);
+		SetRot(rockRot);
+
+		// コライダーの更新
 		UpdateCollider();
 
+		// 現在のチェックポイントインデックスをリセットする
+		m_currentTargetIndex = 0;
+
+		// 動的に戻す
 		SetEditMode(false);
 	}
 
@@ -1294,7 +1307,7 @@ void CRockBlock::MoveToTarget(void)
 	D3DXVECTOR3 dir = targetPos - currentPos;
 	float dist = D3DXVec3Length(&dir);
 
-	if (dist < 50.0f)  // 十分近づいたら次のポイントへ
+	if (dist < 100.0f)  // 十分近づいたら次のポイントへ
 	{
 		m_currentTargetIndex++;
 		return;
@@ -1303,9 +1316,21 @@ void CRockBlock::MoveToTarget(void)
 	// 正規化
 	D3DXVec3Normalize(&dir, &dir);
 
-	// Z軸中心で転がす
-	btVector3 force(dir.x * m_speed, 0.0f, dir.z * m_speed);
+	btVector3 force(0.0f, 0.0f, 0.0f);
 
-	// 適用中の速度に加えるのではなく
+	if (m_currentTargetIndex >= 6)
+	{// インデックスが 6 を超えたら
+		float fSpeedDown = 0.01f;
+
+		// 減速させる
+		force = btVector3((dir.x * m_speed) * fSpeedDown, 0.0f, (dir.z * m_speed) * fSpeedDown);
+	}
+	else
+	{// 通常
+		// Z軸中心で転がす
+		force = btVector3(dir.x * m_speed, 0.0f, dir.z * m_speed);
+	}
+
+	// 適用中の速度に加える
 	pRigid->applyCentralForce(force);
 }
