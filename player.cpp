@@ -23,7 +23,7 @@ CPlayer::CPlayer(int nPriority) : CObject(nPriority)
 {
 	// 値のクリア
 	m_pos				= INIT_VEC3;					// 位置
-	m_ResPos			= INIT_VEC3;					// 復活する位置
+	m_ResPos			= {};							// 復活する位置
 	m_rot				= INIT_VEC3;					// 向き
 	m_rotDest			= INIT_VEC3;					// 向き
 	m_move				= INIT_VEC3;					// 移動量
@@ -74,8 +74,10 @@ CPlayer* CPlayer::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	pPlayer->m_pos = pos;
 	pPlayer->m_rot = D3DXToRadian(rot);
 
-	// コライダー中心もここで更新しておくと確実
-	pPlayer->m_colliderPos = pos + D3DXVECTOR3(0, 50.0f, 0);
+	// リスポーン位置の設定
+	pPlayer->AddRespawnPoint(D3DXVECTOR3(427.0f, 30.0f, 1110.0f));
+	pPlayer->AddRespawnPoint(D3DXVECTOR3(-1327.0f, 30.0f, -4586.0f));
+	pPlayer->AddRespawnPoint(D3DXVECTOR3(2810.0f, 30.0f, -1518.0f));
 
 	// 初期化処理
 	pPlayer->Init();
@@ -109,7 +111,6 @@ HRESULT CPlayer::Init(void)
 	m_playerUse = true;
 
 	// 変数の初期化
-	m_ResPos = D3DXVECTOR3(427.0f, 10.0f, 1110.0f);
 	m_rot = D3DXVECTOR3(0.0f, -D3DX_PI, 0.0f);
 
 	//*********************************************************************
@@ -883,7 +884,7 @@ void CPlayer::ResetWaterStayTime(void)
 //=============================================================================
 void CPlayer::RespawnToCheckpoint(void)
 {
-	D3DXVECTOR3 respawnPos = GetRespawnPos(); // 任意の保存位置
+	D3DXVECTOR3 respawnPos = GetNearestRespawnPoint(); // 任意の保存位置
 
 	m_pos = respawnPos;
 
@@ -908,16 +909,36 @@ void CPlayer::RespawnToCheckpoint(void)
 	}
 }
 //=============================================================================
-// リスポーン地点の設定処理
+// リスポーン位置の追加処理
 //=============================================================================
-void CPlayer::SetRespawnPos(const D3DXVECTOR3& pos)
+void CPlayer::AddRespawnPoint(const D3DXVECTOR3& pos)
 {
-	m_ResPos = pos;
+	m_ResPos.push_back(pos);
 }
 //=============================================================================
-// リスポーン地点の取得処理
+// 一番近いリスポーン位置を返す処理
 //=============================================================================
-D3DXVECTOR3 CPlayer::GetRespawnPos(void)
+D3DXVECTOR3 CPlayer::GetNearestRespawnPoint(void) const
 {
-	return m_ResPos;
+	if (m_ResPos.empty())
+	{
+		return m_pos; // 何も登録されていない場合は今の位置
+	}
+
+	float minDistSq = FLT_MAX;
+	D3DXVECTOR3 nearest = m_ResPos[0];
+
+	for (const auto& pt : m_ResPos)
+	{
+		D3DXVECTOR3 diff = pt - m_pos;
+		float distSq = D3DXVec3LengthSq(&diff);
+
+		if (distSq < minDistSq)
+		{
+			minDistSq = distSq;
+			nearest = pt;
+		}
+	}
+
+	return nearest;
 }

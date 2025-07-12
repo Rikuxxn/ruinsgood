@@ -59,12 +59,11 @@ public:
 	void AddWaterStayTime(float delta);
 	void ResetWaterStayTime(void);
 	void RespawnToCheckpoint(void);
-	void SetRespawnPos(const D3DXVECTOR3& pos);
-	D3DXVECTOR3 GetRespawnPos(void);
+	void AddRespawnPoint(const D3DXVECTOR3& pos);
+	D3DXVECTOR3 GetNearestRespawnPoint(void) const;
 
 private:
 	D3DXVECTOR3 m_pos;					// 位置
-	D3DXVECTOR3 m_ResPos;				// 復活する位置
 	D3DXVECTOR3 m_rot;					// 向き
 	D3DXVECTOR3 m_rotDest;				// 向き
 	D3DXVECTOR3 m_move;					// 移動量
@@ -93,7 +92,7 @@ private:
 	bool m_bOnGround;					// 接地フラグ
 	float m_waterStayTime;				// 水中滞在時間（秒）
 	bool m_isInWater;					// 今水中にいるか
-
+	std::vector<D3DXVECTOR3> m_ResPos;
 };
 
 #endif

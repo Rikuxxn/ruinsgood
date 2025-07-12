@@ -144,9 +144,8 @@ private:
 	void ApplyToBlocks(void);   // 他ブロックに浮力
 	void ApplyToPlayer(void);   // プレイヤーに浮力
 
-	int m_waterStayTime;				// 水中滞在時間（秒）
-	bool m_isInWater;					// 今水中にいるか
-
+	int m_waterStayTime;		// 水中滞在時間（秒）
+	bool m_isInWater;			// 今水中にいるか
 };
 
 //*****************************************************************************
@@ -195,9 +194,13 @@ public:
 	~CAxeBlock();
 
 	void Update(void) override;
+	void Swing(void);
+	void IsPlayerHit(void);
 
 private:
-
+	int m_nSwingCounter;		// フレームカウンター
+	float m_swingAmplitude;		// ±振れ角
+	float m_swingPeriod;		// 周期フレーム
 };
 
 //*****************************************************************************
@@ -212,13 +215,14 @@ public:
 	void Update(void) override;
 	void Respawn(void);
 	void AddPathPoint(const D3DXVECTOR3& point);// チェックポイント追加
+	void MoveToTarget(void);					// 転がし処理
+	void IsPlayerHit(void);						// プレイヤーとの接触判定
 
 private:
-	std::vector<D3DXVECTOR3> m_pathPoints;  // チェックポイントの配列
-	int m_currentTargetIndex;               // 今の目標地点インデックス
-	float m_speed;							// 力の強さ（速度の代わり）
+	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列
+	int m_currentTargetIndex;					// 今の目標地点インデックス
+	float m_speed;								// 力の強さ（速度の代わり）
 
-	void MoveToTarget(void);				// 転がし処理
 };
 
 

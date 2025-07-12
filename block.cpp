@@ -821,7 +821,6 @@ CWaterBlock::CWaterBlock()
 	// 値のクリア
 	m_waterStayTime = 0;				// 水中滞在時間（秒）
 	m_isInWater = false;				// 今水中にいるか
-
 }
 //=============================================================================
 // 水ブロックのデストラクタ
@@ -1033,10 +1032,6 @@ void CWaterBlock::AddWaterStayTime(void)
 			m_waterStayTime = 0;
 		}
 	}
-	else
-	{
-		m_waterStayTime = 0;
-	}
 }
 //=============================================================================
 // 水中滞在時間のリセット
@@ -1241,7 +1236,9 @@ CAxeBlock::CAxeBlock()
 	SetType(TYPE_AXE);
 
 	// 値のクリア
-
+	m_nSwingCounter = 0;					// フレームカウンター
+	m_swingAmplitude = D3DXToRadian(75.0f);	// ±振れ角
+	m_swingPeriod = 300.0f;					// 周期フレーム
 }
 //=============================================================================
 // 斧ブロックのデストラクタ
@@ -1256,6 +1253,62 @@ CAxeBlock::~CAxeBlock()
 void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
+
+	Swing();	// スイング処理
+
+	IsPlayerHit();// プレイヤーとの接触判定
+}
+//=============================================================================
+// 斧ブロックのスイング処理
+//=============================================================================
+void CAxeBlock::Swing(void)
+{
+	m_nSwingCounter++;
+
+	float angle = m_swingAmplitude * sinf((2.0f * D3DX_PI * m_nSwingCounter) / m_swingPeriod);
+
+	SetRot(D3DXVECTOR3(0.0f, 0.0f, angle)); // Z軸スイング
+
+	UpdateCollider();
+}
+//=============================================================================
+// プレイヤーとの接触判定処理
+//=============================================================================
+void CAxeBlock::IsPlayerHit(void)
+{
+	CPlayer* pPlayer = CManager::GetPlayer();
+
+	btRigidBody* pPlayerBody = pPlayer->GetRigidBody();
+	btRigidBody* pAxeBody = GetRigidBody();
+
+	if (!pPlayerBody || !pAxeBody)
+	{
+		return;
+	}
+
+	struct HitResultCallback : public btCollisionWorld::ContactResultCallback
+	{
+		bool isHit = false;
+
+		btScalar addSingleResult(btManifoldPoint& cp,
+			const btCollisionObjectWrapper* colObj0, int partId0, int index0,
+			const btCollisionObjectWrapper* colObj1, int partId1, int index1) override
+		{
+			isHit = true;
+			return 0;
+		}
+	};
+
+	HitResultCallback callback;
+
+	// contactTest を使って片方の剛体だけチェック
+	CManager::GetPhysicsWorld()->contactPairTest(pPlayerBody, pAxeBody, callback);
+
+	if (callback.isHit)
+	{
+		// プレイヤーのリスポーン
+		pPlayer->RespawnToCheckpoint();
+	}
 }
 
 
@@ -1287,7 +1340,9 @@ void CRockBlock::Update(void)
 
 	Respawn();			// リスポーン処理
 
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
+
+	IsPlayerHit();		// プレイヤーとの接触判定
 }
 //=============================================================================
 // リスポーン処理
@@ -1381,4 +1436,35 @@ void CRockBlock::MoveToTarget(void)
 
 	// 適用中の速度に加える
 	pRigid->applyCentralForce(force);
+}
+//=============================================================================
+// プレイヤーとの接触判定処理
+//=============================================================================
+void CRockBlock::IsPlayerHit(void)
+{
+	CPlayer* pPlayer = CManager::GetPlayer();
+
+	D3DXVECTOR3 playerPos = pPlayer->GetPos();
+	D3DXVECTOR3 rockPos = GetPos();
+
+	float playerRadius = pPlayer->GetRadius();  // プレイヤーの当たり判定半径（目安）
+	float rockRadius = 250.0f; // 岩の半径（Bulletの球コライダーのサイズに合わせる）
+
+	float playerHeight = pPlayer->GetHeight();   // プレイヤーの高さ（目安）
+	float rockHeight = 250.0f;  // 岩の高さ範囲（半径分とする）
+
+	// XZ距離チェック
+	D3DXVECTOR2 diffXZ = D3DXVECTOR2(playerPos.x - rockPos.x, playerPos.z - rockPos.z);
+
+	float distXZSq = D3DXVec2LengthSq(&diffXZ);
+	float hitDistXZ = playerRadius + rockRadius;
+
+	// Y差チェック
+	float dy = fabsf(playerPos.y - rockPos.y);
+	float hitHeight = (playerHeight * 0.5f) + rockHeight;
+
+	if (distXZSq < (hitDistXZ * hitDistXZ) && dy < hitHeight)
+	{
+		pPlayer->RespawnToCheckpoint();
+	}
 }
