@@ -73,6 +73,11 @@ private:
 		"data/TEXTURE/block.png",
 		"data/TEXTURE/fence.png",
 		"data/TEXTURE/fence_part.png",
+		"data/TEXTURE/bridge2.png",
+		"data/TEXTURE/target.png",
+		"data/TEXTURE/controlswitch.png",
+		"data/TEXTURE/switch2.png",
+
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

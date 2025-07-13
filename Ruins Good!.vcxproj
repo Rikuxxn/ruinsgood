@@ -197,6 +197,7 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="raycast.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="shadow.cpp" />
@@ -238,6 +239,7 @@
     <ClInclude Include="pause.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="raycast.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="shadow.h" />

@@ -13,6 +13,7 @@
 #include "FileDialogUtils.h"
 #include "manager.h"
 #include "imgui_internal.h"
+#include "raycast.h"
 
 using json = nlohmann::json;
 
@@ -232,6 +233,8 @@ void CBlockManager::UpdateInfo(void)
 	}
 
 	ImGui::End();
+
+	PickBlockFromMouseClick();
 }
 //=============================================================================
 // ブロック情報の調整処理
@@ -511,6 +514,71 @@ void CBlockManager::UpdateDraggingBlock(void)
 	}
 }
 //=============================================================================
+// ブロック選択処理
+//=============================================================================
+void CBlockManager::PickBlockFromMouseClick(void)
+{
+	// ImGuiがマウスを使ってるなら選択処理をキャンセル
+	if (ImGui::GetIO().WantCaptureMouse)
+	{
+		return;
+	}
+
+	// 左クリックのみ
+	if (!CManager::GetInputMouse()->GetTrigger(0))
+	{
+		return;
+	}
+
+	// レイ取得（CRayCastを使用）
+	D3DXVECTOR3 rayOrigin, rayDir;
+	CRayCast::GetMouseRay(rayOrigin, rayDir);
+
+	float minDist = FLT_MAX;
+	int hitIndex = -1;
+
+	for (size_t i = 0; i < m_blocks.size(); ++i)
+	{
+		CBlock* block = m_blocks[i];
+
+		// ワールド行列の取得（位置・回転・拡大を含む）
+		D3DXMATRIX world = block->GetWorldMatrix();
+
+		D3DXVECTOR3 modelSize = block->GetModelSize();
+		D3DXVECTOR3 scale = block->GetSize();
+
+		D3DXVECTOR3 halfSize;
+		halfSize.x = modelSize.x * scale.x * 0.5f;
+		halfSize.y = modelSize.y * scale.y * 0.5f;
+		halfSize.z = modelSize.z * scale.z * 0.5f;
+
+		float dist = 0.0f;
+		if (CRayCast::IntersectOBB(rayOrigin, rayDir, world, halfSize, dist))
+		{
+			if (dist < minDist)
+			{
+				minDist = dist;
+				hitIndex = static_cast<int>(i);
+			}
+		}
+	}
+
+	// 選択状態を反映
+	if (hitIndex >= 0)
+	{
+		// 以前選ばれていたブロックを非選択に
+		if (m_prevSelectedIdx != -1 && m_prevSelectedIdx != hitIndex)
+		{
+			m_blocks[m_prevSelectedIdx]->SetSelected(false);
+		}
+
+		// 新しく選択
+		m_selectedIdx = hitIndex;
+		m_blocks[m_selectedIdx]->SetSelected(true);
+		m_prevSelectedIdx = hitIndex;
+	}
+}
+//=============================================================================
 // コライダーの調整処理
 //=============================================================================
 void CBlockManager::UpdateCollider(CBlock* selectedBlock)
@@ -769,6 +837,15 @@ const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 
 	case CBlock::TYPE_FENCE_PART:
 		return "data/MODELS/fence_part.x";
+
+	case CBlock::TYPE_BRIDGE2:
+		return "data/MODELS/bridge_02.x";
+
+	case CBlock::TYPE_TARGET:
+		return "data/MODELS/target.x";
+
+	case CBlock::TYPE_SWITCH2:
+		return "data/MODELS/switch2.x";
 
 	default: 
 		return "";

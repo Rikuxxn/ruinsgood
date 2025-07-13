@@ -58,6 +58,9 @@ public:
 		TYPE_BLOCK,
 		TYPE_FENCE,
 		TYPE_FENCE_PART,
+		TYPE_BRIDGE2,
+		TYPE_TARGET,
+		TYPE_SWITCH2,
 		TYPE_MAX
 	}TYPE;
 
@@ -105,6 +108,7 @@ public:
 	const ColliderPart& GetColliderBlade(void) const { return m_colliderBlade; }
 	bool IsEditMode(void) const { return m_isEditMode; }
 	btScalar GetMassByType(TYPE type);
+	D3DXMATRIX GetWorldMatrix(void);
 
 private:
 	char m_szPath[MAX_PATH];		// ファイルパス
@@ -177,11 +181,28 @@ public:
 	~CSwitchBlock();
 
 	void Update(void) override;
-	D3DXVECTOR3 GetClosePos(void) { return m_closedPos; }
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
 	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
+};
+
+//*****************************************************************************
+// 橋制御スイッチブロッククラス
+//*****************************************************************************
+class CBridgeSwitchBlock : public CBlock
+{
+public:
+	CBridgeSwitchBlock();
+	~CBridgeSwitchBlock();
+
+	void Update(void) override;
+	bool IsSwitchOn(void) { return m_isSwitchOn; }
+
+private:
+	bool m_isSwitchOn;				// 押されたかどうか
+	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
+
 };
 
 //*****************************************************************************
@@ -214,17 +235,49 @@ public:
 
 	void Update(void) override;
 	void Respawn(void);
-	void AddPathPoint(const D3DXVECTOR3& point);// チェックポイント追加
+	void AddPathPoint(const D3DXVECTOR3& point);// チェックポイント追加 (通常時用)
 	void MoveToTarget(void);					// 転がし処理
 	void IsPlayerHit(void);						// プレイヤーとの接触判定
+	void UseBridgeSwitch(bool enable) { m_isBridgeSwitchOn = enable; }
 
 private:
-	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列
+	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列 (代入用)
 	int m_currentTargetIndex;					// 今の目標地点インデックス
 	float m_speed;								// 力の強さ（速度の代わり）
+	bool m_isBridgeSwitchOn;
+};
+
+//*****************************************************************************
+// 橋ブロッククラス
+//*****************************************************************************
+class CBridgeBlock : public CBlock
+{
+public:
+	CBridgeBlock();
+	~CBridgeBlock();
+
+	void Update(void) override;
+	void Move(void);
+
+private:
 
 };
 
+//*****************************************************************************
+// ターゲットブロッククラス
+//*****************************************************************************
+class CTargetBlock : public CBlock
+{
+public:
+	CTargetBlock();
+	~CTargetBlock();
+
+	void Update(void) override;
+	bool IsHit(void) { return m_isHit; }
+
+private:
+	bool m_isHit;// 岩が当たったかどうか
+};
 
 //=============================================================================
 // クランプ関数

@@ -62,8 +62,17 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 	case TYPE_SWITCH:
 		pBlock = new CSwitchBlock();
 		break;
+	case TYPE_SWITCH2:
+		pBlock = new CBridgeSwitchBlock();
+		break;
 	case TYPE_AXE:
 		pBlock = new CAxeBlock();
+		break;
+	case TYPE_BRIDGE2:
+		pBlock = new CBridgeBlock();
+		break;
+	case TYPE_TARGET:
+		pBlock = new CTargetBlock();
 		break;
 	case TYPE_ROCK:
 		pBlock = new CRockBlock();
@@ -72,6 +81,7 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 		pRock = dynamic_cast<CRockBlock*>(pBlock);
 		if (pRock)
 		{
+			// 通常ルート
 			pRock->AddPathPoint(D3DXVECTOR3(2812.5f, 217.0f, -1989.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
 			pRock->AddPathPoint(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
@@ -80,6 +90,19 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 			pRock->AddPathPoint(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
+
+			//// 制御装置起動時ルート
+			//pRock->AddPathPointAlt(D3DXVECTOR3(2812.5f, 217.0f, -1989.0f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(1958.5f, 217.0f, -3815.0f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(-948.5f, 217.0f, -3786.5f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(-1132.0f, 217.0f, -3540.5f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(-1314.5f, 217.0f, -3245.5f));
+			//pRock->AddPathPointAlt(D3DXVECTOR3(-1296.0f, 217.0f, -2583.5f));
 		}
 
 		break;
@@ -444,6 +467,15 @@ const char* CBlock::GetTexPathFromType(TYPE type)
 	case TYPE_FENCE_PART:
 		return "data/TEXTURE/fence_part.png";
 
+	case TYPE_BRIDGE2:
+		return "data/TEXTURE/bridge2.png";
+
+	case TYPE_TARGET:
+		return "data/TEXTURE/target.png";
+
+	case TYPE_SWITCH2:
+		return "data/TEXTURE/controlswitch.png";
+
 	default: 
 		return "";
 	}
@@ -737,6 +769,9 @@ bool CBlock::IsStaticBlock(void) const
 	case TYPE_BLOCK:
 	case TYPE_FENCE:
 	case TYPE_FENCE_PART:
+	case TYPE_BRIDGE2:
+	case TYPE_TARGET:
+	case TYPE_SWITCH2:
 		return true; // 静的（動かない）
 
 	default:
@@ -808,6 +843,30 @@ btScalar CBlock::GetMassByType(TYPE type)
 	case TYPE_AXE:		return 80.0f;	// 斧
 	default:			return 2.0f;	// デフォルト質量
 	}
+}
+//=============================================================================
+// ワールドマトリックスの取得
+//=============================================================================
+D3DXMATRIX CBlock::GetWorldMatrix(void)
+{
+	D3DXMATRIX matScale, matRot, matTrans;
+
+	// スケール行列
+	D3DXVECTOR3 scale = GetSize(); // 拡大率
+	D3DXMatrixScaling(&matScale, scale.x, scale.y, scale.z);
+
+	// 回転行列
+	D3DXVECTOR3 rot = GetRot(); // ラジアン角
+	D3DXMatrixRotationYawPitchRoll(&matRot, rot.y, rot.x, rot.z);
+
+	// 平行移動行列
+	D3DXVECTOR3 pos = GetPos();
+	D3DXMatrixTranslation(&matTrans, pos.x, pos.y, pos.z);
+
+	// 合成：S * R * T
+	D3DXMATRIX world = matScale * matRot * matTrans;
+
+	return world;
 }
 
 
@@ -1138,8 +1197,8 @@ void CSwitchBlock::Update(void)
 
 	// スイッチの AABB を取得
 	D3DXVECTOR3 swPos = GetPos();
-	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチのサイズ（中心原点）
-	D3DXVECTOR3 scale = GetSize();
+	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
+	D3DXVECTOR3 scale = GetSize();// 拡大率
 
 	D3DXVECTOR3 swSize;
 
@@ -1221,6 +1280,114 @@ void CSwitchBlock::Update(void)
 			// 徐々に水位を上げる
 			waterPos.y += 0.5f;
 			block->SetPos(waterPos);
+		}
+	}
+
+	CBlock::Update(); // 共通処理
+}
+
+
+//=============================================================================
+// 橋制御ブロックのコンストラクタ
+//=============================================================================
+CBridgeSwitchBlock::CBridgeSwitchBlock()
+{
+	SetType(TYPE_SWITCH2);
+
+	// 値のクリア
+	m_closedPos = INIT_VEC3;
+	m_isSwitchOn = false;
+}
+//=============================================================================
+// 橋制御ブロックのデストラクタ
+//=============================================================================
+CBridgeSwitchBlock::~CBridgeSwitchBlock()
+{
+	// なし
+}
+//=============================================================================
+// 橋制御ブロックの更新処理
+//=============================================================================
+void CBridgeSwitchBlock::Update(void)
+{
+	m_closedPos = GetPos();
+
+	// スイッチの AABB を取得
+	D3DXVECTOR3 swPos = GetPos();
+	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
+	D3DXVECTOR3 scale = GetSize();// 拡大率
+
+	D3DXVECTOR3 swSize;
+
+	// 拡大率を適用する
+	swSize.x = modelSize.x * scale.x;
+	swSize.y = modelSize.y * scale.y;
+	swSize.z = modelSize.z * scale.z;
+
+	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
+	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
+
+	float totalMass = 0.0f;
+
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block == this || block->IsStaticBlock() || block->GetType() == TYPE_ROCK)
+		{
+			continue; // 自分 or 静的ブロックは無視
+		}
+
+		// ブロックの AABB を取得
+		D3DXVECTOR3 pos = block->GetPos();
+		D3DXVECTOR3 size = block->GetModelSize();
+		D3DXVECTOR3 min = pos - size * 0.5f;
+		D3DXVECTOR3 max = pos + size * 0.5f;
+
+		// AABB同士の交差チェック
+		bool isOverlap =
+			swMin.x <= max.x && swMax.x >= min.x &&
+			swMin.y <= max.y && swMax.y >= min.y &&
+			swMin.z <= max.z && swMax.z >= min.z;
+
+		if (isOverlap)
+		{
+			btScalar invMass = block->GetRigidBody()->getInvMass();
+			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
+
+			totalMass += mass;
+		}
+	}
+
+	// 質量のしきい値を超えていたら沈む
+	const float massThreshold = 4.0f;
+
+	if (totalMass >= massThreshold)
+	{
+		D3DXVECTOR3 pos = swPos;
+
+		// 押されている（下に少し沈む）
+		pos.y -= 1.0f; // 下に沈める
+
+		if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
+		{
+			SetPos(pos);
+		}
+
+		SetEditMode(true); // 動かすためにキネマティック
+
+		m_isSwitchOn = true;
+
+		// 岩ブロックを探してフラグを立てる
+		for (CBlock* block : CBlockManager::GetAllBlocks())
+		{
+			if (block->GetType() == TYPE_ROCK)
+			{
+				CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
+
+				if (pRock) 
+				{ 
+					pRock->UseBridgeSwitch(true); 
+				}
+			}
 		}
 	}
 
@@ -1323,6 +1490,7 @@ CRockBlock::CRockBlock()
 	m_pathPoints = {};
 	m_currentTargetIndex = 0;
 	m_speed = 86500.0f;
+	m_isBridgeSwitchOn = false;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1339,7 +1507,7 @@ void CRockBlock::Update(void)
 	CBlock::Update();	// 共通処理
 
 	Respawn();			// リスポーン処理
-
+	
 	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
@@ -1421,7 +1589,7 @@ void CRockBlock::MoveToTarget(void)
 
 	btVector3 force(0.0f, 0.0f, 0.0f);
 
-	if (m_currentTargetIndex >= 6)
+	if (m_currentTargetIndex >= 6 && !m_isBridgeSwitchOn)
 	{// インデックスが 6 を超えたら
 		float fSpeedDown = 0.001f;
 
@@ -1447,11 +1615,11 @@ void CRockBlock::IsPlayerHit(void)
 	D3DXVECTOR3 playerPos = pPlayer->GetPos();
 	D3DXVECTOR3 rockPos = GetPos();
 
-	float playerRadius = pPlayer->GetRadius();  // プレイヤーの当たり判定半径（目安）
-	float rockRadius = 250.0f; // 岩の半径（Bulletの球コライダーのサイズに合わせる）
+	float playerRadius = pPlayer->GetRadius();  // プレイヤーの当たり判定半径
+	float rockRadius = 240.0f;					// 岩の半径
 
-	float playerHeight = pPlayer->GetHeight();   // プレイヤーの高さ（目安）
-	float rockHeight = 250.0f;  // 岩の高さ範囲（半径分とする）
+	float playerHeight = pPlayer->GetHeight();	// プレイヤーの高さ
+	float rockHeight = 240.0f;					// 岩の高さ範囲
 
 	// XZ距離チェック
 	D3DXVECTOR2 diffXZ = D3DXVECTOR2(playerPos.x - rockPos.x, playerPos.z - rockPos.z);
@@ -1465,6 +1633,154 @@ void CRockBlock::IsPlayerHit(void)
 
 	if (distXZSq < (hitDistXZ * hitDistXZ) && dy < hitHeight)
 	{
+		// プレイヤーのリスポーン
 		pPlayer->RespawnToCheckpoint();
+	}
+}
+
+
+//=============================================================================
+// 橋ブロックのコンストラクタ
+//=============================================================================
+CBridgeBlock::CBridgeBlock()
+{
+	SetType(TYPE_BRIDGE2);
+
+	// 値のクリア
+
+}
+//=============================================================================
+// 橋ブロックのデストラクタ
+//=============================================================================
+CBridgeBlock::~CBridgeBlock()
+{
+	// なし
+}
+//=============================================================================
+// 橋ブロックの更新処理
+//=============================================================================
+void CBridgeBlock::Update(void)
+{
+	CBlock::Update();// 共通処理
+
+	Move();
+}
+//=============================================================================
+// 橋ブロックの移動処理
+//=============================================================================
+void CBridgeBlock::Move(void)
+{
+	// 制御スイッチが存在するか確認
+	std::vector<CBlock*> blocks = CBlockManager::GetAllBlocks();
+
+	for (CBlock* block : blocks)
+	{
+		if (block->GetType() == TYPE_SWITCH2)
+		{
+			CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+
+			if (pSwitch && pSwitch->IsSwitchOn())
+			{
+				// 現在位置取得
+				D3DXVECTOR3 pos = GetPos();
+
+				// 移動目標座標
+				const float targetX = -1630.0f;
+
+				// まだ目標位置に達してないなら移動
+				if (pos.x > targetX)
+				{
+					const float speed = 2.0f; // 好みで速度調整
+					pos.x -= speed;
+
+					if (pos.x < targetX)
+					{
+						pos.x = targetX; // 行き過ぎ防止
+					}
+
+					SetPos(pos);
+
+					// コライダーの更新
+					UpdateCollider();
+				}
+			}
+		}
+	}
+}
+
+
+//=============================================================================
+// ターゲットブロックのコンストラクタ
+//=============================================================================
+CTargetBlock::CTargetBlock()
+{
+	SetType(TYPE_TARGET);
+
+	// 値のクリア
+	m_isHit = false;
+}
+//=============================================================================
+// ターゲットブロックのデストラクタ
+//=============================================================================
+CTargetBlock::~CTargetBlock()
+{
+	// なし
+}
+//=============================================================================
+// ターゲットブロックの更新処理
+//=============================================================================
+void CTargetBlock::Update(void)
+{
+	CBlock::Update();// 共通処理
+
+	if (m_isHit)
+	{
+		return; // すでに当たっていたらスキップ
+	}
+
+	// 自分の AABB を取得
+	D3DXVECTOR3 myPos = GetPos();
+	D3DXVECTOR3 mymodelSize = GetModelSize(); // 元のサイズ
+	D3DXVECTOR3 myscale = GetSize();// 拡大率
+	D3DXVECTOR3 mySize;
+
+	// 拡大率を適用する
+	mySize.x = mymodelSize.x * myscale.x;
+	mySize.y = mymodelSize.y * myscale.y;
+	mySize.z = mymodelSize.z * myscale.z;
+
+	D3DXVECTOR3 myMin = myPos - mySize * 0.5f;
+	D3DXVECTOR3 myMax = myPos + mySize * 0.5f;
+
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block == this ||block->GetType() != TYPE_ROCK)
+		{
+			continue; // 自分 or 岩ブロック以外は無視
+		}
+
+		// 岩の AABB を取得
+		D3DXVECTOR3 otherPos = block->GetPos();
+		D3DXVECTOR3 otherModelSize = block->GetModelSize();
+		D3DXVECTOR3 otherScale = block->GetSize();
+		D3DXVECTOR3 otherSize(
+			otherModelSize.x * otherScale.x,
+			otherModelSize.y * otherScale.y,
+			otherModelSize.z * otherScale.z
+		);
+		D3DXVECTOR3 otherMin = otherPos - otherSize * 0.5f;
+		D3DXVECTOR3 otherMax = otherPos + otherSize * 0.5f;
+
+		// AABB同士の交差チェック
+		bool isOverlap =
+			myMin.x <= otherMax.x && myMax.x >= otherMin.x &&
+			myMin.y <= otherMax.y && myMax.y >= otherMin.y &&
+			myMin.z <= otherMax.z && myMax.z >= otherMin.z;
+
+		if (isOverlap)
+		{
+			m_isHit = true;
+			break;
+		}
 	}
 }

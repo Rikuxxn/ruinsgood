@@ -35,6 +35,7 @@ public:
     //*****************************************************************************
     void UpdateTransform(CBlock* selectedBlock);
     void UpdateDraggingBlock(void);
+    void PickBlockFromMouseClick(void);
     void UpdateCollider(CBlock* selectedBlock);
 
     //*****************************************************************************
