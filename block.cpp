@@ -59,6 +59,9 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 	case TYPE_DOOR:
 		pBlock = new CDoorBlock();
 		break;
+	case TYPE_DOOR2:
+		pBlock = new CBigDoorBlock();
+		break;
 	case TYPE_SWITCH:
 		pBlock = new CSwitchBlock();
 		break;
@@ -476,6 +479,9 @@ const char* CBlock::GetTexPathFromType(TYPE type)
 	case TYPE_SWITCH2:
 		return "data/TEXTURE/controlswitch.png";
 
+	case TYPE_DOOR2:
+		return "data/TEXTURE/door2.png";
+
 	default: 
 		return "";
 	}
@@ -772,6 +778,7 @@ bool CBlock::IsStaticBlock(void) const
 	case TYPE_BRIDGE2:
 	case TYPE_TARGET:
 	case TYPE_SWITCH2:
+	case TYPE_DOOR2:
 		return true; // 静的（動かない）
 
 	default:
@@ -1109,10 +1116,6 @@ CDoorBlock::CDoorBlock()
 	SetType(TYPE_DOOR);
 
 	// 値のクリア
-	m_lerpStartPos	= INIT_VEC3;
-	m_lerpTargetPos = INIT_VEC3;
-	m_lerpTimer		= 0.0f;;
-	m_lerpDuration	= 0.0f;
 	m_isDoorOpened	= false;
 }
 //=============================================================================
@@ -1167,6 +1170,66 @@ void CDoorBlock::Update(void)
 	}
 
 	CBlock::Update(); // 共通処理
+}
+
+
+//=============================================================================
+// 最終エリアドアブロックのコンストラクタ
+//=============================================================================
+CBigDoorBlock::CBigDoorBlock()
+{
+	SetType(TYPE_DOOR2);
+
+	// 値のクリア
+	m_isDoorOpened = false;
+}
+//=============================================================================
+// 最終エリアドアブロックのデストラクタ
+//=============================================================================
+CBigDoorBlock::~CBigDoorBlock()
+{
+	// なし
+}
+//=============================================================================
+// 最終エリアドアブロックの更新処理
+//=============================================================================
+void CBigDoorBlock::Update(void)
+{
+	if (!m_isDoorOpened)
+	{
+		// ターゲットブロックを探す
+		for (CBlock* block : CBlockManager::GetAllBlocks())
+		{
+			if (block->GetType() != TYPE_TARGET)
+			{
+				continue;
+			}
+
+			CTargetBlock* pTarget = dynamic_cast<CTargetBlock*>(block);
+
+			// 当たっていたら
+			if (pTarget && pTarget->IsHit())
+			{
+				m_isDoorOpened = true;
+				break;
+			}
+
+		}
+	}
+
+	if (m_isDoorOpened)
+	{
+		// ドアを開く
+		D3DXVECTOR3 newPos = GetPos();
+
+		if (newPos.y <= 385.0f)
+		{
+			newPos.y += 0.5f;
+			SetPos(newPos);
+		}
+	}
+
+	CBlock::Update();// 共通処理
 }
 
 
@@ -1421,7 +1484,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1508,7 +1571,7 @@ void CRockBlock::Update(void)
 
 	Respawn();			// リスポーン処理
 	
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -1675,36 +1738,39 @@ void CBridgeBlock::Move(void)
 
 	for (CBlock* block : blocks)
 	{
-		if (block->GetType() == TYPE_SWITCH2)
+		if (block->GetType() != TYPE_SWITCH2)
 		{
-			CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+			continue;
+		}
 
-			if (pSwitch && pSwitch->IsSwitchOn())
+		CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+
+		if (pSwitch && pSwitch->IsSwitchOn())
+		{
+			// 現在位置取得
+			D3DXVECTOR3 pos = GetPos();
+
+			// 移動目標座標
+			const float targetX = -1630.0f;
+
+			// まだ目標位置に達してないなら移動
+			if (pos.x > targetX)
 			{
-				// 現在位置取得
-				D3DXVECTOR3 pos = GetPos();
+				const float speed = 2.0f; // 好みで速度調整
+				pos.x -= speed;
 
-				// 移動目標座標
-				const float targetX = -1630.0f;
-
-				// まだ目標位置に達してないなら移動
-				if (pos.x > targetX)
+				if (pos.x < targetX)
 				{
-					const float speed = 2.0f; // 好みで速度調整
-					pos.x -= speed;
-
-					if (pos.x < targetX)
-					{
-						pos.x = targetX; // 行き過ぎ防止
-					}
-
-					SetPos(pos);
-
-					// コライダーの更新
-					UpdateCollider();
+					pos.x = targetX; // 行き過ぎ防止
 				}
+
+				SetPos(pos);
+
+				// コライダーの更新
+				UpdateCollider();
 			}
 		}
+
 	}
 }
 

@@ -847,6 +847,9 @@ const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 	case CBlock::TYPE_SWITCH2:
 		return "data/MODELS/switch2.x";
 
+	case CBlock::TYPE_DOOR2:
+		return "data/MODELS/door_02.x";
+
 	default: 
 		return "";
 	}

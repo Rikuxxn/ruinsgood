@@ -299,7 +299,6 @@ void CCamera::EditCamera(void)
 //=============================================================================
 void CCamera::GameCamera(void)
 {
-
 	// 初期距離を短くする
 	static bool firstTime = true;
 
@@ -315,10 +314,10 @@ void CCamera::GameCamera(void)
 	// スティックの取得
 	XINPUT_STATE* pStick = CInputJoypad::GetStickAngle();
 
-	// 3Dプレイヤーの取得
+	// プレイヤーの取得
 	CPlayer* pPlayer = CManager::GetPlayer();
 
-	// 3Dプレイヤーの位置の取得
+	// プレイヤーの位置の取得
 	D3DXVECTOR3 playerPos = pPlayer->GetPos();
 
 	// マウスの状態を取得
@@ -413,6 +412,9 @@ void CCamera::GameCamera(void)
 	// 注視点
 	m_posR = playerPos;
 	m_posR.y += 60.0f;
+
+	// カメラの位置補正処理
+	AdjustCameraPosition(playerPos);
 }
 //=============================================================================
 // ゲームパッドのカメラ回転処理
@@ -446,4 +448,74 @@ void CCamera::CameraWithGamepad(float stickX, float stickY)
 	{
 		m_rot.y += D3DX_PI * 2.0f;
 	}
+}
+//=============================================================================
+// カメラの位置補正(壁貫通をなくす)処理
+//=============================================================================
+void CCamera::AdjustCameraPosition(const D3DXVECTOR3& playerPos)
+{
+	// プレイヤーの頭位置を注視点とする
+	D3DXVECTOR3 playerEye = playerPos;
+	playerEye.y += 60.0f; // プレイヤーの頭の高さ
+	m_posR = playerEye;
+
+	// カメラの理想位置
+	D3DXVECTOR3 offsetFromPlayer;
+	offsetFromPlayer.x = sinf(m_rot.y) * cosf(m_rot.x) * m_fDistance;
+	offsetFromPlayer.y = sinf(m_rot.x) * m_fDistance + 20.0f;
+	offsetFromPlayer.z = cosf(m_rot.y) * cosf(m_rot.x) * m_fDistance;
+
+	D3DXVECTOR3 idealCamPos = playerEye + offsetFromPlayer;
+
+	// Bullet Physics でレイキャスト
+	btVector3 from(playerEye.x, playerEye.y, playerEye.z);
+	btVector3 to(idealCamPos.x, idealCamPos.y, idealCamPos.z);
+
+	btCollisionWorld::ClosestRayResultCallback rayCallback(from, to);
+	CManager::GetPhysicsWorld()->rayTest(from, to, rayCallback);
+
+	if (rayCallback.hasHit())
+	{
+		// 衝突対象のユーザーポインタからブロックを特定
+		const btCollisionObject* hitObj = rayCallback.m_collisionObject;
+		void* userPtr = hitObj->getUserPointer();
+
+		if (userPtr != NULL)
+		{
+			CBlock* hitBlock = static_cast<CBlock*>(userPtr);
+
+			// TYPE_WATER なら補正をスキップ
+			if (hitBlock->GetType() == CBlock::TYPE_WATER)
+			{
+				m_posV = idealCamPos;
+			}
+			else
+			{
+				// 衝突点の少し手前にカメラを配置
+				btVector3 hitPoint = rayCallback.m_hitPointWorld;
+				btVector3 camDir = (from - hitPoint).normalized();
+				hitPoint += camDir * 10.0f;
+
+				m_posV = D3DXVECTOR3(hitPoint.x(), hitPoint.y(), hitPoint.z());
+			}
+		}
+		else
+		{// ユーザーポインタが null の場合
+
+			// 補正しておく
+			btVector3 hitPoint = rayCallback.m_hitPointWorld;
+			btVector3 camDir = (from - hitPoint).normalized();
+			hitPoint += camDir * 10.0f;
+
+			m_posV = D3DXVECTOR3(hitPoint.x(), hitPoint.y(), hitPoint.z());
+		}
+	}
+	else
+	{
+		// 衝突なし → 理想位置そのまま
+		m_posV = idealCamPos;
+	}
+
+	// 注視点はプレイヤーの頭
+	m_posR = playerEye;
 }

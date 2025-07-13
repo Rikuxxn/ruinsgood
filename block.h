@@ -61,6 +61,7 @@ public:
 		TYPE_BRIDGE2,
 		TYPE_TARGET,
 		TYPE_SWITCH2,
+		TYPE_DOOR2,
 		TYPE_MAX
 	}TYPE;
 
@@ -164,11 +165,23 @@ public:
 	void Update(void) override;
 
 private:
-	D3DXVECTOR3 m_lerpStartPos;
-	D3DXVECTOR3 m_lerpTargetPos;
-	float m_lerpTimer;
-	float m_lerpDuration;
 	bool m_isDoorOpened;			// 開いたかどうか
+};
+
+//*****************************************************************************
+// 最終エリアドアブロッククラス
+//*****************************************************************************
+class CBigDoorBlock : public CBlock
+{
+public:
+	CBigDoorBlock();
+	~CBigDoorBlock();
+
+	void Update(void) override;
+
+private:
+	bool m_isDoorOpened;			// 開いたかどうか
+
 };
 
 //*****************************************************************************

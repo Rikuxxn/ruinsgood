@@ -36,6 +36,7 @@ public:
 	void EditCamera(void);
 	void GameCamera(void);
 	void CameraWithGamepad(float stickX, float stickY);
+	void AdjustCameraPosition(const D3DXVECTOR3& playerPos);
 
 	//*****************************************************************************
 	// getterä÷êî

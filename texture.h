@@ -77,6 +77,7 @@ private:
 		"data/TEXTURE/target.png",
 		"data/TEXTURE/controlswitch.png",
 		"data/TEXTURE/switch2.png",
+		"data/TEXTURE/door2.png",
 
 	};
 
