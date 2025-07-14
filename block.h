@@ -25,7 +25,7 @@ struct ColliderPart
 class CBlock : public CObjectX
 {
 public:
-	CBlock();
+	CBlock(int nPriority = 2);
 	~CBlock();
 
 	//*****************************************************************************

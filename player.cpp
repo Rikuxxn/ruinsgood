@@ -33,7 +33,7 @@ CPlayer::CPlayer(int nPriority) : CObject(nPriority)
 	m_mtxWorld			= {};							// ワールドマトリックス
 	m_nNumModel			= 0;							// モデル(パーツ)の総数
 	m_playerUse			= true;							// 使われているかどうか
-	m_pShadow			= NULL;							// 影へのポインタ
+	m_pShadowS			= NULL;							// ステンシルシャドウへのポインタ
 	m_pMotion			= NULL;							// モーションへのポインタ
 	m_currentMotion		= CMotion::TYPE_NEUTRAL;		// 現在のモーション
 	m_isJumping			= false;						// ジャンプ中フラグ
@@ -156,8 +156,8 @@ HRESULT CPlayer::Init(void)
 		pWorld->addRigidBody(m_pRigidBody);
 	}
 
-	//// 影の生成
-	//m_pShadow = CShadow::Create(m_pos, 100, 25.0f, 0.1f, 25.0f);
+	// ステンシルシャドウの生成
+	m_pShadowS = CShadowS::Create("data/MODELS/stencilshadow.x",m_pos);
 
 	return S_OK;
 }
@@ -260,14 +260,6 @@ void CPlayer::Update(void)
 
 	m_rot.y += (m_rotDest.y - m_rot.y) * 0.09f;
 
-	//if (m_pShadow != NULL)
-	//{
-	//	D3DXVECTOR3 shadowPos = m_pos;
-	//	shadowPos.y = 5.0f;
-
-	//	// 影の位置設定
-	//	m_pShadow->SetPosition(shadowPos);
-	//}
 
 	// 現在位置を物理ワールドから取得して m_pos に反映
 	btTransform trans;
@@ -275,6 +267,12 @@ void CPlayer::Update(void)
 	btVector3 pos = trans.getOrigin();
 	m_colliderPos = D3DXVECTOR3(pos.getX(), pos.getY(), pos.getZ());
 	m_pos = m_colliderPos - D3DXVECTOR3(0, 50.0f, 0); // 足元へのオフセット
+
+	if (m_pShadowS != NULL)
+	{
+		// 影の位置設定
+		m_pShadowS->SetPosition(m_pos);
+	}
 
 	int nNumModels = 10;
 

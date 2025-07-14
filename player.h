@@ -16,6 +16,7 @@
 #include "imguimaneger.h"
 #include "debugproc3D.h"
 #include "block.h"
+#include "shadowS.h"
 
 //*****************************************************************************
 // マクロ定義
@@ -32,7 +33,7 @@
 class CPlayer : public CObject
 {
 public:
-	CPlayer(int nPriority = 3);
+	CPlayer(int nPriority = 1);
 	~CPlayer();
 
 	static CPlayer* Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
@@ -73,7 +74,7 @@ private:
 	D3DXVECTOR3 m_colliderPos;			// カプセルコライダーの位置
 	D3DXMATRIX m_mtxWorld;				// ワールドマトリックス
 	CModel* m_apModel[MAX_PARTS];		// モデル(パーツ)へのポインタ
-	CShadow* m_pShadow;					// 影へのポインタ
+	CShadowS* m_pShadowS;				// ステンシルシャドウへのポインタ
 	CMotion* m_pMotion;					// モーションへのポインタ
 	CMotion::TYPE m_currentMotion;		// 現在のモーション
 	btRigidBody* m_pRigidBody;			// 剛体へのポインタ

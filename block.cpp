@@ -17,7 +17,7 @@ using namespace std;
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-CBlock::CBlock()
+CBlock::CBlock(int nPriority) : CObjectX(nPriority)
 {
 	// 値のクリア
 	for (int nCnt = 0; nCnt < MAX_PATH; nCnt++)
@@ -93,19 +93,6 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 			pRock->AddPathPoint(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
-
-			//// 制御装置起動時ルート
-			//pRock->AddPathPointAlt(D3DXVECTOR3(2812.5f, 217.0f, -1989.0f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(1958.5f, 217.0f, -3815.0f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(-948.5f, 217.0f, -3786.5f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(-1132.0f, 217.0f, -3540.5f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(-1314.5f, 217.0f, -3245.5f));
-			//pRock->AddPathPointAlt(D3DXVECTOR3(-1296.0f, 217.0f, -2583.5f));
 		}
 
 		break;
