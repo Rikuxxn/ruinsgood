@@ -511,8 +511,8 @@ void CCamera::AdjustCameraPosition(const D3DXVECTOR3& playerPos)
 		}
 	}
 	else
-	{
-		// 衝突なし → 理想位置そのまま
+	{// 衝突なし
+		// 理想位置そのまま
 		m_posV = idealCamPos;
 	}
 
