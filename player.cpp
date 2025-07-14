@@ -12,7 +12,6 @@
 #include "texture.h"
 #include "manager.h"
 #include "model.h"
-#include "shadow.h"
 
 using namespace std;
 
@@ -270,7 +269,7 @@ void CPlayer::Update(void)
 
 	if (m_pShadowS != NULL)
 	{
-		// 影の位置設定
+		// ステンシルシャドウの位置設定
 		m_pShadowS->SetPosition(m_pos);
 	}
 

@@ -11,7 +11,6 @@
 // インクルードファイル
 //*****************************************************************************
 #include "model.h"
-#include "shadow.h"
 #include "motion.h"
 #include "imguimaneger.h"
 #include "debugproc3D.h"
