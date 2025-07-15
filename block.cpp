@@ -1902,7 +1902,7 @@ void CTorchBlock::Update(void)
 	if (distance < kTriggerDistance)
 	{
 		// オフセット
-		D3DXVECTOR3 localOffset(0.0f, 30.0f, -10.0f); // 松明の先端（ローカル）
+		D3DXVECTOR3 localOffset(0.0f, 30.0f, -8.0f); // 松明の先端（ローカル）
 		D3DXVECTOR3 worldOffset;
 
 		// ブロックのワールドマトリックスを取得

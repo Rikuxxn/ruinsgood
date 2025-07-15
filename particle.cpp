@@ -82,7 +82,7 @@ void CParticle::Update(void)
 			// 移動量の設定
 			fAngle = ((rand() % 360) / 180.0f) * D3DX_PI;//角度
 
-			fLength = (rand() % 5) / 20.0f + 0.1f;//移動量
+			fLength = (rand() % 10) / 30.0f + 0.2f;//移動量
 
 			move.x = cosf(fAngle) * fLength;
 			move.z = sinf(fAngle) * fLength;
@@ -112,6 +112,25 @@ void CParticle::Update(void)
 
 			// 半径
 			fRadius = 15.0f + (rand() % 15);
+		}
+		else if (m_nType == TYPE_AURA)
+		{// オーラ
+			// 位置
+			pos = GetPos();
+
+			// ランダムな角度で横に広がる
+			float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
+			float speed = (rand() % 150) / 300.0f + 0.2f;
+
+			move.x = cosf(angle) * speed;
+			move.z = sinf(angle) * speed;
+			move.y = (rand() % 300) / 100.0f + 0.9f; // 上方向
+
+			// 色
+			col = GetCol();
+
+			// 半径
+			fRadius = 35.0f + (rand() % 35);
 		}
 
 		// エフェクトの設定

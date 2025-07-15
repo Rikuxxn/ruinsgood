@@ -27,6 +27,7 @@ public:
 	{
 		TYPE_FIRE = 0,
 		TYPE_WATER,
+		TYPE_AURA,
 		TYPE_MAX
 	}TYPE;
 
