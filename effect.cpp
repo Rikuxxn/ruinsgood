@@ -15,7 +15,7 @@
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-CEffect::CEffect(int nPriority) : CObject2D(nPriority)
+CEffect::CEffect(int nPriority) : CObjectBillboard(nPriority)
 {
 	// 値のクリア
 	m_move = INIT_VEC3;	// 位置
@@ -58,17 +58,11 @@ CEffect* CEffect::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float 
 //=============================================================================
 HRESULT CEffect::Init(void)
 {
-	// 2Dオブジェクトの初期化処理
-	CObject2D::Init();
+	// ビルボードオブジェクトの初期化処理
+	CObjectBillboard::Init();
 
 	CTexture* pTexture = CManager::GetTexture();
 	m_nIdxTexture = pTexture->Register("data/TEXTURE/effect000.jpg");
-
-	// テクスチャUVの設定
-	CObject2D::SetUV(1, 1);
-
-	// サイズの設定
-	CObject2D::SetSize(50.0f, 50.0f);
 
 	return S_OK;
 }
@@ -77,24 +71,28 @@ HRESULT CEffect::Init(void)
 //=============================================================================
 void CEffect::Uninit(void)
 {
-	// 2Dオブジェクトの終了処理
-	CObject2D::Uninit();
+	// ビルボードオブジェクトの終了処理
+	CObjectBillboard::Uninit();
 }
 //=============================================================================
 // 更新処理
 //=============================================================================
 void CEffect::Update(void)
 {
+	// ビルボードオブジェクトの更新処理
+	CObjectBillboard::Update();
+
 	// 位置の取得
 	D3DXVECTOR3 Pos = GetPos();
 
 	// 位置を更新
 	Pos.x += m_move.x;
 	Pos.y += m_move.y;
+	Pos.z += m_move.z;
 
 	// 位置の設定
-	CObject2D::SetPos(Pos);
-
+	SetPos(Pos);
+	SetSize(m_fRadius);
 
 	m_fRadius--;
 
@@ -102,12 +100,6 @@ void CEffect::Update(void)
 	{
 		m_fRadius = 0.0f;
 	}
-
-	// 半径に応じてサイズを変更
-	CObject2D::SetSize(m_fRadius * 2.0f, m_fRadius * 2.0f); // 直径にする
-
-	// 2Dオブジェクトの更新処理
-	CObject2D::Update();
 
 	m_nLife--;
 
@@ -117,7 +109,6 @@ void CEffect::Update(void)
 		Uninit();
 		return;
 	}
-
 }
 //=============================================================================
 // 描画処理
@@ -131,18 +122,26 @@ void CEffect::Draw(void)
 	CRenderer* renderer = CManager::GetRenderer();
 	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
 
-	//αブレンディングを加算合成に設定
+	// αブレンディングを加算合成に設定
 	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
 
+	// αテストを有効
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);//デフォルトはfalse
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);//0より大きかったら描画
+
 	// テクスチャの設定
 	pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
 
-	// 2Dオブジェクトの描画処理
-	CObject2D::Draw();
+	// ビルボードオブジェクトの描画処理
+	CObjectBillboard::Draw();
 
-	//αブレンディングを元に戻す
+	// αテストを無効に戻す
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);//デフォルトはfalse
+
+	// αブレンディングを元に戻す
 	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);

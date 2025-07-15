@@ -25,7 +25,7 @@ struct ColliderPart
 class CBlock : public CObjectX
 {
 public:
-	CBlock(int nPriority = 2);
+	CBlock(int nPriority = 3);
 	~CBlock();
 
 	//*****************************************************************************
@@ -151,6 +151,7 @@ private:
 
 	int m_waterStayTime;		// 水中滞在時間（秒）
 	bool m_isInWater;			// 今水中にいるか
+	bool m_bWasInWater;			// 水に入ったか
 };
 
 //*****************************************************************************
@@ -290,6 +291,36 @@ public:
 
 private:
 	bool m_isHit;// 岩が当たったかどうか
+};
+
+//*****************************************************************************
+// 壁掛け松明ブロッククラス
+//*****************************************************************************
+class CTorchBlock : public CBlock
+{
+public:
+	CTorchBlock();
+	~CTorchBlock();
+
+	void Update(void) override;
+
+private:
+
+};
+
+//*****************************************************************************
+// 置き型松明ブロッククラス
+//*****************************************************************************
+class CTorch2Block : public CBlock
+{
+public:
+	CTorch2Block();
+	~CTorch2Block();
+
+	void Update(void) override;
+
+private:
+
 };
 
 //=============================================================================

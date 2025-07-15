@@ -16,6 +16,7 @@
 #include "debugproc3D.h"
 #include "block.h"
 #include "shadowS.h"
+#include "effect.h"
 
 //*****************************************************************************
 // É}ÉNÉçíËã`
@@ -32,7 +33,7 @@
 class CPlayer : public CObject
 {
 public:
-	CPlayer(int nPriority = 1);
+	CPlayer(int nPriority = 2);
 	~CPlayer();
 
 	static CPlayer* Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot);

@@ -18,7 +18,7 @@
 class CShadowS : public CObjectX
 {
 public:
-	CShadowS(int nPriority = 3);
+	CShadowS(int nPriority = 4);
 	~CShadowS();
 
 	static CShadowS* Create(const char* pFilepath,D3DXVECTOR3 pos);

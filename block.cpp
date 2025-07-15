@@ -11,6 +11,7 @@
 #include "block.h"
 #include "manager.h"
 #include <algorithm>
+#include "particle.h"
 
 using namespace std;
 
@@ -76,6 +77,12 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 		break;
 	case TYPE_TARGET:
 		pBlock = new CTargetBlock();
+		break;
+	case TYPE_TORCH:
+		pBlock = new CTorchBlock();
+		break;
+	case TYPE_TORCH2:
+		pBlock = new CTorch2Block();
 		break;
 	case TYPE_ROCK:
 		pBlock = new CRockBlock();
@@ -350,11 +357,11 @@ void CBlock::Draw(void)
 
 #ifdef _DEBUG
 
-	if (m_pRigidBody)
-	{
-		// コライダーの描画
-		m_pDebug3D->DrawBlockCollider(m_pRigidBody, D3DXCOLOR(0.0f, 1.0f, 0.3f, 1.0f));
-	}
+	//if (m_pRigidBody)
+	//{
+	//	// コライダーの描画
+	//	m_pDebug3D->DrawBlockCollider(m_pRigidBody, D3DXCOLOR(0.0f, 1.0f, 0.3f, 1.0f));
+	//}
 
 #endif
 
@@ -874,6 +881,7 @@ CWaterBlock::CWaterBlock()
 	// 値のクリア
 	m_waterStayTime = 0;				// 水中滞在時間（秒）
 	m_isInWater = false;				// 今水中にいるか
+	m_bWasInWater = false;				// 水に入ったか
 }
 //=============================================================================
 // 水ブロックのデストラクタ
@@ -984,6 +992,8 @@ void CWaterBlock::ApplyToBlocks(void)
 //============================================================================
 void CWaterBlock::ApplyToPlayer(void)
 {
+	CParticle* pParticle = NULL;
+
 	// 水の AABB を取得
 	D3DXVECTOR3 wtPos = GetPos();
 	D3DXVECTOR3 modelSize = GetModelSize();
@@ -1030,6 +1040,23 @@ void CWaterBlock::ApplyToPlayer(void)
 			wtMin.x <= pMax.x && wtMax.x >= pMin.x &&
 			wtMin.y <= pMax.y && wtMax.y >= pMin.y &&
 			wtMin.z <= pMax.z && wtMax.z >= pMin.z;
+
+		// === 着水瞬間判定 ===
+		bool isNowInWater = isOverlap;
+
+		if (isNowInWater && !m_bWasInWater)
+		{
+			// プレイヤーの位置
+			D3DXVECTOR3 pos = pPlayer->GetPos();
+			pos.y += 80.0f;
+
+			// 水しぶきパーティクル生成
+			pParticle = CParticle::Create(pos, D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 50, CParticle::TYPE_WATER, 10);
+			pParticle = CParticle::Create(pos, D3DXCOLOR(0.3f, 0.5f, 1.0f, 0.5f), 50, CParticle::TYPE_WATER, 10);
+		}
+
+		// プレイヤーが水に入っていたかを記録
+		m_bWasInWater = isNowInWater;
 
 		if (!isOverlap)
 		{// 当たってなかったら
@@ -1471,7 +1498,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1558,7 +1585,7 @@ void CRockBlock::Update(void)
 
 	Respawn();			// リスポーン処理
 	
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -1835,5 +1862,106 @@ void CTargetBlock::Update(void)
 			m_isHit = true;
 			break;
 		}
+	}
+}
+
+
+//=============================================================================
+// 壁掛け松明ブロックのコンストラクタ
+//=============================================================================
+CTorchBlock::CTorchBlock()
+{
+	SetType(TYPE_TORCH);
+
+	// 値のクリア
+
+}
+//=============================================================================
+// 壁掛け松明ブロックのデストラクタ
+//=============================================================================
+CTorchBlock::~CTorchBlock()
+{
+	// なし
+}
+//=============================================================================
+// 壁掛け松明ブロックの更新処理
+//=============================================================================
+void CTorchBlock::Update(void)
+{
+	CBlock::Update();// 共通処理
+
+	CParticle* pParticle = NULL;
+
+	D3DXVECTOR3 playerPos = CManager::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 1080.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		// オフセット
+		D3DXVECTOR3 localOffset(0.0f, 30.0f, -10.0f); // 松明の先端（ローカル）
+		D3DXVECTOR3 worldOffset;
+
+		// ブロックのワールドマトリックスを取得
+		D3DXMATRIX worldMtx = GetWorldMatrix();
+
+		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+		// パーティクル生成
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+	}
+}
+
+
+//=============================================================================
+// 置き型松明ブロックのコンストラクタ
+//=============================================================================
+CTorch2Block::CTorch2Block()
+{
+	SetType(TYPE_TORCH2);
+
+	// 値のクリア
+
+}
+//=============================================================================
+// 置き型松明ブロックのデストラクタ
+//=============================================================================
+CTorch2Block::~CTorch2Block()
+{
+	// なし
+}
+//=============================================================================
+// 置き型松明ブロックの更新処理
+//=============================================================================
+void CTorch2Block::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	CParticle* pParticle = NULL;
+	D3DXVECTOR3 playerPos = CManager::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 1280.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		// オフセット
+		D3DXVECTOR3 localOffset(0.0f, 40.0f, 0.0f); // 松明の先端（ローカル）
+		D3DXVECTOR3 worldOffset;
+
+		// ブロックのワールドマトリックスを取得
+		D3DXMATRIX worldMtx = GetWorldMatrix();
+
+		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+		// パーティクル生成
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
 	}
 }

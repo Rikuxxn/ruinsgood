@@ -20,7 +20,7 @@
 class CObjectBillboard : public CObject
 {
 public:
-	CObjectBillboard();
+	CObjectBillboard(int nPriority = 5);
 	~CObjectBillboard();
 
 	//ビルボードの種類
@@ -36,23 +36,20 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	D3DXVECTOR3 GetPos(void);
+	D3DXVECTOR3 GetPos(void) { return m_pos; }
+	D3DXCOLOR GetCol(void) { return m_col; }
+	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
+	void SetCol(D3DXCOLOR col) { m_col = col; }
+	void SetSize(float fRadius) { m_fSize = fRadius; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
 	D3DXVECTOR3 m_pos;
+	D3DXCOLOR m_col;
 	TYPE m_nType;
 	D3DXMATRIX m_mtxWorld;
-	float m_fWidth;			// 幅
-	float m_fHeight;		// 高さ
+	float m_fSize;			// サイズ
 	int m_nIdxTexture;
-
-	const char* BILLBOARD_TEXTURE[TYPE_MAX] =//ビルボードのテクスチャの設定
-	{
-		"data/TEXTURE/selectBG.png",	// 1
-		"data/TEXTURE/light.png",		// 2
-
-	};
 
 };
 #endif

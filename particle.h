@@ -13,43 +13,55 @@
 #include "main.h"
 #include "effect.h"
 
-
-//*****************************************************************************
-// マクロ定義
-//*****************************************************************************
-#define MAX_PARTICLE (20)	// 発生させたい粒子の数
-
-
 //*****************************************************************************
 // パーティクルクラス
 //*****************************************************************************
 class CParticle : public CEffect
 {
 public:
-	CParticle(int nPriority = 5);
+	CParticle();
 	~CParticle();
 
 	// パーティクルの種類
 	typedef enum
 	{
-		PARTICLE_BACKFIRE = 0,
-		PARTICLE_HORMING,
-		PARTICLE_PLAYERBULLET,
-		PARTICLE_ENEMYBULLET,
-		PARTICLE_PLAYER_EXP,
-		PARTICLE_ENEMY_EXP,
-		PARTICLE_FLASH,
-		PARTICLE_MAX
-	}PARTICLETYPE;
+		TYPE_FIRE = 0,
+		TYPE_WATER,
+		TYPE_MAX
+	}TYPE;
 
 	static CParticle*Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType,int nMaxParticle);
 	HRESULT Init(void);
-	void Update(void);
+	virtual void Update(void);
 	void SetParticle(int nType);
-	void SetLifeParticle(int nLife);
+	void SetLife(int nLife);
 private:
 	int m_nType;		// 種類
 	int m_nLife;		// 寿命
 	int m_nMaxParticle;	// 粒子の数
+	CEffect* m_pEffect;	// エフェクトへのポインタ
 };
+
+//*****************************************************************************
+// 炎パーティクルクラス
+//*****************************************************************************
+class CFireParticle : public CParticle
+{
+public:
+	CFireParticle();
+	~CFireParticle();
+
+	static CFireParticle* Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType, int nMaxParticle);
+	void Update(void) override;
+
+private:
+	D3DXVECTOR3 m_move;
+	int m_nLife;
+};
+
+
+//*****************************************************************************
+// 水しぶきパーティクルクラス
+//*****************************************************************************
+
 #endif

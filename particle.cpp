@@ -13,12 +13,13 @@
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-CParticle::CParticle(int nPriority) : CEffect(nPriority)
+CParticle::CParticle()
 {
 	// 値のクリア
 	m_nType		   = 0;		// 種類
 	m_nLife		   = 0;		// 寿命
 	m_nMaxParticle = 0;		// 粒子の最大数
+	m_pEffect = NULL;
 }
 //=============================================================================
 // デストラクタ
@@ -42,7 +43,7 @@ CParticle*CParticle::Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType
 
 	pParticle->SetPos(pos);
 	pParticle->SetCol(col);
-	pParticle->SetLifeParticle(nLife);
+	pParticle->SetLife(nLife);
 	pParticle->SetParticle(nType);
 	pParticle->m_nMaxParticle = nMaxParticle;
 
@@ -63,8 +64,6 @@ HRESULT CParticle::Init(void)
 //=============================================================================
 void CParticle::Update(void)
 {
-	CEffect* pEffect = NULL;
-
 	D3DXVECTOR3 pos = D3DXVECTOR3(0.0f,0.0f,0.0f);
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	D3DCOLOR col = D3DCOLOR_ARGB(255,0,0,0);
@@ -75,124 +74,48 @@ void CParticle::Update(void)
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < m_nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
-		if (m_nType == PARTICLE_BACKFIRE)
-		{// バックファイア
-
+		if (m_nType == TYPE_FIRE)
+		{// 炎
 			// 位置の設定
 			pos = GetPos();
 
 			// 移動量の設定
-			fAngle = (float)(rand() % 55 - 180) / 100.0f;//角度
+			fAngle = ((rand() % 360) / 180.0f) * D3DX_PI;//角度
 
-			fLength = (float)(rand() % 8) / 1.0f;//移動量
+			fLength = (rand() % 5) / 20.0f + 0.1f;//移動量
 
-			move.x = sinf(fAngle) * fLength;
-			move.y = cosf(fAngle) * fLength;
+			move.x = cosf(fAngle) * fLength;
+			move.z = sinf(fAngle) * fLength;
+			move.y = 0.5f + (rand() % 300) / 100.0f;
 
 			// 色の設定
 			col = GetCol();
 			
 			// 半径の設定
-			fRadius = 9.0f;
-
+			fRadius = 10.0f;
 		}
-		else if (m_nType == PARTICLE_HORMING)
-		{// ホーミング
-
-			// 位置の設定
+		else if (m_nType == TYPE_WATER)
+		{// 水しぶき
+			// 位置
 			pos = GetPos();
 
-			// 移動量の設定
-			fAngle = (float)(rand() % 360) * (D3DX_PI / 180.0f); // 0〜360度ランダム
-			fLength = (float)(rand() % 3) / 5.0f;                // 0.0〜0.6くらいの小さい移動
+			// ランダムな角度で横に広がる
+			float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
+			float speed = (rand() % 150) / 30.0f + 0.2f;
 
-			move.x = sinf(fAngle) * fLength;
-			move.y = cosf(fAngle) * fLength;
+			move.x = cosf(angle) * speed;
+			move.z = sinf(angle) * speed;
+			move.y = (rand() % 10) / 50.0f + 0.05f; // 少しだけ上方向
 
-			// 色の設定
+			// 色
 			col = GetCol();
 
-			// 半径の設定
-			fRadius = 6.0f; 
-		}
-		else if (m_nType == PARTICLE_ENEMYBULLET)
-		{// 敵の弾
-
-			// 位置の設定
-			pos = GetPos();
-
-			// 移動量の設定
-			fAngle = (float)(rand() % 360) * (D3DX_PI / 180.0f); // 0〜360度ランダム
-			fLength = (float)(rand() % 3) / 5.0f;                // 0.0〜0.6くらいの小さい移動
-
-			move.x = sinf(fAngle) * fLength;
-			move.y = cosf(fAngle) * fLength;
-
-			// 色の設定
-			col = GetCol();
-
-			// 半径の設定
-			fRadius = 8.0f;
-		}
-		else if (m_nType == PARTICLE_PLAYER_EXP)
-		{// プレイヤーが死んだときの爆発
-
-			// 位置の設定
-			pos = GetPos();
-
-			// 移動量の設定
-			fAngle = (float)(rand() % 360) * (D3DX_PI / 180.0f); // 0〜360度ランダム
-			fLength = (float)(rand() % 5) / 1.0f;                // 0.0〜0.6くらいの小さい移動
-
-			move.x = sinf(fAngle) * fLength;
-			move.y = cosf(fAngle) * fLength;
-
-			// 色の設定
-			col = GetCol();
-
-			// 半径の設定
-			fRadius = 40.0f;
-		}
-		else if (m_nType == PARTICLE_ENEMY_EXP)
-		{// 敵が死んだときの爆発
-
-			// 位置の設定
-			pos = GetPos();
-
-			// 移動量の設定
-			fAngle = (float)(rand() % 360) * (D3DX_PI / 180.0f); // 0〜360度ランダム
-			fLength = (float)(rand() % 5) / 1.0f;                // 0.0〜0.6くらいの小さい移動
-
-			move.x = sinf(fAngle) * fLength;
-			move.y = cosf(fAngle) * fLength;
-
-			// 色の設定
-			col = GetCol();
-
-			// 半径の設定
-			fRadius = 40.0f;
-		}
-		else if (m_nType == PARTICLE_FLASH)
-		{// ノズルフラッシュ
-			// 位置の設定
-			pos = GetPos();
-
-			// 移動量の設定
-			fAngle = (float)(rand() % 360) * (D3DX_PI / 180.0f); // 0〜360度ランダム
-			fLength = (float)(rand() % 3) / 1.0f;//移動量
-
-			move.x = sinf(fAngle) * fLength;
-			move.y = cosf(fAngle) * fLength;
-
-			// 色の設定
-			col = GetCol();
-
-			// 半径の設定
-			fRadius = 12.0f;
+			// 半径
+			fRadius = 15.0f + (rand() % 15);
 		}
 
 		// エフェクトの設定
-		pEffect = CEffect::Create(pos, move, col, fRadius, m_nLife);
+		m_pEffect = CEffect::Create(pos, move, col, fRadius, m_nLife);
 	}
 
 	 // 寿命が尽きたら
@@ -218,7 +141,7 @@ void CParticle::SetParticle(int nType)
 //=============================================================================
 // パーティクルの寿命処理
 //=============================================================================
-void CParticle::SetLifeParticle(int nLife)
+void CParticle::SetLife(int nLife)
 {
 	m_nLife = nLife;
 }

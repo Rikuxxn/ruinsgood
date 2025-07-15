@@ -15,15 +15,15 @@
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-CObjectBillboard::CObjectBillboard()
+CObjectBillboard::CObjectBillboard(int nPriority) : CObject(nPriority)
 {
 	// 値のクリア
 	m_pVtxBuff = NULL;		// 頂点バッファへのポインタ
-	m_pos = D3DXVECTOR3(0.0f,0.0f,0.0f);
+	m_pos = INIT_VEC3;
+	m_col = INIT_XCOL;
 	m_nType = TYPE_ONE;
 	m_mtxWorld = {};
-	m_fWidth = 0.0f;;			// 幅
-	m_fHeight = 0.0f;		// 高さ
+	m_fSize = 0.0f;			// サイズ
 	m_nIdxTexture = 0;
 }
 //=============================================================================
@@ -44,8 +44,7 @@ CObjectBillboard* CObjectBillboard::Create(TYPE type,D3DXVECTOR3 pos, float fWid
 
 	pObjectBillboard->m_pos = pos;
 	pObjectBillboard->m_nType = type;
-	pObjectBillboard->m_fWidth = fWidth;
-	pObjectBillboard->m_fHeight = fHeight;
+	pObjectBillboard->m_fSize = fWidth;
 
 	// 初期化処理
 	pObjectBillboard->Init();
@@ -63,7 +62,7 @@ HRESULT CObjectBillboard::Init(void)
 
 	// テクスチャの取得
 	CTexture* pTexture = CManager::GetTexture();
-	m_nIdxTexture = pTexture->Register("data/TEXTURE/selectBG.png");
+	m_nIdxTexture = pTexture->Register("data/TEXTURE/effect000.jpg");
 
 	//頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 4,
@@ -79,10 +78,10 @@ HRESULT CObjectBillboard::Init(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	//頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, m_pos.z);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, m_pos.z);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, m_pos.z);
-	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, m_pos.z);
+	pVtx[0].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
 
 	//各頂点の法線の設定
 	pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
@@ -91,10 +90,10 @@ HRESULT CObjectBillboard::Init(void)
 	pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 	//頂点カラーの設定
-	pVtx[0].col = D3DCOLOR_RGBA(255, 255, 255, 255);
-	pVtx[1].col = D3DCOLOR_RGBA(255, 255, 255, 255);
-	pVtx[2].col = D3DCOLOR_RGBA(255, 255, 255, 255);
-	pVtx[3].col = D3DCOLOR_RGBA(255, 255, 255, 255);
+	pVtx[0].col = m_col;
+	pVtx[1].col = m_col;
+	pVtx[2].col = m_col;
+	pVtx[3].col = m_col;
 
 	//テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -127,8 +126,24 @@ void CObjectBillboard::Uninit(void)
 //=============================================================================
 void CObjectBillboard::Update(void)
 {
+	VERTEX_3D* pVtx;// 頂点情報へのポインタ
 
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
+	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
+	//頂点座標の設定
+	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize, 0.0f);
+
+	pVtx[0].col = m_col;
+	pVtx[1].col = m_col;
+	pVtx[2].col = m_col;
+	pVtx[3].col = m_col;
+
+	//頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
 }
 //=============================================================================
 // 描画処理
@@ -145,8 +160,8 @@ void CObjectBillboard::Draw(void)
 	// ライトを無効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
-	// 壁貫通をなくす
-	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);	// Zの比較方法
+	// Zテスト
+	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);	// Zの比較方法
 	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);		// Zバッファに書き込まない
 
 	// 計算用マトリックス
@@ -195,11 +210,4 @@ void CObjectBillboard::Draw(void)
 
 	// ライトを有効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-}
-//=============================================================================
-// 位置の取得
-//=============================================================================
-D3DXVECTOR3 CObjectBillboard::GetPos(void)
-{
-	return m_pos;
 }

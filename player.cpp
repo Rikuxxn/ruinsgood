@@ -12,6 +12,7 @@
 #include "texture.h"
 #include "manager.h"
 #include "model.h"
+#include "particle.h"
 
 using namespace std;
 
@@ -266,6 +267,11 @@ void CPlayer::Update(void)
 	btVector3 pos = trans.getOrigin();
 	m_colliderPos = D3DXVECTOR3(pos.getX(), pos.getY(), pos.getZ());
 	m_pos = m_colliderPos - D3DXVECTOR3(0, 50.0f, 0); // 足元へのオフセット
+
+	if (m_pos.y < -480.0f)
+	{
+		RespawnToCheckpoint();
+	}
 
 	if (m_pShadowS != NULL)
 	{
