@@ -25,6 +25,10 @@ CObjectBillboard::CObjectBillboard(int nPriority) : CObject(nPriority)
 	m_mtxWorld = {};
 	m_fSize = 0.0f;			// サイズ
 	m_nIdxTexture = 0;
+	for (int nCnt = 0; nCnt < MAX_PATH; nCnt++)
+	{
+		m_szPath[nCnt] = NULL;					// ファイルパス
+	}
 }
 //=============================================================================
 // デストラクタ
@@ -62,7 +66,7 @@ HRESULT CObjectBillboard::Init(void)
 
 	// テクスチャの取得
 	CTexture* pTexture = CManager::GetTexture();
-	m_nIdxTexture = pTexture->Register("data/TEXTURE/effect000.jpg");
+	m_nIdxTexture = pTexture->Register(m_szPath);
 
 	//頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 4,

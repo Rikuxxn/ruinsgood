@@ -70,12 +70,16 @@ void CParticle::Update(void)
 	float fRadius = 0.0f;
 	float fAngle = 0.0f;
 	float fLength = 0.0f;
+	const char* path = NULL;
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < m_nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		if (m_nType == TYPE_FIRE)
 		{// 炎
+			// テクスチャ
+			path = "data/TEXTURE/effect000.jpg";
+
 			// 位置の設定
 			pos = GetPos();
 
@@ -96,6 +100,9 @@ void CParticle::Update(void)
 		}
 		else if (m_nType == TYPE_WATER)
 		{// 水しぶき
+			// テクスチャ
+			path = "data/TEXTURE/effect000.jpg";
+
 			// 位置
 			pos = GetPos();
 
@@ -115,6 +122,9 @@ void CParticle::Update(void)
 		}
 		else if (m_nType == TYPE_AURA)
 		{// オーラ
+			// テクスチャ
+			path = "data/TEXTURE/treasure_effect.png";
+
 			// 位置
 			pos = GetPos();
 
@@ -130,11 +140,11 @@ void CParticle::Update(void)
 			col = GetCol();
 
 			// 半径
-			fRadius = 35.0f + (rand() % 35);
+			fRadius = 35.0f/* + (rand() % 40)*/;
 		}
 
 		// エフェクトの設定
-		m_pEffect = CEffect::Create(pos, move, col, fRadius, m_nLife);
+		m_pEffect = CEffect::Create(path,pos, move, col, fRadius, m_nLife);
 	}
 
 	 // 寿命が尽きたら

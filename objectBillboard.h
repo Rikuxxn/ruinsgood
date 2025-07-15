@@ -41,7 +41,7 @@ public:
 	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
 	void SetCol(D3DXCOLOR col) { m_col = col; }
 	void SetSize(float fRadius) { m_fSize = fRadius; }
-
+	void SetPath(char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
 	D3DXVECTOR3 m_pos;
@@ -50,6 +50,7 @@ private:
 	D3DXMATRIX m_mtxWorld;
 	float m_fSize;			// サイズ
 	int m_nIdxTexture;
+	char m_szPath[MAX_PATH];			// ファイルパス
 
 };
 #endif

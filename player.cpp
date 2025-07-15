@@ -270,13 +270,14 @@ void CPlayer::Update(void)
 
 	CParticle* pParticle = NULL;
 	D3DXVECTOR3 offpos(0.0f, 20.0f,0.0f);
-	//pParticle = CParticle::Create(D3DXVECTOR3(0.0f,50.0f,-300.0f), D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.8f), 100, CParticle::TYPE_AURA, 1);
-	//pParticle = CParticle::Create(m_pos + offpos, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+	//pParticle = CParticle::Create(D3DXVECTOR3(0.0f,50.0f,-300.0f), D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 20, CParticle::TYPE_AURA, 1);
+	//pParticle = CParticle::Create(m_pos + offpos, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 20, CParticle::TYPE_AURA, 1);
 	//pParticle = CParticle::Create(m_pos, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
 
 
 	if (m_pos.y < -480.0f)
 	{
+		// ƒŠƒXƒ|[ƒ“ˆ—
 		RespawnToCheckpoint();
 	}
 

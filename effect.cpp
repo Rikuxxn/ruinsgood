@@ -35,12 +35,15 @@ CEffect::~CEffect()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CEffect* CEffect::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife)
+CEffect* CEffect::Create(const char*path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife)
 {
 	CEffect* pEffect;
 
 	// エフェクトオブジェクトの生成
 	pEffect = new CEffect;
+
+	// テクスチャパスの指定
+	strcpy_s(pEffect->m_szPath, MAX_PATH, path);
 
 	// 初期化処理
 	pEffect->Init();
@@ -58,11 +61,11 @@ CEffect* CEffect::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float 
 //=============================================================================
 HRESULT CEffect::Init(void)
 {
+	// テクスチャパスの設定
+	SetPath(m_szPath);
+
 	// ビルボードオブジェクトの初期化処理
 	CObjectBillboard::Init();
-
-	CTexture* pTexture = CManager::GetTexture();
-	m_nIdxTexture = pTexture->Register("data/TEXTURE/effect000.jpg");
 
 	return S_OK;
 }

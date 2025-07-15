@@ -79,6 +79,7 @@ private:
 		"data/TEXTURE/switch2.png",
 		"data/TEXTURE/door2.png",
 		"data/TEXTURE/effect000.jpg",
+		"data/TEXTURE/treasure_effect.png",
 
 	};
 
