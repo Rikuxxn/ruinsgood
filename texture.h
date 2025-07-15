@@ -80,7 +80,7 @@ private:
 		"data/TEXTURE/door2.png",
 		"data/TEXTURE/effect000.jpg",
 		"data/TEXTURE/treasure_effect.png",
-
+		"data/TEXTURE/smoke.jpg",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

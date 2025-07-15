@@ -41,7 +41,8 @@ public:
 	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
 	void SetCol(D3DXCOLOR col) { m_col = col; }
 	void SetSize(float fRadius) { m_fSize = fRadius; }
-	void SetPath(char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
+	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
+
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
 	D3DXVECTOR3 m_pos;

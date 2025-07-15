@@ -25,10 +25,7 @@ CObjectBillboard::CObjectBillboard(int nPriority) : CObject(nPriority)
 	m_mtxWorld = {};
 	m_fSize = 0.0f;			// サイズ
 	m_nIdxTexture = 0;
-	for (int nCnt = 0; nCnt < MAX_PATH; nCnt++)
-	{
-		m_szPath[nCnt] = NULL;					// ファイルパス
-	}
+	memset(m_szPath, 0, sizeof(m_szPath));
 }
 //=============================================================================
 // デストラクタ
@@ -82,10 +79,10 @@ HRESULT CObjectBillboard::Init(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	//頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(m_fSize, m_fSize, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize, 0.0f);
 
 	//各頂点の法線の設定
 	pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);

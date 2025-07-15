@@ -35,15 +35,14 @@ CEffect::~CEffect()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CEffect* CEffect::Create(const char*path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife)
+CEffect* CEffect::Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife)
 {
 	CEffect* pEffect;
 
 	// エフェクトオブジェクトの生成
 	pEffect = new CEffect;
 
-	// テクスチャパスの指定
-	strcpy_s(pEffect->m_szPath, MAX_PATH, path);
+	pEffect->SetPath(path);
 
 	// 初期化処理
 	pEffect->Init();
@@ -61,9 +60,6 @@ CEffect* CEffect::Create(const char*path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DC
 //=============================================================================
 HRESULT CEffect::Init(void)
 {
-	// テクスチャパスの設定
-	SetPath(m_szPath);
-
 	// ビルボードオブジェクトの初期化処理
 	CObjectBillboard::Init();
 

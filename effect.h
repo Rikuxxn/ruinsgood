@@ -22,7 +22,7 @@ public:
 	CEffect(int nPriority = 5);
 	~CEffect();
 
-	static CEffect* Create(const char* path, D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife);
+	static CEffect* Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife);
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
@@ -36,7 +36,6 @@ private:
 	float m_fRadius;						// 半径
 	int m_nLife;							// 寿命
 	int m_nIdxTexture;						// テクスチャインデックス
-	char m_szPath[MAX_PATH];			// ファイルパス
 
 };
 #endif

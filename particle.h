@@ -33,14 +33,18 @@ public:
 
 	static CParticle*Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType,int nMaxParticle);
 	HRESULT Init(void);
-	virtual void Update(void);
-	void SetParticle(int nType);
-	void SetLife(int nLife);
+	void Update(void);
+
+	void SetParticle(int nType) { m_nType = nType; }
+	void SetLife(int nLife) { m_nLife = nLife; }
+
+	int GetLife(void) { return m_nLife; }
+	int GetMaxParticle(void) { return m_nMaxParticle; }
+
 private:
 	int m_nType;		// 種類
 	int m_nLife;		// 寿命
 	int m_nMaxParticle;	// 粒子の数
-	CEffect* m_pEffect;	// エフェクトへのポインタ
 };
 
 //*****************************************************************************
@@ -52,17 +56,43 @@ public:
 	CFireParticle();
 	~CFireParticle();
 
-	static CFireParticle* Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType, int nMaxParticle);
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 
 private:
-	D3DXVECTOR3 m_move;
-	int m_nLife;
-};
 
+};
 
 //*****************************************************************************
 // 水しぶきパーティクルクラス
 //*****************************************************************************
+class CWaterParticle : public CParticle
+{
+public:
+	CWaterParticle();
+	~CWaterParticle();
+
+	HRESULT Init(void);
+	void Update(void) override;
+
+private:
+
+};
+
+//*****************************************************************************
+// オーラパーティクルクラス
+//*****************************************************************************
+class CAuraParticle : public CParticle
+{
+public:
+	CAuraParticle();
+	~CAuraParticle();
+
+	HRESULT Init(void);
+	void Update(void) override;
+
+private:
+
+};
 
 #endif
