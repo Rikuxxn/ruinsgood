@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "renderer.h"
 #include "manager.h"
+#include "game.h"
 
 //=============================================================================
 // コンストラクタ
@@ -54,6 +55,12 @@ HRESULT CCamera::Init(void)
 		((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x)) +
 		((m_posV.y - m_posR.y) * (m_posV.y - m_posR.y)) +
 		((m_posV.z - m_posR.z) * (m_posV.z - m_posR.z)));
+
+#ifdef _DEBUG
+	m_Mode = MODE_EDIT;									// カメラのモード
+#else
+	m_Mode = MODE_GAME;
+#endif
 
 	return S_OK;
 }
@@ -299,6 +306,11 @@ void CCamera::EditCamera(void)
 //=============================================================================
 void CCamera::GameCamera(void)
 {
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
 	// 初期距離を短くする
 	static bool firstTime = true;
 
@@ -315,106 +327,109 @@ void CCamera::GameCamera(void)
 	XINPUT_STATE* pStick = CInputJoypad::GetStickAngle();
 
 	// プレイヤーの取得
-	CPlayer* pPlayer = CManager::GetPlayer();
+	CPlayer* pPlayer = CGame::GetPlayer();
 
-	// プレイヤーの位置の取得
-	D3DXVECTOR3 playerPos = pPlayer->GetPos();
-
-	// マウスの状態を取得
-	DIMOUSESTATE mouseState;
-
-	// マウスカーソルを非表示にする
-	pInputMouse->SetCursorVisibility(false);
-
-	// ゲームパッド右スティックカメラ操作
-	if (pStick != NULL)
+	if (pPlayer != NULL)
 	{
-		// 右スティックの値を取得
-		float stickX = pStick->Gamepad.sThumbRX;
-		float stickY = pStick->Gamepad.sThumbRY;
+		// プレイヤーの位置の取得
+		D3DXVECTOR3 playerPos = pPlayer->GetPos();
 
-		// デッドゾーン処理
-		const float DEADZONE = 10922.0f;
-		if (fabsf(stickX) < DEADZONE)
+		// マウスの状態を取得
+		DIMOUSESTATE mouseState;
+
+		// マウスカーソルを非表示にする
+		pInputMouse->SetCursorVisibility(false);
+
+		// ゲームパッド右スティックカメラ操作
+		if (pStick != NULL)
 		{
-			stickX = 0.0f;
-		}
-		if (fabsf(stickY) < DEADZONE)
-		{
-			stickY = 0.0f;
-		}
+			// 右スティックの値を取得
+			float stickX = pStick->Gamepad.sThumbRX;
+			float stickY = pStick->Gamepad.sThumbRY;
 
-		// 正規化
-		stickX /= 32768.0f;
-		stickY /= 32768.0f;
-
-		// カメラ回転の更新
-		CameraWithGamepad(stickX, stickY);
-	}
-	if (pInputMouse->GetMouseState(&mouseState))
-	{
-		// 前フレームのカーソル位置を記録する静的変数
-		static POINT prevCursorPos = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
-
-		// 現在のマウスの位置の取得
-		POINT cursorPos;
-		GetCursorPos(&cursorPos);
-
-		// マウス感度
-		const float mouseSensitivity = 0.003f;
-
-		float deltaX = (float)(cursorPos.x - prevCursorPos.x) * mouseSensitivity;
-		float deltaY = (float)(cursorPos.y - prevCursorPos.y) * mouseSensitivity;
-
-		prevCursorPos = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
-		SetCursorPos(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-
-		m_rot.y += deltaX;
-		m_rot.x += deltaY;
-
-		// 上下回転制限
-		if (m_rot.x < -1.3f)
-		{
-			m_rot.x = -1.3f;
-		}
-		if (m_rot.x > 1.3f)
-		{
-			m_rot.x = 1.3f;
-		}
-
-		//====================================
-		// マウスホイールでズームイン・アウト
-		//====================================
-		int wheel = pInputMouse->GetWheel();
-		const float zoomSpeed = 2.0f;
-
-		if (wheel != 0)
-		{
-			m_fDistance -= wheel * zoomSpeed;
-
-			// カメラ距離制限
-			if (m_fDistance < 100.0f)
+			// デッドゾーン処理
+			const float DEADZONE = 10922.0f;
+			if (fabsf(stickX) < DEADZONE)
 			{
-				m_fDistance = 100.0f;
+				stickX = 0.0f;
 			}
-			if (m_fDistance > 200.0f)
+			if (fabsf(stickY) < DEADZONE)
 			{
-				m_fDistance = 200.0f;
+				stickY = 0.0f;
+			}
+
+			// 正規化
+			stickX /= 32768.0f;
+			stickY /= 32768.0f;
+
+			// カメラ回転の更新
+			CameraWithGamepad(stickX, stickY);
+		}
+		if (pInputMouse->GetMouseState(&mouseState))
+		{
+			// 前フレームのカーソル位置を記録する静的変数
+			static POINT prevCursorPos = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+
+			// 現在のマウスの位置の取得
+			POINT cursorPos;
+			GetCursorPos(&cursorPos);
+
+			// マウス感度
+			const float mouseSensitivity = 0.003f;
+
+			float deltaX = (float)(cursorPos.x - prevCursorPos.x) * mouseSensitivity;
+			float deltaY = (float)(cursorPos.y - prevCursorPos.y) * mouseSensitivity;
+
+			prevCursorPos = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
+			SetCursorPos(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+
+			m_rot.y += deltaX;
+			m_rot.x += deltaY;
+
+			// 上下回転制限
+			if (m_rot.x < -1.3f)
+			{
+				m_rot.x = -1.3f;
+			}
+			if (m_rot.x > 1.3f)
+			{
+				m_rot.x = 1.3f;
+			}
+
+			//====================================
+			// マウスホイールでズームイン・アウト
+			//====================================
+			int wheel = pInputMouse->GetWheel();
+			const float zoomSpeed = 2.0f;
+
+			if (wheel != 0)
+			{
+				m_fDistance -= wheel * zoomSpeed;
+
+				// カメラ距離制限
+				if (m_fDistance < 100.0f)
+				{
+					m_fDistance = 100.0f;
+				}
+				if (m_fDistance > 200.0f)
+				{
+					m_fDistance = 200.0f;
+				}
 			}
 		}
+
+		// カメラ位置計算
+		m_posV.x = playerPos.x + sinf(m_rot.y) * cosf(m_rot.x) * m_fDistance;
+		m_posV.y = playerPos.y + sinf(m_rot.x) * m_fDistance + 80.0f;
+		m_posV.z = playerPos.z + cosf(m_rot.y) * cosf(m_rot.x) * m_fDistance;
+
+		// 注視点
+		m_posR = playerPos;
+		m_posR.y += 60.0f;
+
+		// カメラの位置補正処理
+		AdjustCameraPosition(playerPos);
 	}
-
-	// カメラ位置計算
-	m_posV.x = playerPos.x + sinf(m_rot.y) * cosf(m_rot.x) * m_fDistance;
-	m_posV.y = playerPos.y + sinf(m_rot.x) * m_fDistance + 80.0f;
-	m_posV.z = playerPos.z + cosf(m_rot.y) * cosf(m_rot.x) * m_fDistance;
-
-	// 注視点
-	m_posR = playerPos;
-	m_posR.y += 60.0f;
-
-	// カメラの位置補正処理
-	AdjustCameraPosition(playerPos);
 }
 //=============================================================================
 // ゲームパッドのカメラ回転処理

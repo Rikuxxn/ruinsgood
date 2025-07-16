@@ -12,6 +12,7 @@
 #include "manager.h"
 #include <algorithm>
 #include "particle.h"
+#include "game.h"
 
 using namespace std;
 
@@ -248,15 +249,23 @@ void CBlock::Update(void)
 		trans.setOrigin(btVector3(Pos.x, Pos.y, Pos.z));
 		trans.setRotation(q);
 
-		m_pRigidBody->setWorldTransform(trans);
-		m_pRigidBody->getMotionState()->setWorldTransform(trans);
-
+		if (m_pRigidBody && m_pRigidBody->getMotionState())
+		{
+			m_pRigidBody->setWorldTransform(trans);
+			m_pRigidBody->getMotionState()->setWorldTransform(trans);
+		}
 	}
 	else
 	{
 		// 動的ブロックは物理の変換を取得して反映
 
+		if (!m_pRigidBody || !m_pRigidBody->getMotionState())
+		{
+			return;
+		}
+
 		btTransform trans;
+
 		m_pRigidBody->getMotionState()->getWorldTransform(trans);
 
 		btVector3 pos = trans.getOrigin();
@@ -992,6 +1001,11 @@ void CWaterBlock::ApplyToBlocks(void)
 //============================================================================
 void CWaterBlock::ApplyToPlayer(void)
 {
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
 	CParticle* pParticle = NULL;
 
 	// 水の AABB を取得
@@ -1016,7 +1030,7 @@ void CWaterBlock::ApplyToPlayer(void)
 	// ------------------------
 	// プレイヤーを浮かせる
 	// ------------------------
-	CPlayer* pPlayer = CManager::GetPlayer();
+	CPlayer* pPlayer = CGame::GetPlayer();
 
 	if (pPlayer)
 	{
@@ -1106,7 +1120,7 @@ void CWaterBlock::AddWaterStayTime(void)
 
 		if (m_waterStayTime >= 180) // 3秒以上滞在したら
 		{
-			CPlayer* pPlayer = CManager::GetPlayer();
+			CPlayer* pPlayer = CGame::GetPlayer();
 
 			pPlayer->RespawnToCheckpoint(); // 任意の場所へリスポーン
 			m_waterStayTime = 0;
@@ -1144,7 +1158,12 @@ CDoorBlock::~CDoorBlock()
 //=============================================================================
 void CDoorBlock::Update(void)
 {
-	D3DXVECTOR3 playerPos = CManager::GetPlayer()->GetPos();
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 
 	float distance = D3DXVec3Length(&disPos);
@@ -1520,7 +1539,12 @@ void CAxeBlock::Swing(void)
 //=============================================================================
 void CAxeBlock::IsPlayerHit(void)
 {
-	CPlayer* pPlayer = CManager::GetPlayer();
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
+	CPlayer* pPlayer = CGame::GetPlayer();
 
 	btRigidBody* pPlayerBody = pPlayer->GetRigidBody();
 	btRigidBody* pAxeBody = GetRigidBody();
@@ -1687,7 +1711,12 @@ void CRockBlock::MoveToTarget(void)
 //=============================================================================
 void CRockBlock::IsPlayerHit(void)
 {
-	CPlayer* pPlayer = CManager::GetPlayer();
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
+	CPlayer* pPlayer = CGame::GetPlayer();
 
 	D3DXVECTOR3 playerPos = pPlayer->GetPos();
 	D3DXVECTOR3 rockPos = GetPos();
@@ -1888,11 +1917,16 @@ CTorchBlock::~CTorchBlock()
 //=============================================================================
 void CTorchBlock::Update(void)
 {
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
 	CBlock::Update();// 共通処理
 
 	CParticle* pParticle = NULL;
 
-	D3DXVECTOR3 playerPos = CManager::GetPlayer()->GetPos();
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 
 	float distance = D3DXVec3Length(&disPos);
@@ -1939,10 +1973,15 @@ CTorch2Block::~CTorch2Block()
 //=============================================================================
 void CTorch2Block::Update(void)
 {
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
 	CBlock::Update(); // 共通処理
 
 	CParticle* pParticle = NULL;
-	D3DXVECTOR3 playerPos = CManager::GetPlayer()->GetPos();
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 
 	float distance = D3DXVec3Length(&disPos);

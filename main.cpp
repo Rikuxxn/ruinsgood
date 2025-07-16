@@ -17,6 +17,7 @@
 #include "manager.h"
 #include <tchar.h>
 #include <stdio.h>
+#include "imguimaneger.h"
 
 //*****************************************************************************
 // プロトタイプ宣言

@@ -14,6 +14,7 @@
 #include "manager.h"
 #include "imgui_internal.h"
 #include "raycast.h"
+#include "game.h"
 
 using json = nlohmann::json;
 
@@ -73,6 +74,8 @@ void CBlockManager::Init(void)
 //=============================================================================
 void CBlockManager::Uninit(void)
 {
+	m_nNumAll = 0;
+
 	// 動的配列を空にする (サイズを0にする)
 	m_blocks.clear();
 }
@@ -98,7 +101,7 @@ void CBlockManager::Update(void)
 void CBlockManager::UpdateInfo(void)
 {
 	// ImGuiマネージャーの取得
-	CImGuiManager* pImGuiManager = CManager::GetImGuiManager();
+	CImGuiManager* pImGuiManager = CGame::GetImGuiManager();
 
 	// GUIスタイルの取得
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -401,6 +404,10 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 				btQuaternion btRot(dq.x, dq.y, dq.z, dq.w);
 				transform.setRotation(btRot);
 
+				if (!selectedBlock->GetRigidBody())
+				{
+					return;
+				}
 				selectedBlock->GetRigidBody()->setWorldTransform(transform);
 				selectedBlock->GetRigidBody()->getMotionState()->setWorldTransform(transform);
 			}

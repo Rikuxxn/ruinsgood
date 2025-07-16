@@ -13,6 +13,7 @@
 #include "manager.h"
 #include "model.h"
 #include "particle.h"
+#include "game.h"
 
 using namespace std;
 
@@ -192,12 +193,6 @@ void CPlayer::Uninit(void)
 //=============================================================================
 void CPlayer::Update(void)
 {
-	// カメラの取得
-	CCamera* pCamera = CManager::GetCamera();
-
-	// カメラモードの取得
-	CCamera::MODE camMode = pCamera->GetMode();
-
 	m_bIsMoving = false;
 	m_bIsSideMoving = false;
 
@@ -895,6 +890,11 @@ void CPlayer::ResetWaterStayTime(void)
 //=============================================================================
 void CPlayer::RespawnToCheckpoint(void)
 {
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
 	D3DXVECTOR3 respawnPos = GetNearestRespawnPoint(); // 任意の保存位置
 
 	m_pos = respawnPos;

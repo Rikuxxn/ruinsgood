@@ -205,7 +205,7 @@ void CObject2D::SetRot(D3DXVECTOR3 rot)
 //=============================================================================
 // êFÇÃê›íË
 //=============================================================================
-void CObject2D::SetCol(D3DCOLOR color)
+void CObject2D::SetCol(D3DXCOLOR color)
 {
 	m_col = color;
 }

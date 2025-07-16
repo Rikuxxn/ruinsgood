@@ -203,6 +203,11 @@ void CObjectX::Update(void)
 //=============================================================================
 void CObjectX::Draw(void)
 {
+	if (!m_pBuffMat || !m_pMesh || m_dwNumMat == 0)
+	{
+		return;
+	}
+
 	// テクスチャの取得
 	CTexture* pTexture = CManager::GetTexture();
 
@@ -242,6 +247,11 @@ void CObjectX::Draw(void)
 
 	// マテリアルデータへのポインタを取得
 	pMat = (D3DXMATERIAL*)m_pBuffMat->GetBufferPointer();
+
+	if (!pMat)
+	{
+		return;
+	}
 
 	// 色の取得
 	D3DXCOLOR col = GetCol();

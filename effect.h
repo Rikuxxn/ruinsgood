@@ -31,6 +31,7 @@ public:
 	void SetLife(int nLife);
 	void SetRadius(float fRadius);
 	float GetRadius(void) { return m_fRadius; }
+
 private:
 	D3DXVECTOR3 m_move;						// ˆÚ“®—Ê
 	float m_fRadius;						// ”¼Œa

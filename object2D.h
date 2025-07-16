@@ -27,7 +27,7 @@
 class CObject2D : public CObject
 {
 public:
-	CObject2D(int nPriority = 3);
+	CObject2D(int nPriority = 7);
 	~CObject2D();
 
 	HRESULT Init(void);
@@ -37,7 +37,7 @@ public:
 	static CObject2D* Create(void);
 	void SetPos(D3DXVECTOR3 pos);
 	void SetRot(D3DXVECTOR3 rot);
-	void SetCol(D3DCOLOR color);
+	void SetCol(D3DXCOLOR color);
 	void SetSize(float fWidth,float fHeight);
 	void SetScrollSpeed(float fUSpeed);
 	void SetUV(int nTexU, int nTexV);

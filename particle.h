@@ -73,7 +73,7 @@ public:
 	~CWaterParticle();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 
 private:
 
@@ -89,7 +89,7 @@ public:
 	~CAuraParticle();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 
 private:
 

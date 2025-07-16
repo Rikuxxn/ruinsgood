@@ -12,6 +12,7 @@
 #include "object.h"
 #include "object2D.h"
 #include "manager.h"
+#include "game.h"
 
 //*****************************************************************************
 // 静的メンバ変数宣言
@@ -129,7 +130,7 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 	m_pDebug3D->Init();
 
 	// ImGuiマネージャーの取得
-	CImGuiManager* pImGuiManager = CManager::GetImGuiManager();
+	CImGuiManager* pImGuiManager = CGame::GetImGuiManager();
 
 	// 初期化処理
 	pImGuiManager->Init(hWnd, m_pD3DDevice);
@@ -172,9 +173,9 @@ void CRenderer::Update(void)
 #ifdef _DEBUG
 
 	// ImGuiマネージャーの取得
-	CImGuiManager* pImGuiManager = CManager::GetImGuiManager();
+	CImGuiManager* pImGuiManager = CGame::GetImGuiManager();
 
-	CPlayer* pPlayer = CManager::GetPlayer();	// プレイヤーの取得
+	CPlayer* pPlayer = CGame::GetPlayer();	// プレイヤーの取得
 	CCamera* pCamera = CManager::GetCamera();	// カメラの取得
 
 	// 場所
@@ -200,8 +201,11 @@ void CRenderer::Update(void)
 
 	ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
 
-	// プレイヤー情報の更新処理
-	pPlayer->UpdateInfo();
+	if (pPlayer != NULL && CManager::GetMode() == MODE_GAME)
+	{
+		// プレイヤー情報の更新処理
+		pPlayer->UpdateInfo();
+	}
 
 	ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
 
@@ -229,6 +233,15 @@ void CRenderer::Draw(int fps)
 
 		// すべてのオブジェクトの描画処理
 		CObject::DrawAll();
+
+		CFade* pFade = CManager::GetFade();
+
+		// フェードの描画処理
+		if (pFade != NULL)
+		{
+			// フェードの描画処理
+			pFade->Draw();
+		}
 
 		// FPSのセット
 		SetFPS(fps);

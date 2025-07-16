@@ -11,6 +11,7 @@
 #include "pause.h"
 #include "renderer.h"
 #include "manager.h"
+#include "game.h"
 
 //=============================================================================
 // コンストラクタ
@@ -154,7 +155,7 @@ void CPause::Draw(void)
 	CTexture* pTexture = CManager::GetTexture();
 
 	// ポーズ状態だったら
-	if (CManager::GetisPaused())
+	if (CGame::GetisPaused())
 	{
 		// デバイスの取得
 		CRenderer* renderer = CManager::GetRenderer();

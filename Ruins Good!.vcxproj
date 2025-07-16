@@ -165,7 +165,9 @@
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="debugproc3D.cpp" />
     <ClCompile Include="effect.cpp" />
+    <ClCompile Include="fade.cpp" />
     <ClCompile Include="FileDialogUtils.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imguimaneger.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
@@ -199,11 +201,14 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="raycast.cpp" />
     <ClCompile Include="renderer.cpp" />
+    <ClCompile Include="result.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="score.cpp" />
     <ClCompile Include="shadowS.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="time.cpp" />
+    <ClCompile Include="title.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="block.h" />
@@ -212,7 +217,9 @@
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="debugproc3D.h" />
     <ClInclude Include="effect.h" />
+    <ClInclude Include="fade.h" />
     <ClInclude Include="FileDialogUtils.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imguimaneger.h" />
@@ -241,11 +248,14 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="raycast.h" />
     <ClInclude Include="renderer.h" />
+    <ClInclude Include="result.h" />
+    <ClInclude Include="scene.h" />
     <ClInclude Include="score.h" />
     <ClInclude Include="shadowS.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="time.h" />
+    <ClInclude Include="title.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

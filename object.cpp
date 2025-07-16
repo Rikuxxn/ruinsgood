@@ -92,9 +92,10 @@ void CObject::UpdateAll(void)
 		{
 			CObject* pObjectNext = pObject->m_pNext;// 次のオブジェクトを保存
 
-			if (pObject->m_bDeath)
+			if (!pObject->m_bDeath)
 			{
-				pObject->Destroy();
+				// 更新処理
+				pObject->Update();
 			}
 
 			pObject = pObjectNext;// 次のオブジェクトを代入
@@ -109,12 +110,17 @@ void CObject::UpdateAll(void)
 		{
 			CObject* pObjectNext = pObject->m_pNext;// 次のオブジェクトを保存
 
-			// 更新処理
-			pObject->Update();
+			if (pObject->m_bDeath)
+			{
 
+				pObject->Destroy();
+
+			}
 			pObject = pObjectNext;// 次のオブジェクトを代入
+
 		}
 	}
+
 }
 //=============================================================================
 // 全てのオブジェクトの描画処理
