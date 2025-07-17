@@ -96,22 +96,45 @@ void CGame::Uninit(void)
 //=============================================================================
 void CGame::Update(void)
 {
+	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
+	CInputMouse* pInputMouse = CManager::GetInputMouse();
+	CFade* pFade = CManager::GetFade();
+	CBlock* pBlock = GetBlock();
+
+	// PキーでポーズON/OFF
+	if (pInputKeyboard->GetTrigger(DIK_P))
+	{
+		m_isPaused = !m_isPaused;
+	}
+
+	// ポーズ中はゲーム更新しない
+	if (m_isPaused == true)
+	{
+		// ポーズの更新処理
+		m_pPause->Update();
+
+		return;
+	}
+
 	// ブロックマネージャーの更新処理
 	m_pBlockManager->Update();
 
-	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
-	CFade* pFade = CManager::GetFade();
-
-	if (pInputKeyboard->GetTrigger(DIK_RETURN))
-	{
-		// ゲーム画面に移行
-		pFade->SetFade(MODE_RESULT);
-	}
+	//if (pInputKeyboard->GetTrigger(DIK_RETURN))
+	//{
+	//	// ゲーム画面に移行
+	//	pFade->SetFade(MODE_RESULT);
+	//}
 }
 //=============================================================================
 // 描画処理
 //=============================================================================
 void CGame::Draw(void)
 {
+	// ポーズ中だったら
+	if (m_isPaused)
+	{
+		// ポーズの描画処理
+		m_pPause->Draw();
+	}
 
 }

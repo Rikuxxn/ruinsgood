@@ -202,6 +202,8 @@ void CPlayer::Update(void)
 	// ブロックを持つ処理
 	HoldBlock();
 
+	CParticle* pParticle = NULL;
+
 	// モーション切り替え
 	if (m_isJumping)
 	{
@@ -227,6 +229,8 @@ void CPlayer::Update(void)
 		}
 		else if (m_bIsMoving)
 		{
+			//pParticle = CParticle::Create(m_pos, D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.3f), 30, CParticle::TYPE_DUSH, 1);
+
 			if (m_currentMotion != m_pMotion->TYPE_MOVE)
 			{
 				m_pMotion->StartBlendMotion(m_pMotion->TYPE_MOVE, 10);
@@ -263,11 +267,10 @@ void CPlayer::Update(void)
 	m_colliderPos = D3DXVECTOR3(pos.getX(), pos.getY(), pos.getZ());
 	m_pos = m_colliderPos - D3DXVECTOR3(0, 50.0f, 0); // 足元へのオフセット
 
-	CParticle* pParticle = NULL;
 	D3DXVECTOR3 offpos(0.0f, 20.0f,0.0f);
 	//pParticle = CParticle::Create(D3DXVECTOR3(0.0f,50.0f,-300.0f), D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 20, CParticle::TYPE_AURA, 1);
 	//pParticle = CParticle::Create(m_pos + offpos, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 20, CParticle::TYPE_AURA, 1);
-	//pParticle = CParticle::Create(m_pos, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+	//pParticle = CParticle::Create(m_pos, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
 
 
 	if (m_pos.y < -480.0f)

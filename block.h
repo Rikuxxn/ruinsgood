@@ -62,6 +62,8 @@ public:
 		TYPE_TARGET,
 		TYPE_SWITCH2,
 		TYPE_DOOR2,
+		TYPE_MASK,
+		TYPE_SORD,
 		TYPE_MAX
 	}TYPE;
 
@@ -321,6 +323,38 @@ public:
 
 private:
 
+};
+
+//*****************************************************************************
+// 仮面ブロッククラス
+//*****************************************************************************
+class CMaskBlock : public CBlock
+{
+public:
+	CMaskBlock();
+	~CMaskBlock();
+
+	void Update(void) override;
+	bool IsGet(void) { return m_isGet; }
+
+private:
+	bool m_isGet;
+};
+
+//*****************************************************************************
+// 剣ブロッククラス
+//*****************************************************************************
+class CSordBlock : public CBlock
+{
+public:
+	CSordBlock();
+	~CSordBlock();
+
+	void Update(void) override;
+	bool IsGet(void) { return m_isGet; }
+
+private:
+	bool m_isGet;
 };
 
 //=============================================================================

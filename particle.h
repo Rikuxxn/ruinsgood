@@ -28,6 +28,7 @@ public:
 		TYPE_FIRE = 0,
 		TYPE_WATER,
 		TYPE_AURA,
+		TYPE_AURA2,
 		TYPE_MAX
 	}TYPE;
 
@@ -87,6 +88,22 @@ class CAuraParticle : public CParticle
 public:
 	CAuraParticle();
 	~CAuraParticle();
+
+	HRESULT Init(void);
+	void Update(void);
+
+private:
+
+};
+
+//*****************************************************************************
+// オーラ(仮面用)パーティクルクラス
+//*****************************************************************************
+class CAura2Particle : public CParticle
+{
+public:
+	CAura2Particle();
+	~CAura2Particle();
 
 	HRESULT Init(void);
 	void Update(void);

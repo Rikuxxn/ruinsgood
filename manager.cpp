@@ -11,6 +11,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "sound.h"
+#include "game.h"
 
 //*****************************************************************************
 // 静的メンバ変数宣言
@@ -276,21 +277,6 @@ void CManager::Update(void)
 		m_pFade->Update();
 	}
 
-	//// PキーでポーズON/OFF
-	//if (m_pInputKeyboard->GetTrigger(DIK_P))
-	//{
-	//	m_isPaused = !m_isPaused;
-	//}
-
-	//// ポーズ中はゲーム更新しない
-	//if (m_isPaused == true)
-	//{
-	//	// ポーズの更新処理
-	//	m_pPause->Update();
-
-	//	return;
-	//}
-
 	m_pDynamicsWorld->stepSimulation((btScalar)m_fps);
 
 	// ジョイパッドの更新
@@ -315,13 +301,6 @@ void CManager::Draw(void)
 {
 	// レンダラーの描画
 	m_pRenderer->Draw(m_fps);
-
-	//// ポーズ中だったら
-	//if (m_isPaused)
-	//{
-	//	// ポーズの描画処理
-	//	m_pPause->Draw();
-	//}
 }
 //=============================================================================
 // モードの設定
@@ -339,15 +318,12 @@ void CManager::SetMode(CScene::MODE mode)
 		m_pScene->Uninit();
 	}
 
-	// フラグが立っているオブジェクトを破棄
+	// 全てのオブジェクトを破棄
 	CObject::ReleaseAll();
-
-	//m_pFade = CFade::Create(mode);
 
 	// 新しいモードの生成
 	m_pScene = CScene::Create(mode);
 }
-
 //=============================================================================
 // 現在のモードの取得
 //=============================================================================

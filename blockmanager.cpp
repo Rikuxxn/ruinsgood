@@ -857,6 +857,12 @@ const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 	case CBlock::TYPE_DOOR2:
 		return "data/MODELS/door_02.x";
 
+	case CBlock::TYPE_MASK:
+		return "data/MODELS/mask.x";
+
+	case CBlock::TYPE_SORD:
+		return "data/MODELS/sord.x";
+
 	default: 
 		return "";
 	}

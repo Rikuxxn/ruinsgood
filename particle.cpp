@@ -37,19 +37,23 @@ CParticle*CParticle::Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType
 	switch (nType)
 	{
 	case TYPE_FIRE:
-		// エフェクトオブジェクトの生成
+		// 炎パーティクルオブジェクトの生成
 		pParticle = new CFireParticle;
 		break;
 	case TYPE_WATER:
-		// エフェクトオブジェクトの生成
+		// 水しぶきパーティクルオブジェクトの生成
 		pParticle = new CWaterParticle;
 		break;
 	case TYPE_AURA:
-		// エフェクトオブジェクトの生成
+		// オーラパーティクルオブジェクトの生成
 		pParticle = new CAuraParticle;
 		break;
+	case TYPE_AURA2:
+		// オーラ(仮面用)パーティクルオブジェクトの生成
+		pParticle = new CAura2Particle;
+		break;
 	default:
-		// エフェクトオブジェクトの生成
+		// パーティクルオブジェクトの生成
 		pParticle = new CParticle;
 		break;
 	}
@@ -304,10 +308,83 @@ void CAuraParticle::Update(void)
 		col = GetCol();
 
 		// 半径
-		fRadius = 35.0f/* + (rand() % 40)*/;
+		fRadius = 35.0f + (rand() % 40);
 
 		// エフェクトの設定
 		CEffect::Create(texPath,pos, move, col, fRadius, nLife);
+	}
+
+	// パーティクルの更新処理
+	CParticle::Update();
+}
+
+
+//=============================================================================
+// オーラ(仮面用)パーティクルのコンストラクタ
+//=============================================================================
+CAura2Particle::CAura2Particle()
+{
+
+}
+//=============================================================================
+// オーラ(仮面用)パーティクルのデストラクタ
+//=============================================================================
+CAura2Particle::~CAura2Particle()
+{
+	// なし
+}
+//=============================================================================
+// オーラ(仮面用)パーティクルの初期化処理
+//=============================================================================
+HRESULT CAura2Particle::Init(void)
+{
+	SetPath("data/TEXTURE/effect000.jpg");
+
+	// パーティクルの初期化処理
+	CParticle::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// オーラ(仮面用)パーティクルの更新処理
+//=============================================================================
+void CAura2Particle::Update(void)
+{
+	D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DCOLOR col = D3DCOLOR_ARGB(255, 0, 0, 0);
+	float fRadius = 0.0f;
+	float fAngle = 0.0f;
+	float fLength = 0.0f;
+	const char* texPath = NULL;
+	int nMaxParticle = GetMaxParticle();
+	int nLife = GetLife();
+
+	// パーティクル生成
+	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
+	{
+		// テクスチャの指定
+		texPath = "data/TEXTURE/effect000.jpg";
+
+		// 位置
+		pos = GetPos();
+
+		// ランダムな角度で横に広がる
+		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
+		float speed = (rand() % 150) / 300.0f + 0.2f;
+
+		move.x = cosf(angle) * speed;
+		move.z = sinf(angle) * speed;
+		move.y = (rand() % 300) / 100.0f + 0.9f; // 上方向
+
+		// 色
+		col = GetCol();
+
+		// 半径
+		fRadius = 35.0f + (rand() % 40);
+
+		// エフェクトの設定
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
 	}
 
 	// パーティクルの更新処理

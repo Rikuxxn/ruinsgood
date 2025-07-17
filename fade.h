@@ -37,6 +37,7 @@ public:
 	void Draw(void);
 
 	void SetFade(CScene::MODE modeNext);
+	FADE GetFade(void) { return m_fade; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;	// 頂点バッファへのポインタ
