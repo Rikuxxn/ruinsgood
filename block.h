@@ -68,7 +68,6 @@ public:
 	}TYPE;
 
 	static CBlock* Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 size, TYPE type);	// ブロックの生成
-	static CBlock* CreateFromType(TYPE type, D3DXVECTOR3 pos);													// タイプ指定でブロックの生成
 	void CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size);										// コライダーの生成
 	void CreatePhysicsFromScale(const D3DXVECTOR3& scale);														// ブロックスケールによるコライダーの生成
 	virtual HRESULT Init(void);

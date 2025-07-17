@@ -132,70 +132,6 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 	return pBlock;
 }
 //=============================================================================
-// タイプでの生成処理
-//=============================================================================
-CBlock* CBlock::CreateFromType(TYPE type, D3DXVECTOR3 pos)
-{
-	const char* path = "";
-	D3DXVECTOR3 size = { 1.0f, 1.0f, 1.0f };
-	D3DXVECTOR3 rot = { 0.0f, 0.0f, 0.0f };
-
-	switch (type)
-	{
-	case TYPE_WOODBOX:
-		path = "data/MODELS/woodbox_001.x";
-		size = { 1.5f, 1.5f, 1.5f };
-		break;
-
-	case TYPE_WALL:
-		path = "data/MODELS/wall_01.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	case TYPE_WALL2:
-		path = "data/MODELS/wall_02.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	case TYPE_WALL3:
-		path = "data/MODELS/wall_03.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	case TYPE_WALL4:
-		path = "data/MODELS/wall_04.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	case TYPE_AXE:
-		path = "data/MODELS/Axe_01.x";
-		size = { 2.0f, 2.0f, 2.0f };
-		break;
-
-	case TYPE_RAFT:
-		path = "data/MODELS/ikada.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	case TYPE_ROCK:
-		path = "data/MODELS/Rock_001.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	case TYPE_DOOR:
-		path = "data/MODELS/door_01.x";
-		size = { 1.0f, 1.0f, 1.0f };
-		break;
-
-	default:
-		return NULL;
-	}
-
-	CBlock* block = CBlock::Create(path, pos, rot, size, type);
-
-	return block;
-}
-//=============================================================================
 // 初期化処理
 //=============================================================================
 HRESULT CBlock::Init(void)
@@ -1931,23 +1867,37 @@ CTorchBlock::~CTorchBlock()
 //=============================================================================
 void CTorchBlock::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
-	{
-		return;
-	}
-
 	CBlock::Update();// 共通処理
 
 	CParticle* pParticle = NULL;
 
-	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
-	D3DXVECTOR3 disPos = playerPos - GetPos();
+	if (CManager::GetMode() == MODE_GAME)
+	{
+		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+		D3DXVECTOR3 disPos = playerPos - GetPos();
 
-	float distance = D3DXVec3Length(&disPos);
+		float distance = D3DXVec3Length(&disPos);
 
-	const float kTriggerDistance = 1080.0f; // 反応距離
+		const float kTriggerDistance = 1080.0f; // 反応距離
 
-	if (distance < kTriggerDistance)
+		if (distance < kTriggerDistance)
+		{
+			// オフセット
+			D3DXVECTOR3 localOffset(0.0f, 30.0f, -8.0f); // 松明の先端（ローカル）
+			D3DXVECTOR3 worldOffset;
+
+			// ブロックのワールドマトリックスを取得
+			D3DXMATRIX worldMtx = GetWorldMatrix();
+
+			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+			// パーティクル生成
+			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+		}
+	}
+
+	if (CManager::GetMode() == MODE_TITLE)
 	{
 		// オフセット
 		D3DXVECTOR3 localOffset(0.0f, 30.0f, -8.0f); // 松明の先端（ローカル）
@@ -2042,7 +1992,7 @@ CMaskBlock::~CMaskBlock()
 //=============================================================================
 void CMaskBlock::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
+	if (CManager::GetMode() == MODE_GAME)
 	{
 		return;
 	}
@@ -2103,22 +2053,43 @@ CSordBlock::~CSordBlock()
 //=============================================================================
 void CSordBlock::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
-	{
-		return;
-	}
-
 	CBlock::Update(); // 共通処理
 
 	CParticle* pParticle = NULL;
-	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
-	D3DXVECTOR3 disPos = playerPos - GetPos();
 
-	float distance = D3DXVec3Length(&disPos);
+	if (CManager::GetMode() == MODE_GAME)
+	{
+		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+		D3DXVECTOR3 disPos = playerPos - GetPos();
 
-	const float kTriggerDistance = 1280.0f; // 反応距離
+		float distance = D3DXVec3Length(&disPos);
 
-	if (distance < kTriggerDistance)
+		const float kTriggerDistance = 1280.0f; // 反応距離
+
+		if (distance < kTriggerDistance)
+		{
+			// オフセット
+			D3DXVECTOR3 localOffset(0.0f, -60.0f, 0.0f);
+			D3DXVECTOR3 worldOffset;
+
+			// ブロックのワールドマトリックスを取得
+			D3DXMATRIX worldMtx = GetWorldMatrix();
+
+			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+			// パーティクル生成
+			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+		}
+
+		const float getDistance = 280.0f; // 反応距離
+
+		if (distance < getDistance)
+		{
+			m_isGet = true;
+		}
+	}
+
+	if (CManager::GetMode() == MODE_TITLE)
 	{
 		// オフセット
 		D3DXVECTOR3 localOffset(0.0f, -60.0f, 0.0f);
@@ -2131,13 +2102,6 @@ void CSordBlock::Update(void)
 
 		// パーティクル生成
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
-	}
-
-	const float getDistance = 280.0f; // 反応距離
-
-	if (distance < getDistance)
-	{
-		m_isGet = true;
 	}
 }
 

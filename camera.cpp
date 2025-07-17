@@ -76,21 +76,18 @@ void CCamera::Uninit(void)
 //=============================================================================
 void CCamera::Update(void)
 {
-	// タイトル画面の時のカメラの位置
-	
-	//CFade* pFade = CManager::GetFade();
-
-	//if (pFade->GetFade() == MODE_TITLE)
-	//{
-	//	m_posV = D3DXVECTOR3(-1235.5f, 292.0f, -2220.2f);
-	//	m_posR = D3DXVECTOR3(-1524.1f, 142.5f, -1489.2f);
-	//	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);// 固定でいい
-	//	m_rot = D3DXVECTOR3(0.19f, 2.77f, 0.0f);
-	//	m_fDistance = sqrtf(
-	//		((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x)) +
-	//		((m_posV.y - m_posR.y) * (m_posV.y - m_posR.y)) +
-	//		((m_posV.z - m_posR.z) * (m_posV.z - m_posR.z)));
-	//}
+	// タイトル画面だったら
+	if (CManager::GetMode() == MODE_TITLE)
+	{// カメラの位置の設定
+		m_posV = D3DXVECTOR3(-1235.5f, 292.0f, -2220.2f);
+		m_posR = D3DXVECTOR3(-1524.1f, 142.5f, -1489.2f);
+		m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);// 固定でいい
+		m_rot = D3DXVECTOR3(0.19f, 2.77f, 0.0f);
+		m_fDistance = sqrtf(
+			((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x)) +
+			((m_posV.y - m_posR.y) * (m_posV.y - m_posR.y)) +
+			((m_posV.z - m_posR.z) * (m_posV.z - m_posR.z)));
+	}
 
 #ifdef _DEBUG
 	// キーボードの取得
@@ -113,6 +110,11 @@ void CCamera::Update(void)
 	case MODE_EDIT:
 
 #ifdef _DEBUG
+		if (CManager::GetMode() == MODE_TITLE)
+		{
+			return;
+		}
+
 		// エディターカメラの処理
 		EditCamera();
 #endif

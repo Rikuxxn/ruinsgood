@@ -237,6 +237,12 @@ void CBlockManager::UpdateInfo(void)
 
 	ImGui::End();
 
+	if (CManager::GetMode() == MODE_TITLE)
+	{
+		return;
+	}
+
+	// マウス選択処理
 	PickBlockFromMouseClick();
 }
 //=============================================================================
