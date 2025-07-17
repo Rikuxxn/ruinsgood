@@ -23,6 +23,7 @@ CTitle::CTitle() : CScene(CScene::MODE_TITLE)
 	m_col = INIT_XCOL;		// 色
 	m_fWidth = 0.0f;
 	m_fHeight = 0.0f;
+	m_pBlockManager = NULL;
 }
 //=============================================================================
 // デストラクタ
@@ -36,6 +37,15 @@ CTitle::~CTitle()
 //=============================================================================
 HRESULT CTitle::Init(void)
 {
+	// ブロックマネージャーの生成
+	m_pBlockManager = new CBlockManager;
+
+	// ブロックマネージャーの初期化
+	m_pBlockManager->Init();
+
+	// JSONの読み込み
+	m_pBlockManager->LoadFromJson("data/block_title.json");
+
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
@@ -85,14 +95,21 @@ HRESULT CTitle::Init(void)
 	m_pVtxBuff->Unlock();
 
 	return S_OK;
-
-	return S_OK;
 }
 //=============================================================================
 // 終了処理
 //=============================================================================
 void CTitle::Uninit(void)
 {
+	// ブロックマネージャーの破棄
+	if (m_pBlockManager != NULL)
+	{
+		m_pBlockManager->Uninit();
+
+		delete m_pBlockManager;
+		m_pBlockManager = NULL;
+	}
+
 	// 頂点バッファの破棄
 	if (m_pVtxBuff != NULL)
 	{
@@ -105,14 +122,18 @@ void CTitle::Uninit(void)
 //=============================================================================
 void CTitle::Update(void)
 {
+	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 	CInputMouse* pInputMouse = CManager::GetInputMouse();
 	CFade* pFade = CManager::GetFade();
 
-	if (pInputMouse->GetTrigger(0))
+	if (pInputKeyboard->GetTrigger(DIK_RETURN))
 	{
 		// ゲーム画面に移行
 		pFade->SetFade(MODE_GAME);
 	}
+
+	// ブロックマネージャーの更新処理
+	m_pBlockManager->Update();
 }
 //=============================================================================
 // 描画処理
@@ -128,8 +149,8 @@ void CTitle::Draw(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// 黒いポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	//// ポリゴンの描画
+	//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	// テクスチャの設定
 	pDevice->SetTexture(0, NULL);

@@ -2121,7 +2121,7 @@ void CSordBlock::Update(void)
 	if (distance < kTriggerDistance)
 	{
 		// オフセット
-		D3DXVECTOR3 localOffset(0.0f, -70.0f, 0.0f);
+		D3DXVECTOR3 localOffset(0.0f, -60.0f, 0.0f);
 		D3DXVECTOR3 worldOffset;
 
 		// ブロックのワールドマトリックスを取得

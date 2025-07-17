@@ -81,9 +81,9 @@ private:
 		"data/TEXTURE/effect000.jpg",
 		"data/TEXTURE/treasure_effect.png",
 		"data/TEXTURE/smoke.jpg",
-		"data/TEXTURE/effect001.png",
 		"data/TEXTURE/mask.png",
 		"data/TEXTURE/sord.png",
+		"data/TEXTURE/golden.jpg",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

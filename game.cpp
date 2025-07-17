@@ -119,11 +119,11 @@ void CGame::Update(void)
 	// ブロックマネージャーの更新処理
 	m_pBlockManager->Update();
 
-	//if (pInputKeyboard->GetTrigger(DIK_RETURN))
-	//{
-	//	// ゲーム画面に移行
-	//	pFade->SetFade(MODE_RESULT);
-	//}
+	if (pInputKeyboard->GetTrigger(DIK_RETURN))
+	{
+		// ゲーム画面に移行
+		pFade->SetFade(MODE_RESULT);
+	}
 }
 //=============================================================================
 // 描画処理
@@ -136,5 +136,4 @@ void CGame::Draw(void)
 		// ポーズの描画処理
 		m_pPause->Draw();
 	}
-
 }

@@ -38,6 +38,11 @@ public:
 	void CameraWithGamepad(float stickX, float stickY);
 	void AdjustCameraPosition(const D3DXVECTOR3& playerPos);
 
+	void SetPosV(D3DXVECTOR3 posV) { m_posV = posV; }
+	void SetPosR(D3DXVECTOR3 posR) { m_posR = posR; }
+	void SetRot(D3DXVECTOR3 rot) { m_rot = rot; }
+	void SetDis(float fDistance) { m_fDistance = fDistance; }
+
 	//*****************************************************************************
 	// getterä÷êî
 	//*****************************************************************************

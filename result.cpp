@@ -103,10 +103,11 @@ void CResult::Uninit(void)
 //=============================================================================
 void CResult::Update(void)
 {
+	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 	CInputMouse* pInputMouse = CManager::GetInputMouse();
 	CFade* pFade = CManager::GetFade();
 
-	if (pInputMouse->GetTrigger(0))
+	if (pInputKeyboard->GetTrigger(DIK_RETURN))
 	{
 		// ƒQ[ƒ€‰æ–Ê‚ÉˆÚs
 		pFade->SetFade(MODE_TITLE);
