@@ -1466,7 +1466,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	//Swing();	// スイング処理
+	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1541,6 +1541,7 @@ CRockBlock::CRockBlock()
 	m_currentTargetIndex = 0;
 	m_speed = 86500.0f;
 	m_isBridgeSwitchOn = false;
+	m_isBridgeMove = false;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1556,9 +1557,17 @@ void CRockBlock::Update(void)
 {
 	CBlock::Update();	// 共通処理
 
-	Respawn();			// リスポーン処理
+	const float RESET_HEIGHT = -480.0f;
+
+	if (GetPos().y < RESET_HEIGHT)
+	{
+		Respawn();			// リスポーン処理
+	}
 	
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	if (!m_isBridgeMove)
+	{
+		MoveToTarget();		// チェックポイントへ向けて移動
+	}
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -1567,35 +1576,30 @@ void CRockBlock::Update(void)
 //=============================================================================
 void CRockBlock::Respawn(void)
 {
-	const float RESET_HEIGHT = -480.0f;
+	// 動かすためにキネマティックにする
+	SetEditMode(true);
 
-	if (GetPos().y < RESET_HEIGHT)
-	{
-		// 動かすためにキネマティックにする
-		SetEditMode(true);
+	// 岩ブロックの位置を取得
+	D3DXVECTOR3 rockPos = GetPos();
+	D3DXVECTOR3 rockRot = GetRot();
 
-		// 岩ブロックの位置を取得
-		D3DXVECTOR3 rockPos = GetPos();
-		D3DXVECTOR3 rockRot = GetRot();
+	D3DXVECTOR3 respawnPos(2815.5f, 700.0f, -1989.0f);// リスポーン位置
+	D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
 
-		D3DXVECTOR3 respawnPos(2815.5f, 700.0f, -1989.0f);// リスポーン位置
-		D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
+	rockPos = respawnPos;
+	rockRot = rot;
 
-		rockPos = respawnPos;
-		rockRot = rot;
+	SetPos(rockPos);
+	SetRot(rockRot);
 
-		SetPos(rockPos);
-		SetRot(rockRot);
+	// コライダーの更新
+	UpdateCollider();
 
-		// コライダーの更新
-		UpdateCollider();
+	// 現在のチェックポイントインデックスをリセットする
+	m_currentTargetIndex = 0;
 
-		// 現在のチェックポイントインデックスをリセットする
-		m_currentTargetIndex = 0;
-
-		// 動的に戻す
-		SetEditMode(false);
-	}
+	// 動的に戻す
+	SetEditMode(false);
 }
 //=============================================================================
 // 通過ポイント追加処理
@@ -1737,30 +1741,69 @@ void CBridgeBlock::Move(void)
 
 		CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
 
-		if (pSwitch && pSwitch->IsSwitchOn())
+		if (!pSwitch || !pSwitch->IsSwitchOn())
 		{
-			// 現在位置取得
-			D3DXVECTOR3 pos = GetPos();
+			continue;
+		}
 
-			// 移動目標座標
-			const float targetX = -1630.0f;
+		// 現在位置取得
+		D3DXVECTOR3 pos = GetPos();
 
-			// まだ目標位置に達してないなら移動
-			if (pos.x > targetX)
+		// 移動目標座標
+		const float targetX = -1630.0f;
+
+		// まだ目標位置に達してないなら移動
+		if (pos.x > targetX)
+		{
+			const float speed = 2.0f; // 速度
+
+			// 到達チェック：次のフレームで通り過ぎるか
+			if (pos.x - speed <= targetX)
 			{
-				const float speed = 2.0f; // 好みで速度調整
+				pos.x = targetX;
+
+				// 移動完了処理：Rock にフラグOFF & Respawn
+				for (CBlock* block : CBlockManager::GetAllBlocks())
+				{
+					if (block->GetType() != TYPE_ROCK)
+					{
+						continue;
+					}
+
+					CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
+
+					if (pRock)
+					{
+						pRock->IsBridgeMove(false);
+						pRock->Respawn();
+					}
+				}
+			}
+			else
+			{
 				pos.x -= speed;
 
-				if (pos.x < targetX)
+				// 移動中処理：Rock にフラグON
+				for (CBlock* block : CBlockManager::GetAllBlocks())
 				{
-					pos.x = targetX; // 行き過ぎ防止
+					if (block->GetType() != TYPE_ROCK)
+					{
+						continue;
+					}
+
+					CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
+
+					if (pRock)
+					{
+						pRock->IsBridgeMove(true);
+					}
 				}
-
-				SetPos(pos);
-
-				// コライダーの更新
-				UpdateCollider();
 			}
+
+			SetPos(pos);
+
+			// コライダーの更新
+			UpdateCollider();
 		}
 
 	}
@@ -1992,7 +2035,7 @@ CMaskBlock::~CMaskBlock()
 //=============================================================================
 void CMaskBlock::Update(void)
 {
-	if (CManager::GetMode() == MODE_GAME)
+	if (CManager::GetMode() != MODE_GAME)
 	{
 		return;
 	}
@@ -2007,7 +2050,7 @@ void CMaskBlock::Update(void)
 
 	const float kTriggerDistance = 1280.0f; // 反応距離
 
-	if (distance < kTriggerDistance)
+	if (distance < kTriggerDistance && !m_isGet)
 	{
 		// オフセット
 		D3DXVECTOR3 localOffset(0.0f, 15.0f, 0.0f);
@@ -2022,11 +2065,14 @@ void CMaskBlock::Update(void)
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
 	}
 
-	const float getDistance = 280.0f; // 反応距離
+	const float getDistance = 200.0f; // 反応距離
 
 	if (distance < getDistance)
 	{
 		m_isGet = true;
+
+		// リスポーン処理
+		CGame::GetPlayer()->RespawnToCheckpoint();
 	}
 }
 
@@ -2081,11 +2127,12 @@ void CSordBlock::Update(void)
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
 		}
 
-		const float getDistance = 280.0f; // 反応距離
+		const float getDistance = 250.0f; // 反応距離
 
 		if (distance < getDistance)
 		{
-			m_isGet = true;
+			// リザルト画面に移行
+			CManager::GetFade()->SetFade(CScene::MODE_RESULT);
 		}
 	}
 

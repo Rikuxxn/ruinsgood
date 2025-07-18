@@ -84,6 +84,7 @@ private:
 		"data/TEXTURE/mask.png",
 		"data/TEXTURE/sord.png",
 		"data/TEXTURE/golden.jpg",
+		"data/TEXTURE/press.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

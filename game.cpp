@@ -16,14 +16,14 @@
 //*****************************************************************************
 CPlayer* CGame::m_pPlayer = NULL;
 CScore* CGame::m_pScore = NULL;					// スコアへのポインタ
-CTime* CGame::m_pTime = NULL;						// タイムへのポインタ
+CTime* CGame::m_pTime = NULL;					// タイムへのポインタ
 CColon* CGame::m_pColon = NULL;					// コロンへのポインタ
 CPause* CGame::m_pPause= NULL;					// ポーズへのポインタ
 CBlock* CGame::m_pBlock= NULL;					// ブロックへのポインタ
-CBlockManager* CGame::m_pBlockManager= NULL;		// ブロックマネージャーへのポインタ
-CImGuiManager* CGame::m_pImGuiManager= NULL;		// ImGuiマネージャーへのポインタ
+CBlockManager* CGame::m_pBlockManager= NULL;	// ブロックマネージャーへのポインタ
+CImGuiManager* CGame::m_pImGuiManager= NULL;	// ImGuiマネージャーへのポインタ
 
-bool CGame::m_isPaused = false;						// trueならポーズ中
+bool CGame::m_isPaused = false;					// trueならポーズ中
 
 //=============================================================================
 // コンストラクタ
@@ -51,8 +51,8 @@ HRESULT CGame::Init(void)
 	m_pBlockManager->Init();
 
 	// プレイヤーの生成
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 	// JSONの読み込み
 	m_pBlockManager->LoadFromJson("data/block_info.json");

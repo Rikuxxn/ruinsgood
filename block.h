@@ -254,12 +254,14 @@ public:
 	void MoveToTarget(void);					// 転がし処理
 	void IsPlayerHit(void);						// プレイヤーとの接触判定
 	void UseBridgeSwitch(bool enable) { m_isBridgeSwitchOn = enable; }
+	void IsBridgeMove(bool end) { m_isBridgeMove = end; }
 
 private:
 	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列 (代入用)
 	int m_currentTargetIndex;					// 今の目標地点インデックス
 	float m_speed;								// 力の強さ（速度の代わり）
 	bool m_isBridgeSwitchOn;
+	bool m_isBridgeMove;
 };
 
 //*****************************************************************************
