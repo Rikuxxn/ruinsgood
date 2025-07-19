@@ -187,6 +187,7 @@ void CTime::Update(void)
 //=============================================================================
 void CTime::Draw(void)
 {
+#ifdef _DEBUG
 	// テクスチャの取得
 	CTexture* pTexture = CManager::GetTexture();
 
@@ -204,15 +205,7 @@ void CTime::Draw(void)
 			m_apNumber[nCnt]->Draw();
 		}
 	}
-
-	// コロンの描画
-	if (m_pColon)
-	{
-		// テクスチャの設定
-		pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
-
-		m_pColon->Draw();
-	}
+#endif
 }
 //=============================================================================
 // 位置の取得
@@ -341,6 +334,8 @@ void CColon::Update(void)
 //=============================================================================
 void CColon::Draw(void)
 {
+#ifdef _DEBUG
+
 	// テクスチャの取得
 	CTexture* pTexture = CManager::GetTexture();
 
@@ -359,6 +354,7 @@ void CColon::Draw(void)
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+#endif
 }
 //=============================================================================
 // コロンの位置取得処理

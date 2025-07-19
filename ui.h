@@ -21,7 +21,14 @@ public:
 	CUi(int nPriority = 7);
 	~CUi();
 
-	static CUi* Create(const char* path, D3DXVECTOR3 pos, float fWidth, float fHeight);
+	// UIの種類
+	typedef enum
+	{
+		TYPE_PAUSE = 0,
+		TYPE_MASK,
+	}TYPE;
+
+	static CUi* Create(TYPE type, D3DXVECTOR3 pos, float fWidth, float fHeight);
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
@@ -39,7 +46,42 @@ private:
 	float m_fHeight;				// 高さ
 	int m_nIdxTexture;
 	char m_szPath[MAX_PATH];			// ファイルパス
+	TYPE m_type;
+};
+
+//*****************************************************************************
+// ポーズUIクラス
+//*****************************************************************************
+class CPauseUi : public CUi
+{
+public:
+	CPauseUi();
+	~CPauseUi();
+
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void Draw(void);
 
 };
+
+//*****************************************************************************
+// 仮面取得UIクラス
+//*****************************************************************************
+class CMaskUi : public CUi
+{
+public:
+	CMaskUi();
+	~CMaskUi();
+
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void Draw(void);
+
+private:
+
+};
+
 
 #endif

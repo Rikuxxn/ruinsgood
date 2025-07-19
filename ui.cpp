@@ -23,6 +23,7 @@ CUi::CUi(int nPriority) : CObject(nPriority)
 	m_fHeight = 0.0f;			// 高さ
 	m_nIdxTexture = 0;
 	memset(m_szPath, 0, sizeof(m_szPath));
+	m_type = TYPE_PAUSE;
 }
 //=============================================================================
 // デストラクタ
@@ -34,13 +35,25 @@ CUi::~CUi()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CUi* CUi::Create(const char* path, D3DXVECTOR3 pos, float fWidth, float fHeight)
+CUi* CUi::Create(TYPE type, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
-	CUi* pUi;
+	CUi* pUi = NULL;
 
-	pUi = new CUi;
+	switch (type)
+	{
+	case TYPE_PAUSE:
+		pUi = new CPauseUi;
+		pUi->SetPath("data/TEXTURE/ui_pause.png");
+		break;
+	case TYPE_MASK:
+		pUi = new CMaskUi;
+		pUi->SetPath("data/TEXTURE/ui_mask.png");
+		break;
+	default:
+		pUi = new CUi;
+		break;
+	}
 
-	pUi->SetPath(path);
 	pUi->SetPos(pos);
 	pUi->SetSize(fWidth,fHeight);
 
@@ -68,15 +81,15 @@ HRESULT CUi::Init(void)
 		&m_pVtxBuff,
 		NULL);
 
-	VERTEX_2D* pVtx = NULL;//頂点情報へのポインタ
+	VERTEX_2D* pVtx = NULL;// 頂点情報へのポインタ
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x, m_pos.y, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x, m_pos.y + m_fHeight, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
 
 	// rhwの設定
@@ -85,19 +98,19 @@ HRESULT CUi::Init(void)
 	pVtx[2].rhw = 1.0f;
 	pVtx[3].rhw = 1.0f;
 
-	//頂点カラーの設定
+	// 頂点カラーの設定
 	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-	//テクスチャ座標の設定
+	// テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
 	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
-	//頂点バッファをアンロックする
+	// 頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 
 	return S_OK;
@@ -128,9 +141,9 @@ void CUi::Update(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x, m_pos.y, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x, m_pos.y + m_fHeight, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
 
 	//頂点バッファをアンロックする
@@ -155,4 +168,105 @@ void CUi::Draw(void)
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+}
+
+
+//=============================================================================
+// ポーズUIのコンストラクタ
+//=============================================================================
+CPauseUi::CPauseUi()
+{
+	// 値のクリア
+}
+//=============================================================================
+// ポーズUIのデストラクタ
+//=============================================================================
+CPauseUi::~CPauseUi()
+{
+	// なし
+}
+//=============================================================================
+// ポーズUIの初期化処理
+//=============================================================================
+HRESULT CPauseUi::Init(void)
+{
+	// UIの初期化処理
+	CUi::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// ポーズUIの終了処理
+//=============================================================================
+void CPauseUi::Uninit(void)
+{
+	// UIの終了処理
+	CUi::Uninit();
+}
+//=============================================================================
+// ポーズUIの更新処理
+//=============================================================================
+void CPauseUi::Update(void)
+{
+	// UIの更新処理
+	CUi::Update();
+}
+//=============================================================================
+// ポーズUIの描画処理
+//=============================================================================
+void CPauseUi::Draw(void)
+{
+	// UIの描画処理
+	CUi::Draw();
+}
+
+
+//=============================================================================
+// 仮面取得UIのコンストラクタ
+//=============================================================================
+CMaskUi::CMaskUi()
+{
+	// 値のクリア
+
+}
+//=============================================================================
+// 仮面取得UIのデストラクタ
+//=============================================================================
+CMaskUi::~CMaskUi()
+{
+	// なし
+}
+//=============================================================================
+// 仮面取得UIの初期化処理
+//=============================================================================
+HRESULT CMaskUi::Init(void)
+{
+	// UIの初期化処理
+	CUi::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// 仮面取得UIの終了処理
+//=============================================================================
+void CMaskUi::Uninit(void)
+{
+	// UIの終了処理
+	CUi::Uninit();
+}
+//=============================================================================
+// 仮面取得UIの更新処理
+//=============================================================================
+void CMaskUi::Update(void)
+{
+	// UIの更新処理
+	CUi::Update();
+}
+//=============================================================================
+// 仮面取得UIの描画処理
+//=============================================================================
+void CMaskUi::Draw(void)
+{
+	// UIの描画処理
+	CUi::Draw();
 }

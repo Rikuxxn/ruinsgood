@@ -71,36 +71,36 @@ HRESULT CObjectBillboard::Init(void)
 		&m_pVtxBuff,
 		NULL);
 
-	VERTEX_3D* pVtx = NULL;//頂点情報へのポインタ
+	VERTEX_3D* pVtx = NULL;// 頂点情報へのポインタ
 
-	//頂点バッファをロックし、頂点情報へのポインタを取得
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	//頂点座標の設定
+	// 頂点座標の設定
 	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize, 0.0f);
 	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize, 0.0f);
 	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize, 0.0f);
 
-	//各頂点の法線の設定
+	// 各頂点の法線の設定
 	pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 	pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 	pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 	pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
-	//頂点カラーの設定
+	// 頂点カラーの設定
 	pVtx[0].col = m_col;
 	pVtx[1].col = m_col;
 	pVtx[2].col = m_col;
 	pVtx[3].col = m_col;
 
-	//テクスチャ座標の設定
+	// テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
 	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
 	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
 	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
 
-	//頂点バッファをアンロックする
+	// 頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 
 	return S_OK;

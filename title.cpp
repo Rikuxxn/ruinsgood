@@ -76,12 +76,13 @@ HRESULT CTitle::Init(void)
 
 	ImageInfo images[2] =
 	{
-		   { D3DXVECTOR3(480.0f, 270.0f, 0.0f), 380.0f, 170.0f }, // タイトルロゴ
+		   { D3DXVECTOR3(450.0f, 250.0f, 0.0f), 350.0f, 150.0f }, // タイトルロゴ
 		   { D3DXVECTOR3(900.0f, 770.0f, 0.0f), 300.0f, 55.0f }  // PRESS
 	};
 
 	for (int nCnt = 0; nCnt < 2; nCnt++)
 	{
+		// 頂点座標の設定
 		pVtx[0].pos = D3DXVECTOR3(images[nCnt].pos.x - images[nCnt].width, images[nCnt].pos.y - images[nCnt].height, 0.0f);
 		pVtx[1].pos = D3DXVECTOR3(images[nCnt].pos.x + images[nCnt].width, images[nCnt].pos.y - images[nCnt].height, 0.0f);
 		pVtx[2].pos = D3DXVECTOR3(images[nCnt].pos.x - images[nCnt].width, images[nCnt].pos.y + images[nCnt].height, 0.0f);
@@ -140,9 +141,10 @@ void CTitle::Update(void)
 {
 	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 	CInputMouse* pInputMouse = CManager::GetInputMouse();
+	CInputJoypad* pJoypad = CManager::GetInputJoypad();
 	CFade* pFade = CManager::GetFade();
 
-	if (pInputKeyboard->GetTrigger(DIK_RETURN))
+	if (pInputKeyboard->GetAnyKeyTrigger() || pInputMouse->GetTrigger(0) || pJoypad->GetAnyTrigger())
 	{
 		m_isEnterPressed = true;
 

@@ -2071,6 +2071,9 @@ void CMaskBlock::Update(void)
 	{
 		m_isGet = true;
 
+		// ‰¼–ÊŽæ“¾UI‚Ì¶¬
+		CUi::Create(CUi::TYPE_MASK, D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 120.0f);
+
 		// ƒŠƒXƒ|[ƒ“ˆ—
 		CGame::GetPlayer()->RespawnToCheckpoint();
 	}
