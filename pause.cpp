@@ -155,7 +155,7 @@ void CPause::Draw(void)
 	CTexture* pTexture = CManager::GetTexture();
 
 	// ポーズ状態だったら
-	if (CGame::GetisPaused())
+	if (CManager::GetisPaused())
 	{
 		// デバイスの取得
 		CRenderer* renderer = CManager::GetRenderer();

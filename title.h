@@ -56,13 +56,12 @@ private:
 	VertexRange m_vertexRanges[TYPE_MAX];
 
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
-	int m_nIdxTextureTitle;
-	int m_nIdxTexturePress;
-	float m_alphaPress;          // 現在のα値（0.0f ～ 1.0f）
-	bool  m_isAlphaDown;         // 点滅用フラグ（上げる/下げる）
-	bool  m_isEnterPressed;      // エンターキー押された
-
-	CBlockManager* m_pBlockManager;		// ブロックマネージャーへのポインタ
+	int m_nIdxTextureTitle;					// テクスチャインデックス
+	int m_nIdxTexturePress;					// テクスチャインデックス
+	float m_alphaPress;						// 現在のアルファ値
+	bool  m_isAlphaDown;					// 点滅用フラグ（上げる/下げる）
+	bool  m_isEnterPressed;					// エンターキー押された
+	CBlockManager* m_pBlockManager;			// ブロックマネージャーへのポインタ
 
 };
 

@@ -55,7 +55,7 @@ HRESULT CTitle::Init(void)
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	// テクスチャの取得
-	m_nIdxTextureTitle = CManager::GetTexture()->Register("data/TEXTURE/press.png");
+	m_nIdxTextureTitle = CManager::GetTexture()->Register("data/TEXTURE/title.png");
 	m_nIdxTexturePress = CManager::GetTexture()->Register("data/TEXTURE/press.png");
 
 	m_vertexRanges[TYPE_FIRST] = { 0, 3 }; // タイトル
@@ -76,8 +76,8 @@ HRESULT CTitle::Init(void)
 
 	ImageInfo images[2] =
 	{
-		   { D3DXVECTOR3(900.0f, 400.0f, 0.0f), 520.0f, 200.0f }, // タイトルロゴ
-		   { D3DXVECTOR3(900.0f, 720.0f, 0.0f), 300.0f, 50.0f }  // PRESS
+		   { D3DXVECTOR3(480.0f, 270.0f, 0.0f), 380.0f, 170.0f }, // タイトルロゴ
+		   { D3DXVECTOR3(900.0f, 770.0f, 0.0f), 300.0f, 55.0f }  // PRESS
 	};
 
 	for (int nCnt = 0; nCnt < 2; nCnt++)

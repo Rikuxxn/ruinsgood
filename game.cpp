@@ -18,12 +18,11 @@ CPlayer* CGame::m_pPlayer = NULL;
 CScore* CGame::m_pScore = NULL;					// スコアへのポインタ
 CTime* CGame::m_pTime = NULL;					// タイムへのポインタ
 CColon* CGame::m_pColon = NULL;					// コロンへのポインタ
-CPause* CGame::m_pPause= NULL;					// ポーズへのポインタ
 CBlock* CGame::m_pBlock= NULL;					// ブロックへのポインタ
 CBlockManager* CGame::m_pBlockManager= NULL;	// ブロックマネージャーへのポインタ
 CImGuiManager* CGame::m_pImGuiManager= NULL;	// ImGuiマネージャーへのポインタ
-
-bool CGame::m_isPaused = false;					// trueならポーズ中
+CObjectBillboard* CGame::m_pBillboard = NULL;	// ビルボードへのポインタ
+CUi* CGame::m_pUi = NULL;						// UIへのポインタ
 
 //=============================================================================
 // コンストラクタ
@@ -50,9 +49,14 @@ HRESULT CGame::Init(void)
 	// ブロックマネージャーの初期化
 	m_pBlockManager->Init();
 
+	// ビルボードの生成
+	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/move.png", D3DXVECTOR3(155.0f, 130.0f, -20.0f), 80.0f, 20.0f);
+	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/jump.png", D3DXVECTOR3(-165.0f, 150.0f, 385.0f), 80.0f, 20.0f);
+	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/pick.png", D3DXVECTOR3(160.0f, 130.0f, 1220.0f), 80.0f, 20.0f);
+
 	// プレイヤーの生成
-	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 	// JSONの読み込み
 	m_pBlockManager->LoadFromJson("data/block_info.json");
@@ -70,8 +74,8 @@ HRESULT CGame::Init(void)
 	// コロンの生成
 	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 10.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
 
-	// ポーズの生成
-	m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
+	// UIの生成
+	m_pUi = CUi::Create("data/TEXTURE/ui_pause.png", D3DXVECTOR3(40.0f, 860.0f, 0.0f), 300.0f, 80.0f);
 
 	//m_pSound->Play(CSound::SOUND_LABEL_GAMEBGM);
 
@@ -99,22 +103,6 @@ void CGame::Update(void)
 	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 	CInputMouse* pInputMouse = CManager::GetInputMouse();
 	CFade* pFade = CManager::GetFade();
-	CBlock* pBlock = GetBlock();
-
-	// PキーでポーズON/OFF
-	if (pInputKeyboard->GetTrigger(DIK_P))
-	{
-		m_isPaused = !m_isPaused;
-	}
-
-	// ポーズ中はゲーム更新しない
-	if (m_isPaused == true)
-	{
-		// ポーズの更新処理
-		m_pPause->Update();
-
-		return;
-	}
 
 	// ブロックマネージャーの更新処理
 	m_pBlockManager->Update();
@@ -130,10 +118,5 @@ void CGame::Update(void)
 //=============================================================================
 void CGame::Draw(void)
 {
-	// ポーズ中だったら
-	if (m_isPaused)
-	{
-		// ポーズの描画処理
-		m_pPause->Draw();
-	}
+
 }

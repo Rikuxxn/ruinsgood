@@ -20,6 +20,21 @@
 class CPause : public CObject
 {
 public:
+	static constexpr int MAX_PAUSE = 4;
+	static constexpr float PAUSE_MIN_SCALE = 1.0f;
+	static constexpr float PAUSE_MAX_SCALE = 1.2f;
+	static constexpr float PAUSE_SCALE_SPEED = 0.02f;
+	static constexpr float PAUSE_ALPHA_SPEED = 0.05f;
+
+	// 選択項目の種類
+	typedef enum
+	{
+		MENU_CONTINUE = 0,		// ゲームに戻る
+		MENU_RETRY,				// ゲームをやり直す
+		MENU_QUIT,				// タイトル画面に戻る
+		MENU_MAX
+	}MENU;
+
 	CPause(int nPriority = 7);
 	~CPause();
 
@@ -37,7 +52,9 @@ private:
 	float m_fWidth, m_fHeight;				// サイズ
 	int m_fAlpha;							// 現在のアルファ値
 	float m_fTime;							// 時間経過用
-	int m_nIdxTexture;
+	int m_nIdxTexture;						// テクスチャインデックス
+	bool m_bPauseSelect;					// 選ばれているか
+
 };
 
 #endif

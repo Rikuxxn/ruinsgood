@@ -88,8 +88,8 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 	case TYPE_MASK:
 		pBlock = new CMaskBlock();
 		break;
-	case TYPE_SORD:
-		pBlock = new CSordBlock();
+	case TYPE_SWORD:
+		pBlock = new CSwordBlock();
 		break;
 	case TYPE_ROCK:
 		pBlock = new CRockBlock();
@@ -430,8 +430,8 @@ const char* CBlock::GetTexPathFromType(TYPE type)
 	case TYPE_MASK:
 		return "data/TEXTURE/mask.png";
 
-	case TYPE_SORD:
-		return "data/TEXTURE/sord.png";
+	case TYPE_SWORD:
+		return "data/TEXTURE/sword.png";
 
 	default: 
 		return "";
@@ -731,7 +731,7 @@ bool CBlock::IsStaticBlock(void) const
 	case TYPE_SWITCH2:
 	case TYPE_DOOR2:
 	case TYPE_MASK:
-	case TYPE_SORD:
+	case TYPE_SWORD:
 		return true; // 静的（動かない）
 
 	default:
@@ -1466,7 +1466,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1566,7 +1566,7 @@ void CRockBlock::Update(void)
 	
 	if (!m_isBridgeMove)
 	{
-		MoveToTarget();		// チェックポイントへ向けて移動
+		//MoveToTarget();		// チェックポイントへ向けて移動
 	}
 
 	IsPlayerHit();		// プレイヤーとの接触判定
@@ -2080,9 +2080,9 @@ void CMaskBlock::Update(void)
 //=============================================================================
 // 剣ブロックのコンストラクタ
 //=============================================================================
-CSordBlock::CSordBlock()
+CSwordBlock::CSwordBlock()
 {
-	SetType(TYPE_SORD);
+	SetType(TYPE_SWORD);
 
 	// 値のクリア
 	m_isGet = false;
@@ -2090,14 +2090,14 @@ CSordBlock::CSordBlock()
 //=============================================================================
 // 剣ブロックのデストラクタ
 //=============================================================================
-CSordBlock::~CSordBlock()
+CSwordBlock::~CSwordBlock()
 {
 	// なし
 }
 //=============================================================================
 // 剣ブロックの更新処理
 //=============================================================================
-void CSordBlock::Update(void)
+void CSwordBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 

@@ -24,9 +24,11 @@ CSound* CManager::m_pSound = NULL;
 CTexture* CManager::m_pTexture = NULL;
 CCamera* CManager::m_pCamera = NULL;
 CLight* CManager::m_pLight = NULL;
+CPause* CManager::m_pPause = NULL;					// ポーズへのポインタ
 
 CScene* CManager::m_pScene = NULL;
 CFade* CManager::m_pFade = NULL;
+bool CManager::m_isPaused = false;					// trueならポーズ中
 
 btDiscreteDynamicsWorld* CManager::m_pDynamicsWorld = NULL;
 
@@ -128,6 +130,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 
 	// テクスチャの読み込み
 	m_pTexture->Load();
+
+	// ポーズの生成
+	m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
 
 	// タイトル画面
 	m_pFade = CFade::Create(CScene::MODE_TITLE);
@@ -292,6 +297,24 @@ void CManager::Update(void)
 		m_pFade->Update();
 	}
 
+	if (m_pScene->GetMode() == MODE_GAME)
+	{
+		// TABキーでポーズON/OFF
+		if (m_pInputKeyboard->GetTrigger(DIK_TAB))
+		{
+			m_isPaused = !m_isPaused;
+		}
+
+		// ポーズ中はゲーム更新しない
+		if (m_isPaused == true)
+		{
+			// ポーズの更新処理
+			m_pPause->Update();
+
+			return;
+		}
+	}
+
 	m_pDynamicsWorld->stepSimulation((btScalar)m_fps);
 
 	// ジョイパッドの更新
@@ -316,6 +339,13 @@ void CManager::Draw(void)
 {
 	// レンダラーの描画
 	m_pRenderer->Draw(m_fps);
+
+	// ポーズ中だったら
+	if (m_isPaused)
+	{
+		// ポーズの描画処理
+		m_pPause->Draw();
+	}
 }
 //=============================================================================
 // モードの設定
@@ -335,6 +365,9 @@ void CManager::SetMode(CScene::MODE mode)
 
 	// 全てのオブジェクトを破棄
 	CObject::ReleaseAll();
+
+	// ポーズの生成
+	m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
 
 	// 新しいモードの生成
 	m_pScene = CScene::Create(mode);

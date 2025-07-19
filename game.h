@@ -14,8 +14,8 @@
 #include "player.h"
 #include "score.h"
 #include "time.h"
-#include "pause.h"
 #include "blockmanager.h"
+#include "ui.h"
 
 //*****************************************************************************
 // ゲームクラス
@@ -31,25 +31,25 @@ public:
 	void Update(void);
 	void Draw(void);
 
-	static bool GetisPaused(void) { return m_isPaused; };
 	static CPlayer* GetPlayer(void) { return m_pPlayer; }
 	static CScore* GetScore(void) { return m_pScore; }
 	static CTime* GetTime(void) { return m_pTime; }
 	static CBlock* GetBlock(void) { return m_pBlock; }
 	static CBlockManager* GetBlockManager(void) { return m_pBlockManager; }
 	static CImGuiManager* GetImGuiManager(void) { return m_pImGuiManager; }
-	
+	static CObjectBillboard* GetBillboard(void) { return m_pBillboard; }
+	static CUi* GetUi(void) { return m_pUi; }
+
 private:
 	static CPlayer* m_pPlayer;					// プレイヤーへのポインタ
 	static CScore* m_pScore;					// スコアへのポインタ
 	static CTime* m_pTime;						// タイムへのポインタ
 	static CColon* m_pColon;					// コロンへのポインタ
-	static CPause* m_pPause;					// ポーズへのポインタ
 	static CBlock* m_pBlock;					// ブロックへのポインタ
 	static CBlockManager* m_pBlockManager;		// ブロックマネージャーへのポインタ
 	static CImGuiManager* m_pImGuiManager;		// ImGuiマネージャーへのポインタ
-
-	static bool m_isPaused;						// trueならポーズ中
+	static CObjectBillboard* m_pBillboard;		// ビルボードへのポインタ
+	static CUi* m_pUi;							// UIへのポインタ
 
 };
 

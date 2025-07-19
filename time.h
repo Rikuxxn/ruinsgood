@@ -32,7 +32,6 @@ public:
 	D3DXVECTOR3 GetPos(void);
 
 private:
-	static LPDIRECT3DTEXTURE9 m_pTexture;	// テクスチャへのポインタ
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファ
 	D3DXVECTOR3 m_pos;						// 位置
 	float m_fWidth, m_fHeight;				// サイズ（幅・高さ）

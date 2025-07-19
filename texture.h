@@ -82,9 +82,17 @@ private:
 		"data/TEXTURE/treasure_effect.png",
 		"data/TEXTURE/smoke.jpg",
 		"data/TEXTURE/mask.png",
-		"data/TEXTURE/sord.png",
+		"data/TEXTURE/sword.png",
 		"data/TEXTURE/golden.jpg",
+		"data/TEXTURE/title.png",
 		"data/TEXTURE/press.png",
+		"data/TEXTURE/continue.png",
+		"data/TEXTURE/retry.png",
+		"data/TEXTURE/quit.png",
+		"data/TEXTURE/move.png",
+		"data/TEXTURE/jump.png",
+		"data/TEXTURE/pick.png",
+		"data/TEXTURE/ui_pause.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

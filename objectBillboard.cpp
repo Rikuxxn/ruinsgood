@@ -21,7 +21,6 @@ CObjectBillboard::CObjectBillboard(int nPriority) : CObject(nPriority)
 	m_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 	m_pos = INIT_VEC3;
 	m_col = INIT_XCOL;
-	m_nType = TYPE_ONE;
 	m_mtxWorld = {};
 	m_fSize = 0.0f;			// サイズ
 	m_nIdxTexture = 0;
@@ -37,15 +36,16 @@ CObjectBillboard::~CObjectBillboard()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CObjectBillboard* CObjectBillboard::Create(TYPE type,D3DXVECTOR3 pos, float fWidth, float fHeight)
+CObjectBillboard* CObjectBillboard::Create(const char* path,D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	CObjectBillboard* pObjectBillboard;
 
 	pObjectBillboard = new CObjectBillboard;
 
+	pObjectBillboard->SetPath(path);
 	pObjectBillboard->m_pos = pos;
-	pObjectBillboard->m_nType = type;
 	pObjectBillboard->m_fSize = fWidth;
+	pObjectBillboard->m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// 初期化処理
 	pObjectBillboard->Init();
@@ -58,12 +58,10 @@ CObjectBillboard* CObjectBillboard::Create(TYPE type,D3DXVECTOR3 pos, float fWid
 HRESULT CObjectBillboard::Init(void)
 {
 	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	// テクスチャの取得
-	CTexture* pTexture = CManager::GetTexture();
-	m_nIdxTexture = pTexture->Register(m_szPath);
+	m_nIdxTexture = CManager::GetTexture()->Register(m_szPath);
 
 	//頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 4,

@@ -63,7 +63,7 @@ public:
 		TYPE_SWITCH2,
 		TYPE_DOOR2,
 		TYPE_MASK,
-		TYPE_SORD,
+		TYPE_SWORD,
 		TYPE_MAX
 	}TYPE;
 
@@ -345,11 +345,11 @@ private:
 //*****************************************************************************
 // 剣ブロッククラス
 //*****************************************************************************
-class CSordBlock : public CBlock
+class CSwordBlock : public CBlock
 {
 public:
-	CSordBlock();
-	~CSordBlock();
+	CSwordBlock();
+	~CSwordBlock();
 
 	void Update(void) override;
 	bool IsGet(void) { return m_isGet; }
