@@ -52,8 +52,11 @@ public:
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
+	void Count(void);
 	void Draw(void);
 	D3DXVECTOR3 GetPos(void);
+	int GetMinutes(void) { return m_nMinutes; }
+	int GetnSeconds(void) { return m_nSeconds; }
 
 private:
 	static const int DIGITS = 4;

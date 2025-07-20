@@ -19,6 +19,7 @@ CUi::CUi(int nPriority) : CObject(nPriority)
 	// 値のクリア
 	m_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 	m_pos = INIT_VEC3;
+	m_col = INIT_XCOL;
 	m_fWidth = 0.0f;			// 幅
 	m_fHeight = 0.0f;			// 高さ
 	m_nIdxTexture = 0;
@@ -55,6 +56,7 @@ CUi* CUi::Create(TYPE type, D3DXVECTOR3 pos, float fWidth, float fHeight)
 	}
 
 	pUi->SetPos(pos);
+	pUi->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	pUi->SetSize(fWidth,fHeight);
 
 	// 初期化処理
@@ -146,6 +148,12 @@ void CUi::Update(void)
 	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
 
+	// 頂点カラーの設定
+	pVtx[0].col = m_col;
+	pVtx[1].col = m_col;
+	pVtx[2].col = m_col;
+	pVtx[3].col = m_col;
+
 	//頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 }
@@ -227,7 +235,9 @@ void CPauseUi::Draw(void)
 CMaskUi::CMaskUi()
 {
 	// 値のクリア
-
+	m_fTimer = 0.0f;// 経過時間(秒)
+	m_fAlpha = 1.0f;// アルファ値
+	m_bFading = false;// フェード開始フラグ
 }
 //=============================================================================
 // 仮面取得UIのデストラクタ
@@ -261,6 +271,28 @@ void CMaskUi::Update(void)
 {
 	// UIの更新処理
 	CUi::Update();
+
+	// 時間経過
+	m_fTimer++; // 毎フレームの経過時間を加算
+
+	// 3秒経過でフェード開始
+	if (m_fTimer >= 180.0f)
+	{
+		m_bFading = true;
+	}
+
+	// フェード処理（毎フレーム少しずつ減らす）
+	if (m_bFading)
+	{
+		m_fAlpha -= 0.005f; // 1秒でアルファ0になる速さ
+
+		if (m_fAlpha < 0.0f)
+		{
+			m_fAlpha = 0.0f;
+		}
+	}
+
+	SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
 }
 //=============================================================================
 // 仮面取得UIの描画処理

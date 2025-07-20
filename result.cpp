@@ -12,6 +12,15 @@
 #include "input.h"
 #include "manager.h"
 
+//*****************************************************************************
+// 静的メンバ変数宣言
+//*****************************************************************************
+CTime* CResult::m_pTime = NULL;					// タイムへのポインタ
+CColon* CResult::m_pColon = NULL;				// コロンへのポインタ
+int CResult::m_nClearMinutes = 0;
+int CResult::m_nClearSeconds = 0;
+bool CResult::m_isMaskGet = false;
+
 //=============================================================================
 // コンストラクタ
 //=============================================================================
@@ -84,6 +93,17 @@ HRESULT CResult::Init(void)
 	// 頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 
+	float fTimePosX = 760.0f;
+	float fTimeWidth = 42.0f;
+	float fTimeHeight = 58.0f;
+
+	// タイムの生成
+	m_pTime = CTime::Create(m_nClearMinutes, m_nClearSeconds, fTimePosX, 10.0f, fTimeWidth, fTimeHeight);
+
+	// コロンの生成
+	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 10.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
+
+
 	return S_OK;
 }
 //=============================================================================
@@ -127,8 +147,8 @@ void CResult::Draw(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// 黒いポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	//// 黒いポリゴンの描画
+	//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	// テクスチャの設定
 	pDevice->SetTexture(0, NULL);

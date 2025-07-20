@@ -10,6 +10,7 @@
 //*****************************************************************************
 #include "game.h"
 #include "manager.h"
+#include "result.h"
 
 //*****************************************************************************
 // 静的メンバ変数宣言
@@ -107,9 +108,28 @@ void CGame::Update(void)
 	// ブロックマネージャーの更新処理
 	m_pBlockManager->Update();
 
+	// 終了判定チェック
+	if (m_pBlockManager)
+	{
+		for (auto block : m_pBlockManager->GetAllBlocks())
+		{
+			if (block->IsEnd())
+			{
+				// リザルトにセット
+				CResult::SetClearTime(m_pTime->GetMinutes(), m_pTime->GetnSeconds());
+				CResult::SetGet(block->IsGet());
+
+				// リザルト画面に移行
+				pFade->SetFade(MODE_RESULT);
+
+				break;
+			}
+		}
+	}
+
 	if (pInputKeyboard->GetTrigger(DIK_RETURN))
 	{
-		// ゲーム画面に移行
+		// リザルト画面に移行
 		pFade->SetFade(MODE_RESULT);
 	}
 }

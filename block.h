@@ -84,6 +84,8 @@ public:
 	bool IsStaticBlock(void) const;														// 静的ブロックの判別
 	bool IsSelected(void) const { return m_bSelected; }									// ブロックが選択中のフラグを返す
 	bool IsCompoundCollider(void) const;
+	virtual bool IsEnd(void) { return false; }
+	virtual bool IsGet(void) { return false; }
 
 	//*****************************************************************************
 	// setter関数
@@ -112,6 +114,7 @@ public:
 	btScalar GetMassByType(TYPE type);
 	D3DXMATRIX GetWorldMatrix(void);
 
+
 private:
 	char m_szPath[MAX_PATH];		// ファイルパス
 	TYPE m_Type;					// 種類
@@ -129,7 +132,6 @@ private:
 	ColliderPart m_colliderHandle;  // 棒の部分
 	ColliderPart m_colliderBlade;   // 刃の部分
 	std::vector<btCollisionShape*> m_childShapes;
-
 };
 
 //*****************************************************************************
@@ -352,10 +354,10 @@ public:
 	~CSwordBlock();
 
 	void Update(void) override;
-	bool IsGet(void) { return m_isGet; }
+	bool IsEnd(void) { return m_isEnd; }
 
 private:
-	bool m_isGet;
+	bool m_isEnd;
 };
 
 //=============================================================================

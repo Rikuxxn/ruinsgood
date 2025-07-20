@@ -170,9 +170,14 @@ bool CInputKeyboard::GetTrigger(int nKey)
 //=============================================================================
 bool CInputKeyboard::GetAnyKeyTrigger(void)
 {
-	for (int i = 0; i < NUM_KEY_MAX; i++)
+	for (int nCnt = 0; nCnt < NUM_KEY_MAX; nCnt++)
 	{
-		if ((m_aKeyState[i] & 0x80) && !(m_aOldState[i] & 0x80)) // 新しく押されたキーがある
+		if (nCnt == DIK_F11)
+		{
+			continue;
+		}
+
+		if ((m_aKeyState[nCnt] & 0x80) && !(m_aOldState[nCnt] & 0x80)) // 新しく押されたキーがある
 		{
 			return true;
 		}

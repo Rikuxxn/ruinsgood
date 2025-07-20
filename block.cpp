@@ -2072,7 +2072,7 @@ void CMaskBlock::Update(void)
 		m_isGet = true;
 
 		// 仮面取得UIの生成
-		CUi::Create(CUi::TYPE_MASK, D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 120.0f);
+		CUi::Create(CUi::TYPE_MASK, D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 130.0f);
 
 		// リスポーン処理
 		CGame::GetPlayer()->RespawnToCheckpoint();
@@ -2088,7 +2088,7 @@ CSwordBlock::CSwordBlock()
 	SetType(TYPE_SWORD);
 
 	// 値のクリア
-	m_isGet = false;
+	m_isEnd = false;
 }
 //=============================================================================
 // 剣ブロックのデストラクタ
@@ -2133,9 +2133,8 @@ void CSwordBlock::Update(void)
 		const float getDistance = 250.0f; // 反応距離
 
 		if (distance < getDistance)
-		{
-			// リザルト画面に移行
-			CManager::GetFade()->SetFade(CScene::MODE_RESULT);
+		{// 手に入れた
+			m_isEnd = true;
 		}
 	}
 

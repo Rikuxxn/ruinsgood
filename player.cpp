@@ -572,11 +572,16 @@ void CPlayer::HoldBlock(void)
 		else
 		{
 			// 持っている → プレイヤー前方に移動
-			D3DXVECTOR3 pos = GetPos() + GetForward() * 60.0f;
+			D3DXVECTOR3 targetPos = GetPos() + GetForward() * 60.0f;
 
-			pos.y = GetPos().y + 50.0f; // 高さ調整
+			targetPos.y = GetPos().y + 50.0f; // 高さ調整
 
-			m_pCarryingBlock->SetPos(pos);
+			D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
+			float moveSpeed = 10.0f; // 秒あたりの移動スピード
+
+			// 補間する
+			D3DXVECTOR3 newPos = Lerp(currentPos, targetPos, moveSpeed * 1.0f/60.0f);
+			m_pCarryingBlock->SetPos(newPos);
 
 			// プレイヤーの向きに合わせてY軸回転
 			D3DXVECTOR3 rot = m_pCarryingBlock->GetRot();
@@ -955,4 +960,11 @@ D3DXVECTOR3 CPlayer::GetNearestRespawnPoint(void) const
 	}
 
 	return nearest;
+}
+//=============================================================================
+// 補間関数
+//=============================================================================
+D3DXVECTOR3 CPlayer::Lerp(const D3DXVECTOR3& a, const D3DXVECTOR3& b, float t)
+{
+	return a + (b - a) * t;
 }

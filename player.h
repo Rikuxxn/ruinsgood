@@ -62,6 +62,7 @@ public:
 	void RespawnToCheckpoint(void);
 	void AddRespawnPoint(const D3DXVECTOR3& pos);
 	D3DXVECTOR3 GetNearestRespawnPoint(void) const;
+	D3DXVECTOR3 Lerp(const D3DXVECTOR3& a, const D3DXVECTOR3& b, float t);
 
 private:
 	D3DXVECTOR3 m_pos;					// ˆÊ’u

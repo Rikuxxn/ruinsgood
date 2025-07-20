@@ -132,6 +132,37 @@ void CTime::Uninit(void)
 //=============================================================================
 void CTime::Update(void)
 {
+	// タイマーカウント処理
+	Count();
+
+
+	// 各桁の表示値を計算
+	int min10 = m_nMinutes / 10;
+	int min1 = m_nMinutes % 10;
+	int sec10 = m_nSeconds / 10;
+	int sec1 = m_nSeconds % 10;
+
+	// ナンバーオブジェクトに反映
+	if (m_apNumber[0]) m_apNumber[0]->SetDigit(min10);
+	if (m_apNumber[1]) m_apNumber[1]->SetDigit(min1);
+	if (m_apNumber[2]) m_apNumber[2]->SetDigit(sec10);
+	if (m_apNumber[3]) m_apNumber[3]->SetDigit(sec1);
+
+	for (int nCnt = 0; nCnt < 4; nCnt++)
+	{
+		m_apNumber[nCnt]->Update();  // UV更新
+	}
+}
+//=============================================================================
+// タイマーカウント処理
+//=============================================================================
+void CTime::Count(void)
+{
+	if (CManager::GetMode() == MODE_RESULT)
+	{
+		return;
+	}
+
 	// フレームカウント
 	m_nFrameCount++;
 
@@ -158,28 +189,6 @@ void CTime::Update(void)
 		{
 			m_nSeconds--;
 		}
-	}
-
-	// 各桁の表示値を計算
-	int min10 = m_nMinutes / 10;
-	int min1 = m_nMinutes % 10;
-	int sec10 = m_nSeconds / 10;
-	int sec1 = m_nSeconds % 10;
-
-	// ナンバーオブジェクトに反映
-	if (m_apNumber[0]) m_apNumber[0]->SetDigit(min10);
-	if (m_apNumber[1]) m_apNumber[1]->SetDigit(min1);
-	if (m_apNumber[2]) m_apNumber[2]->SetDigit(sec10);
-	if (m_apNumber[3]) m_apNumber[3]->SetDigit(sec1);
-
-	for (int nCnt = 0; nCnt < 4; nCnt++)
-	{
-		m_apNumber[nCnt]->Update();  // UV更新
-	}
-
-	if (m_pColon)
-	{
-		m_pColon->Update();
 	}
 }
 //=============================================================================

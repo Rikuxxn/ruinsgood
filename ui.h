@@ -36,12 +36,14 @@ public:
 	D3DXVECTOR3 GetPos(void) { return m_pos; }
 
 	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
+	void SetCol(D3DXCOLOR col) { m_col = col; }
 	void SetSize(float fWidth, float fHeight) { m_fWidth = fWidth; m_fHeight = fHeight; }
 	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
 	D3DXVECTOR3 m_pos;
+	D3DXCOLOR m_col;
 	float m_fWidth;					// 幅
 	float m_fHeight;				// 高さ
 	int m_nIdxTexture;
@@ -80,7 +82,9 @@ public:
 	void Draw(void);
 
 private:
-
+	float m_fTimer;// 経過時間(秒)
+	float m_fAlpha;// アルファ値
+	bool m_bFading;// フェード開始フラグ
 };
 
 
