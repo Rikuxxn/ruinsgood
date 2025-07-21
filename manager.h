@@ -44,7 +44,6 @@ public:
 	static CCamera* GetCamera(void) { return m_pCamera; }
 	static CLight* GetLight(void) { return m_pLight; }
 	static CFade* GetFade(void) { return m_pFade; }
-	static CPause* GetPause(void) { return m_pPause; }
 	static bool GetisPaused(void) { return m_isPaused; };
 	static void SetEnablePause(bool bPause) { m_isPaused = bPause; }
 
@@ -64,7 +63,7 @@ private:
 	static CTexture* m_pTexture;				// テクスチャへのポインタ
 	static CCamera* m_pCamera;					// カメラへのポインタ
 	static CLight* m_pLight;					// ライトへのポインタ
-	static CPause* m_pPause;					// ポーズへのポインタ
+	static std::vector<CPause*> m_pPauseItems;	// ポーズの各項目
 	int m_fps;									// FPS値
 
 	btBroadphaseInterface* m_pBroadphase;						// 衝突判定のクラスへのポインタ
@@ -76,6 +75,7 @@ private:
 	static CFade* m_pFade;
 	static CScene* m_pScene;
 	static bool m_isPaused;						// trueならポーズ中
+
 
 };
 

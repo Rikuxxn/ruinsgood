@@ -21,7 +21,7 @@ using json = nlohmann::json;
 //*****************************************************************************
 // 静的メンバ変数宣言
 //*****************************************************************************
-std::vector<CBlock*> CBlockManager::m_blocks;	// ブロックの情報
+std::vector<CBlock*> CBlockManager::m_blocks = {};	// ブロックの情報
 int CBlockManager::m_nNumAll = 0;				// ブロックの総数
 int CBlockManager::m_selectedIdx = 0;			// 選択中のインデックス
 CBlock* CBlockManager::m_draggingBlock = {};

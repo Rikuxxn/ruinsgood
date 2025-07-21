@@ -19,13 +19,13 @@
 CPause::CPause(int nPriority) : CObject(nPriority)
 {
 	// 値のクリア
-	m_pVtxBuff	  = NULL;
-	m_pos		  = INIT_VEC3;
-	m_fWidth	  = 0.0f;
-	m_fHeight	  = 0.0f;
-	m_fAlpha      = 0;
-	m_fTime		  = 0.0f;
-	m_nIdxTexture = 0;
+	m_pVtxBuff		= NULL;
+	m_pVtxBuffBack	= NULL;
+	m_pos			= INIT_VEC3;
+	m_fWidth		= 0.0f;
+	m_fHeight		= 0.0f;
+	m_nIdxTexture	= 0;
+	memset(m_szPath, 0, sizeof(m_szPath));
 }
 //=============================================================================
 // デストラクタ
@@ -37,15 +37,33 @@ CPause::~CPause()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CPause* CPause::Create(D3DXVECTOR3 pos, float fWidth, float fHeight)
+CPause* CPause::Create(MENU type,D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
-	CPause* pPause;
+	CPause* pPause = NULL;
 
-	pPause = new CPause;
+	switch (type)
+	{
+	case MENU_CONTINUE:
+		pPause = new CContinue;
+		pPause->SetPath("data/TEXTURE/continue.png");
+		break;
+	case MENU_RETRY:
+		pPause = new CRetry;
+		pPause->SetPath("data/TEXTURE/retry.png");
+		break;
+	case MENU_QUIT:
+		pPause = new CQuit;
+		pPause->SetPath("data/TEXTURE/quit.png");
+		break;
+	default:
+		pPause = new CPause;
+		break;
+	}
 
-	pPause->m_pos = pos;
+	pPause->SetPos(pos);
 	pPause->m_fWidth = fWidth;
 	pPause->m_fHeight = fHeight;
+	pPause->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 	// 初期化処理
 	pPause->Init();
@@ -62,7 +80,15 @@ HRESULT CPause::Init(void)
 	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
 
 	CTexture* pTexture = CManager::GetTexture();
-	m_nIdxTexture = pTexture->Register("data/TEXTURE/pause.png");
+	m_nIdxTexture = pTexture->Register(m_szPath);
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&m_pVtxBuffBack,
+		NULL);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
@@ -74,13 +100,43 @@ HRESULT CPause::Init(void)
 
 	VERTEX_2D* pVtx;// 頂点情報へのポインタ
 
+		// 頂点バッファをロックし、頂点情報へのポインタを取得
+	m_pVtxBuffBack->Lock(0, 0, (void**)&pVtx, 0);
+
+	// 頂点座標の設定
+	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(1920.0f, 0.0f, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(0.0f, 1080.0f, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(1920.0f, 1080.0f, 0.0f);
+
+	// rhwの設定
+	pVtx[0].rhw = 1.0f;
+	pVtx[1].rhw = 1.0f;
+	pVtx[2].rhw = 1.0f;
+	pVtx[3].rhw = 1.0f;
+
+	// 頂点カラーの設定
+	pVtx[0].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
+	pVtx[1].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
+	pVtx[2].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
+	pVtx[3].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
+
+	// テクスチャ座標の設定
+	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
+	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+
+	// 頂点バッファをアンロックする
+	m_pVtxBuffBack->Unlock();
+
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x, m_pos.y, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x, m_pos.y + m_fHeight, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
 
 	// rhwの設定
@@ -118,6 +174,13 @@ void CPause::Uninit(void)
 		m_pVtxBuff = NULL;
 	}
 
+	// 頂点バッファの破棄
+	if (m_pVtxBuffBack != NULL)
+	{
+		m_pVtxBuffBack->Release();
+		m_pVtxBuffBack = NULL;
+	}
+
 	this->Release();
 }
 //=============================================================================
@@ -125,23 +188,32 @@ void CPause::Uninit(void)
 //=============================================================================
 void CPause::Update(void)
 {
-	// 時間経過させる
-	m_fTime += 1.0f / 60.0f;
-
-	// サイン波でアルファ値を生成
-	float alpha = 0.35f + 0.45f * sinf(m_fTime * 4.0f); 
-
 	VERTEX_2D* pVtx;// 頂点情報へのポインタ
+
+	// マウス乗ってるかで色切り替え
+	if (IsMouseOver())
+	{
+		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);  // 不透明
+	}
+	else
+	{
+		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);  // 半透明
+	}
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 頂点カラーにアルファ適用
-	D3DXCOLOR col(1.0f, 1.0f, 1.0f, alpha);
-	pVtx[0].col = col;
-	pVtx[1].col = col;
-	pVtx[2].col = col;
-	pVtx[3].col = col;
+	// 頂点座標の設定
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
+
+	// 頂点カラーの設定
+	pVtx[0].col = m_col;
+	pVtx[1].col = m_col;
+	pVtx[2].col = m_col;
+	pVtx[3].col = m_col;
 
 	// 頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
@@ -161,9 +233,27 @@ void CPause::Draw(void)
 		CRenderer* renderer = CManager::GetRenderer();
 		LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
 
+		//=============================================
+		// 背景
+		//=============================================
+		// 頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0, m_pVtxBuffBack, 0, sizeof(VERTEX_2D));
+
+		// 頂点フォーマットの設定
+		pDevice->SetFVF(FVF_VERTEX_2D);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, NULL);
+
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
 		// 頂点バッファをデータストリームに設定
 		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
 
+		//=============================================
+		// ポーズ
+		//=============================================
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_2D);
 
@@ -179,5 +269,185 @@ void CPause::Draw(void)
 //=============================================================================
 D3DXVECTOR3 CPause::GetPos(void)
 {
-	return D3DXVECTOR3();
+	return m_pos;
+}
+//=============================================================================
+// マウスカーソルの判定処理
+//=============================================================================
+bool CPause::IsMouseOver(void)
+{
+	// マウスカーソルの位置を取得
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+
+	// ウィンドウハンドルを取得
+	HWND hwnd = GetActiveWindow();
+
+	// スクリーン座標をクライアント座標に変換
+	ScreenToClient(hwnd, &cursorPos);
+
+	// クライアントサイズを取得
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+
+	float left = m_pos.x - m_fWidth;
+	float right = m_pos.x + m_fWidth;
+	float top = m_pos.y - m_fHeight;
+	float bottom = m_pos.y + m_fHeight;
+
+	return (cursorPos.x >= left && cursorPos.x <= right &&
+		cursorPos.y >= top && cursorPos.y <= bottom);
+}
+
+
+//=============================================================================
+// コンティニュー項目のコンストラクタ
+//=============================================================================
+CContinue::CContinue()
+{
+	// 値のクリア
+
+}
+//=============================================================================
+// コンティニュー項目のデストラクタ
+//=============================================================================
+CContinue::~CContinue()
+{
+	// なし
+}
+//=============================================================================
+// コンティニュー項目の初期化処理
+//=============================================================================
+HRESULT CContinue::Init(void)
+{
+	// ポーズの初期化処理
+	CPause::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// コンティニュー項目の終了処理
+//=============================================================================
+void CContinue::Uninit(void)
+{
+	// ポーズの終了処理
+	CPause::Uninit();
+}
+//=============================================================================
+// コンティニュー項目の更新処理
+//=============================================================================
+void CContinue::Update(void)
+{
+	// ポーズの更新処理
+	CPause::Update();
+}
+//=============================================================================
+// コンティニュー項目の描画処理
+//=============================================================================
+void CContinue::Draw(void)
+{
+	// ポーズの描画処理
+	CPause::Draw();
+}
+
+
+//=============================================================================
+// リトライ項目のコンストラクタ
+//=============================================================================
+CRetry::CRetry()
+{
+	// 値のクリア
+
+}
+//=============================================================================
+// リトライ項目のデストラクタ
+//=============================================================================
+CRetry::~CRetry()
+{
+	// なし
+}
+//=============================================================================
+// リトライ項目の初期化処理
+//=============================================================================
+HRESULT CRetry::Init(void)
+{
+	// ポーズの初期化処理
+	CPause::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// リトライ項目の終了処理
+//=============================================================================
+void CRetry::Uninit(void)
+{
+	// ポーズの終了処理
+	CPause::Uninit();
+}
+//=============================================================================
+// リトライ項目の更新処理
+//=============================================================================
+void CRetry::Update(void)
+{
+	// ポーズの更新処理
+	CPause::Update();
+}
+//=============================================================================
+// リトライ項目の描画処理
+//=============================================================================
+void CRetry::Draw(void)
+{
+	// ポーズの描画処理
+	CPause::Draw();
+}
+
+
+//=============================================================================
+// 終了項目のコンストラクタ
+//=============================================================================
+CQuit::CQuit()
+{
+	// 値のクリア
+
+}
+//=============================================================================
+// 終了項目のデストラクタ
+//=============================================================================
+CQuit::~CQuit()
+{
+	// なし
+}
+//=============================================================================
+// 終了項目の初期化処理
+//=============================================================================
+HRESULT CQuit::Init(void)
+{
+	// ポーズの初期化処理
+	CPause::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// 終了項目の終了処理
+//=============================================================================
+void CQuit::Uninit(void)
+{
+	// ポーズの終了処理
+	CPause::Uninit();
+}
+//=============================================================================
+// 終了項目の更新処理
+//=============================================================================
+void CQuit::Update(void)
+{
+	// ポーズの更新処理
+	CPause::Update();
+}
+//=============================================================================
+// 終了項目の描画処理
+//=============================================================================
+void CQuit::Draw(void)
+{
+	// ポーズの描画処理
+	CPause::Draw();
 }

@@ -18,7 +18,7 @@
 class CUi : public CObject
 {
 public:
-	CUi(int nPriority = 7);
+	CUi(int nPriority = 6);
 	~CUi();
 
 	// UI‚ÌŽí—Þ

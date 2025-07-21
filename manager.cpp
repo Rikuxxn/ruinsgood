@@ -24,7 +24,7 @@ CSound* CManager::m_pSound = NULL;
 CTexture* CManager::m_pTexture = NULL;
 CCamera* CManager::m_pCamera = NULL;
 CLight* CManager::m_pLight = NULL;
-CPause* CManager::m_pPause = NULL;					// ポーズへのポインタ
+std::vector<CPause*> CManager::m_pPauseItems = {};
 
 CScene* CManager::m_pScene = NULL;
 CFade* CManager::m_pFade = NULL;
@@ -132,7 +132,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 	m_pTexture->Load();
 
 	// ポーズの生成
-	m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
+	m_pPauseItems.push_back(CPause::Create(CPause::MENU_CONTINUE, D3DXVECTOR3(860.0f, 310.0f, 0.0f), 200.0f, 60.0f));
+	m_pPauseItems.push_back(CPause::Create(CPause::MENU_RETRY, D3DXVECTOR3(860.0f, 510.0f, 0.0f), 200.0f, 60.0f));
+	m_pPauseItems.push_back(CPause::Create(CPause::MENU_QUIT, D3DXVECTOR3(860.0f, 710.0f, 0.0f), 200.0f, 60.0f));
 
 	// タイトル画面
 	m_pFade = CFade::Create(CScene::MODE_TITLE);
@@ -272,6 +274,8 @@ void CManager::Uninit(void)
 		m_pFade = NULL;
 	}
 
+	m_pPauseItems.clear();
+
 	// レンダラーの破棄
 	if (m_pRenderer != NULL)
 	{
@@ -308,8 +312,13 @@ void CManager::Update(void)
 		// ポーズ中はゲーム更新しない
 		if (m_isPaused == true)
 		{
-			// ポーズの更新処理
-			m_pPause->Update();
+			// マウスカーソルを表示にする
+			m_pInputMouse->SetCursorVisibility(true);
+
+			for (auto item : m_pPauseItems)
+			{
+				item->Update();
+			}
 
 			return;
 		}
@@ -343,8 +352,10 @@ void CManager::Draw(void)
 	// ポーズ中だったら
 	if (m_isPaused)
 	{
-		// ポーズの描画処理
-		m_pPause->Draw();
+		for (auto item : m_pPauseItems)
+		{
+			item->Draw();
+		}
 	}
 }
 //=============================================================================
@@ -352,6 +363,8 @@ void CManager::Draw(void)
 //=============================================================================
 void CManager::SetMode(CScene::MODE mode)
 {
+	m_pPauseItems.clear();
+
 	// カメラの初期化処理
 	m_pCamera->Init();
 
@@ -367,7 +380,9 @@ void CManager::SetMode(CScene::MODE mode)
 	CObject::ReleaseAll();
 
 	// ポーズの生成
-	m_pPause = CPause::Create(D3DXVECTOR3(490.0f, 340.0f, 0.0f), 400.0f, 90.0f);
+	m_pPauseItems.push_back(CPause::Create(CPause::MENU_CONTINUE, D3DXVECTOR3(860.0f, 310.0f, 0.0f), 200.0f, 60.0f));
+	m_pPauseItems.push_back(CPause::Create(CPause::MENU_RETRY, D3DXVECTOR3(860.0f, 510.0f, 0.0f), 200.0f, 60.0f));
+	m_pPauseItems.push_back(CPause::Create(CPause::MENU_QUIT, D3DXVECTOR3(860.0f, 710.0f, 0.0f), 200.0f, 60.0f));
 
 	// 新しいモードの生成
 	m_pScene = CScene::Create(mode);
