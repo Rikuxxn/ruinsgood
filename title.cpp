@@ -144,7 +144,8 @@ void CTitle::Update(void)
 	CInputJoypad* pJoypad = CManager::GetInputJoypad();
 	CFade* pFade = CManager::GetFade();
 
-	if (pInputKeyboard->GetAnyKeyTrigger() || pInputMouse->GetTrigger(0) || pJoypad->GetAnyTrigger())
+	if (pFade->GetFade() == CFade::FADE_NONE && 
+		(pInputKeyboard->GetAnyKeyTrigger() || pInputMouse->GetTrigger(0) || pJoypad->GetAnyTrigger()))
 	{
 		m_isEnterPressed = true;
 

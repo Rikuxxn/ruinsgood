@@ -414,6 +414,11 @@ void CRetry::Draw(void)
 //=============================================================================
 void CRetry::Execute(void)
 {
+	if (CManager::GetFade()->GetFade() != CFade::FADE_NONE)
+	{
+		return;
+	}
+
 	// ゲーム画面に移行
 	CManager::GetFade()->SetFade(CScene::MODE_GAME);
 }
@@ -473,6 +478,11 @@ void CQuit::Draw(void)
 //=============================================================================
 void CQuit::Execute(void)
 {
+	if (CManager::GetFade()->GetFade() != CFade::FADE_NONE)
+	{
+		return;
+	}
+
 	// タイトル画面に移行
 	CManager::GetFade()->SetFade(CScene::MODE_TITLE);
 }

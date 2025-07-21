@@ -426,7 +426,7 @@ void CManager::UpdatePauseInput(void)
 	// マウスで項目が選択されていれば、それを現在の選択として扱う
 	if (mouseOverIndex != -1)
 	{
-		m_nPauseSelectedIndex = mouseOverIndex;  // ← ここでインデックス保存
+		m_nPauseSelectedIndex = mouseOverIndex;  // インデックス保存
 	}
 
 	// キーボード・ゲームパッド操作
@@ -461,9 +461,13 @@ void CManager::UpdatePauseInput(void)
 	{
 		m_bInputPressed = false;
 	}
-
 	// 決定入力
-	if (m_pInputKeyboard->GetTrigger(DIK_RETURN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_A))
+	if (CManager::GetFade()->GetFade() == CFade::FADE_NONE && mouseOverIndex != -1 && m_pInputMouse->GetTrigger(0))
+	{
+		m_pPauseItems[mouseOverIndex]->Execute();// 常に現在選択項目を使う
+	}
+	else if (CManager::GetFade()->GetFade() == CFade::FADE_NONE && 
+		(m_pInputKeyboard->GetTrigger(DIK_RETURN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_A)))
 	{
 		m_pPauseItems[m_nPauseSelectedIndex]->Execute(); // 常に現在選択項目を使う
 	}

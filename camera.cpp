@@ -50,15 +50,20 @@ HRESULT CCamera::Init(void)
 	m_posR = D3DXVECTOR3(0.0f, 80.0f, 0.0f);
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);// 固定でいい
 	m_rot = D3DXVECTOR3(0.0f, D3DX_PI, 0.0f);
+	
+#ifdef _DEBUG
+	m_Mode = MODE_EDIT;									// カメラのモード
+
 	m_fDistance = sqrtf(
 		((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x)) +
 		((m_posV.y - m_posR.y) * (m_posV.y - m_posR.y)) +
 		((m_posV.z - m_posR.z) * (m_posV.z - m_posR.z)));
-	
-#ifdef _DEBUG
-	m_Mode = MODE_EDIT;									// カメラのモード
+
 #else
 	m_Mode = MODE_GAME;
+
+	m_fDistance = 220.0f;
+
 #endif
 
 	return S_OK;

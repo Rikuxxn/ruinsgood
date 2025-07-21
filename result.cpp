@@ -142,11 +142,11 @@ void CResult::Uninit(void)
 //=============================================================================
 void CResult::Update(void)
 {
-	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 	CInputMouse* pInputMouse = CManager::GetInputMouse();
+	CInputJoypad* pJoypad = CManager::GetInputJoypad();
 	CFade* pFade = CManager::GetFade();
 
-	if (pInputKeyboard->GetTrigger(DIK_RETURN))
+	if (pFade->GetFade() == CFade::FADE_NONE && (pInputMouse->GetTrigger(0) || pJoypad->GetTrigger(CInputJoypad::JOYKEY_A)))
 	{
 		// ƒQ[ƒ€‰æ–Ê‚ÉˆÚs
 		pFade->SetFade(MODE_TITLE);

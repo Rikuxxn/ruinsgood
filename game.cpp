@@ -132,7 +132,7 @@ void CGame::Update(void)
 	}
 
 #ifdef _DEBUG
-	if (pInputKeyboard->GetTrigger(DIK_RETURN))
+	if (pFade->GetFade() == CFade::FADE_NONE && (pInputKeyboard->GetTrigger(DIK_RETURN) || pInputMouse->GetTrigger(0)))
 	{
 		// リザルトにセット
 		CResult::SetClearTime(m_pTime->GetMinutes(), m_pTime->GetnSeconds());
