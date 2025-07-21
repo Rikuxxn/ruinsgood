@@ -13,6 +13,7 @@
 #include <algorithm>
 #include "particle.h"
 #include "game.h"
+#include "result.h"
 
 using namespace std;
 
@@ -1342,6 +1343,7 @@ CBridgeSwitchBlock::CBridgeSwitchBlock()
 	// 値のクリア
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
+	m_prevSwitchOn = false;
 }
 //=============================================================================
 // 橋制御ブロックのデストラクタ
@@ -1405,6 +1407,8 @@ void CBridgeSwitchBlock::Update(void)
 	// 質量のしきい値を超えていたら沈む
 	const float massThreshold = 4.0f;
 
+	bool switchNowOn = false;
+
 	if (totalMass >= massThreshold)
 	{
 		D3DXVECTOR3 pos = swPos;
@@ -1419,22 +1423,30 @@ void CBridgeSwitchBlock::Update(void)
 
 		SetEditMode(true); // 動かすためにキネマティック
 
-		m_isSwitchOn = true;
+		switchNowOn = true;
 
-		// 岩ブロックを探してフラグを立てる
-		for (CBlock* block : CBlockManager::GetAllBlocks())
+		if (!m_prevSwitchOn) // 前フレームがOFF→今回ONなら一回だけ実行
 		{
-			if (block->GetType() == TYPE_ROCK)
+			for (CBlock* block : CBlockManager::GetAllBlocks())
 			{
-				CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
-
-				if (pRock) 
-				{ 
-					pRock->UseBridgeSwitch(true); 
+				if (block->GetType() != TYPE_ROCK)
+				{
+					continue;
 				}
+
+				CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
+				if (pRock)
+				{
+					pRock->UseBridgeSwitch(true);
+					pRock->Respawn();
+				}
+
 			}
 		}
 	}
+
+	m_isSwitchOn = switchNowOn;
+	m_prevSwitchOn = switchNowOn;
 
 	CBlock::Update(); // 共通処理
 }
@@ -1541,7 +1553,6 @@ CRockBlock::CRockBlock()
 	m_currentTargetIndex = 0;
 	m_speed = 86500.0f;
 	m_isBridgeSwitchOn = false;
-	m_isBridgeMove = false;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1564,10 +1575,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	if (!m_isBridgeMove)
-	{
-		//MoveToTarget();		// チェックポイントへ向けて移動
-	}
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -1761,43 +1769,10 @@ void CBridgeBlock::Move(void)
 			if (pos.x - speed <= targetX)
 			{
 				pos.x = targetX;
-
-				// 移動完了処理：Rock にフラグOFF & Respawn
-				for (CBlock* block : CBlockManager::GetAllBlocks())
-				{
-					if (block->GetType() != TYPE_ROCK)
-					{
-						continue;
-					}
-
-					CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
-
-					if (pRock)
-					{
-						pRock->IsBridgeMove(false);
-						pRock->Respawn();
-					}
-				}
 			}
 			else
 			{
 				pos.x -= speed;
-
-				// 移動中処理：Rock にフラグON
-				for (CBlock* block : CBlockManager::GetAllBlocks())
-				{
-					if (block->GetType() != TYPE_ROCK)
-					{
-						continue;
-					}
-
-					CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
-
-					if (pRock)
-					{
-						pRock->IsBridgeMove(true);
-					}
-				}
 			}
 
 			SetPos(pos);
@@ -2035,47 +2010,46 @@ CMaskBlock::~CMaskBlock()
 //=============================================================================
 void CMaskBlock::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
-	{
-		return;
-	}
-
 	CBlock::Update(); // 共通処理
 
 	CParticle* pParticle = NULL;
-	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
-	D3DXVECTOR3 disPos = playerPos - GetPos();
 
-	float distance = D3DXVec3Length(&disPos);
-
-	const float kTriggerDistance = 1280.0f; // 反応距離
-
-	if (distance < kTriggerDistance && !m_isGet)
+	if (CManager::GetMode() == MODE_GAME)
 	{
-		// オフセット
-		D3DXVECTOR3 localOffset(0.0f, 15.0f, 0.0f);
-		D3DXVECTOR3 worldOffset;
+		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+		D3DXVECTOR3 disPos = playerPos - GetPos();
 
-		// ブロックのワールドマトリックスを取得
-		D3DXMATRIX worldMtx = GetWorldMatrix();
+		float distance = D3DXVec3Length(&disPos);
 
-		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+		const float kTriggerDistance = 1280.0f; // 反応距離
 
-		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
-	}
+		if (distance < kTriggerDistance && !m_isGet)
+		{
+			// オフセット
+			D3DXVECTOR3 localOffset(0.0f, 15.0f, 0.0f);
+			D3DXVECTOR3 worldOffset;
 
-	const float getDistance = 200.0f; // 反応距離
+			// ブロックのワールドマトリックスを取得
+			D3DXMATRIX worldMtx = GetWorldMatrix();
 
-	if (distance < getDistance)
-	{
-		m_isGet = true;
+			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
-		// 仮面取得UIの生成
-		CUi::Create(CUi::TYPE_MASK, D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 130.0f);
+			// パーティクル生成
+			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
+		}
 
-		// リスポーン処理
-		CGame::GetPlayer()->RespawnToCheckpoint();
+		const float getDistance = 200.0f; // 反応距離
+
+		if (distance < getDistance)
+		{
+			m_isGet = true;
+
+			// 仮面取得UIの生成
+			CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 130.0f);
+
+			// リスポーン処理
+			CGame::GetPlayer()->RespawnToCheckpoint();
+		}
 	}
 }
 

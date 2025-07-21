@@ -20,6 +20,7 @@ CColon* CResult::m_pColon = NULL;				// コロンへのポインタ
 int CResult::m_nClearMinutes = 0;
 int CResult::m_nClearSeconds = 0;
 bool CResult::m_isMaskGet = false;
+CUi* CResult::m_pUi = NULL;						// UIへのポインタ
 
 //=============================================================================
 // コンストラクタ
@@ -93,16 +94,34 @@ HRESULT CResult::Init(void)
 	// 頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 
-	float fTimePosX = 760.0f;
-	float fTimeWidth = 42.0f;
-	float fTimeHeight = 58.0f;
+	float fTimePosX = 1150.0f;
+	float fTimeWidth = 52.0f;
+	float fTimeHeight = 68.0f;
 
 	// タイムの生成
-	m_pTime = CTime::Create(m_nClearMinutes, m_nClearSeconds, fTimePosX, 10.0f, fTimeWidth, fTimeHeight);
+	m_pTime = CTime::Create(m_nClearMinutes, m_nClearSeconds, fTimePosX, 675.0f, fTimeWidth, fTimeHeight);
 
 	// コロンの生成
-	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 10.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
+	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 675.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
 
+	// UIの生成
+	m_pUi = CUi::Create(CUi::TYPE_RESULT01, "data/TEXTURE/ui_result001.png",D3DXVECTOR3(450.0f, 595.0f, 0.0f), 230.0f, 40.0f);
+	m_pUi = CUi::Create(CUi::TYPE_RESULT01, "data/TEXTURE/ui_result002.png", D3DXVECTOR3(1250.0f, 595.0f, 0.0f), 230.0f, 40.0f);
+	m_pUi = CUi::Create(CUi::TYPE_RESULT01, "data/TEXTURE/ui_result005.png", D3DXVECTOR3(860.0f, 155.0f, 0.0f), 150.0f, 40.0f);
+
+	// UI(ランク)の生成
+	m_pUi = CUi::Create(CUi::TYPE_RESULT03, "data/TEXTURE/ui_result006.png", D3DXVECTOR3(860.0f, 355.0f, 0.0f), 120.0f, 120.0f);
+
+	if (m_isMaskGet)
+	{
+		// UI(発見したかどうか)の生成
+		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result004.png",D3DXVECTOR3(450.0f, 725.0f, 0.0f), 170.0f, 50.0f);
+	}
+	else if (!m_isMaskGet)
+	{
+		// UI(発見したかどうか)の生成
+		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result003.png",D3DXVECTOR3(450.0f, 725.0f, 0.0f), 150.0f, 50.0f);
+	}
 
 	return S_OK;
 }

@@ -166,28 +166,18 @@ void CTime::Count(void)
 	// フレームカウント
 	m_nFrameCount++;
 
-	// 60フレーム経過したら1秒減らす
+	// 60フレーム経過したら1秒加算
 	if (m_nFrameCount >= 60)
 	{
 		m_nFrameCount = 0;
 
-		if (m_nSeconds == 0)
+		m_nSeconds++;
+
+		// 60秒で1分繰り上げ
+		if (m_nSeconds >= 60)
 		{
-			if (m_nMinutes > 0)
-			{
-				m_nMinutes--;
-				m_nSeconds = 59;
-			}
-			else
-			{
-				// 分・秒が共に0のとき → タイマー終了
-				m_nSeconds = 0;
-				m_nMinutes = 0;
-			}
-		}
-		else
-		{
-			m_nSeconds--;
+			m_nSeconds = 0;
+			m_nMinutes++;
 		}
 	}
 }

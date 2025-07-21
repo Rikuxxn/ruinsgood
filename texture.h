@@ -94,6 +94,12 @@ private:
 		"data/TEXTURE/pick.png",
 		"data/TEXTURE/ui_pause.png",
 		"data/TEXTURE/ui_mask.png",
+		"data/TEXTURE/ui_result001.png",
+		"data/TEXTURE/ui_result002.png",
+		"data/TEXTURE/ui_result003.png",
+		"data/TEXTURE/ui_result004.png",
+		"data/TEXTURE/ui_result005.png",
+		"data/TEXTURE/ui_result006.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

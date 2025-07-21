@@ -95,6 +95,8 @@ private:
 	float m_waterStayTime;				// …’†‘ØİŠÔi•bj
 	bool m_isInWater;					// ¡…’†‚É‚¢‚é‚©
 	std::vector<D3DXVECTOR3> m_ResPos;
+	btRigidBody* m_pHandAnchor;
+	btPoint2PointConstraint* m_pJoint;
 };
 
 #endif

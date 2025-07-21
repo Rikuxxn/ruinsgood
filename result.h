@@ -12,9 +12,10 @@
 //*****************************************************************************
 #include "scene.h"
 #include "time.h"
+#include "ui.h"
 
 //*****************************************************************************
-// タイトルクラス
+// リザルトクラス
 //*****************************************************************************
 class CResult : public CScene
 {
@@ -28,6 +29,8 @@ public:
 	void Draw(void);
 	static void SetClearTime(int min, int sec) { m_nClearMinutes = min; m_nClearSeconds = sec; }
 	static void SetGet(bool flag) { m_isMaskGet = flag; }
+	static int GetClearMinutes(void) { return m_nClearMinutes; }
+	static int GetClearSeconds(void) { return m_nClearSeconds; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
@@ -39,6 +42,7 @@ private:
 	static int m_nClearMinutes;
 	static int m_nClearSeconds;
 	static bool m_isMaskGet;
+	static CUi* m_pUi;							// UIへのポインタ
 };
 
 #endif

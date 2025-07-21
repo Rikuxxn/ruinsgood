@@ -70,13 +70,13 @@ HRESULT CGame::Init(void)
 	float fTimeHeight = 58.0f;
 
 	// タイムの生成
-	m_pTime = CTime::Create(12, 15, fTimePosX, 10.0f, fTimeWidth, fTimeHeight);
+	m_pTime = CTime::Create(0, 0, fTimePosX, 10.0f, fTimeWidth, fTimeHeight);
 
 	// コロンの生成
 	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 10.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
 
 	// ポーズUIの生成
-	m_pUi = CUi::Create(CUi::TYPE_PAUSE, D3DXVECTOR3(150.0f, 895.0f, 0.0f), 140.0f, 35.0f);
+	m_pUi = CUi::Create(CUi::TYPE_PAUSE, "data/TEXTURE/ui_pause.png",D3DXVECTOR3(150.0f, 895.0f, 0.0f), 140.0f, 35.0f);
 
 	//m_pSound->Play(CSound::SOUND_LABEL_GAMEBGM);
 
@@ -113,11 +113,15 @@ void CGame::Update(void)
 	{
 		for (auto block : m_pBlockManager->GetAllBlocks())
 		{
+			if (block->IsGet())
+			{
+				CResult::SetGet(true);
+			}
+
 			if (block->IsEnd())
 			{
 				// リザルトにセット
 				CResult::SetClearTime(m_pTime->GetMinutes(), m_pTime->GetnSeconds());
-				CResult::SetGet(block->IsGet());
 
 				// リザルト画面に移行
 				pFade->SetFade(MODE_RESULT);
@@ -127,11 +131,16 @@ void CGame::Update(void)
 		}
 	}
 
+#ifdef _DEBUG
 	if (pInputKeyboard->GetTrigger(DIK_RETURN))
 	{
+		// リザルトにセット
+		CResult::SetClearTime(m_pTime->GetMinutes(), m_pTime->GetnSeconds());
+
 		// リザルト画面に移行
 		pFade->SetFade(MODE_RESULT);
 	}
+#endif
 }
 //=============================================================================
 // 描画処理
