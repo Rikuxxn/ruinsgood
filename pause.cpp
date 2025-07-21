@@ -26,6 +26,7 @@ CPause::CPause(int nPriority) : CObject(nPriority)
 	m_fHeight		= 0.0f;
 	m_nIdxTexture	= 0;
 	memset(m_szPath, 0, sizeof(m_szPath));
+	m_isSelected = false;
 }
 //=============================================================================
 // デストラクタ
@@ -190,14 +191,14 @@ void CPause::Update(void)
 {
 	VERTEX_2D* pVtx;// 頂点情報へのポインタ
 
-	// マウス乗ってるかで色切り替え
-	if (IsMouseOver())
+	// 選択項目の色の切り替え
+	if (IsMouseOver() || m_isSelected)
 	{
-		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);  // 不透明
+		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	else
 	{
-		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);  // 半透明
+		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
 	}
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
@@ -245,8 +246,8 @@ void CPause::Draw(void)
 		// テクスチャの設定
 		pDevice->SetTexture(0, NULL);
 
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		//// ポリゴンの描画
+		//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 		// 頂点バッファをデータストリームに設定
 		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
@@ -349,6 +350,14 @@ void CContinue::Draw(void)
 	// ポーズの描画処理
 	CPause::Draw();
 }
+//=============================================================================
+// 選択時の処理
+//=============================================================================
+void CContinue::Execute(void)
+{
+	// 続ける
+	CManager::SetEnablePause(false);
+}
 
 
 //=============================================================================
@@ -400,6 +409,14 @@ void CRetry::Draw(void)
 	// ポーズの描画処理
 	CPause::Draw();
 }
+//=============================================================================
+// 選択時の処理
+//=============================================================================
+void CRetry::Execute(void)
+{
+	// ゲーム画面に移行
+	CManager::GetFade()->SetFade(CScene::MODE_GAME);
+}
 
 
 //=============================================================================
@@ -450,4 +467,12 @@ void CQuit::Draw(void)
 {
 	// ポーズの描画処理
 	CPause::Draw();
+}
+//=============================================================================
+// 選択時の処理
+//=============================================================================
+void CQuit::Execute(void)
+{
+	// タイトル画面に移行
+	CManager::GetFade()->SetFade(CScene::MODE_TITLE);
 }

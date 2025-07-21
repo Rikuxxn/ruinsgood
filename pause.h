@@ -39,11 +39,14 @@ public:
 	void Draw(void);
 	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
 	D3DXVECTOR3 GetPos(void);
-
 	bool IsMouseOver(void);
-
 	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
 	void SetCol(D3DXCOLOR col) { m_col = col; }
+	virtual void Execute(void) {}
+
+	// 選択状態設定・取得
+	void SetSelected(bool selected) { m_isSelected = selected; }
+	bool IsSelected() const { return m_isSelected; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
@@ -53,6 +56,7 @@ private:
 	float m_fWidth, m_fHeight;				// サイズ
 	int m_nIdxTexture;						// テクスチャインデックス
 	char m_szPath[MAX_PATH];				// ファイルパス
+	bool m_isSelected;
 };
 
 //*****************************************************************************
@@ -68,6 +72,7 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	void Execute(void) override;
 
 private:
 
@@ -86,6 +91,7 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	void Execute(void) override;
 
 private:
 
@@ -104,6 +110,7 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	void Execute(void) override;
 
 private:
 

@@ -25,6 +25,8 @@ CTexture* CManager::m_pTexture = NULL;
 CCamera* CManager::m_pCamera = NULL;
 CLight* CManager::m_pLight = NULL;
 std::vector<CPause*> CManager::m_pPauseItems = {};
+int CManager::m_nPauseSelectedIndex = 0;
+bool CManager::m_bInputPressed = false;
 
 CScene* CManager::m_pScene = NULL;
 CFade* CManager::m_pFade = NULL;
@@ -294,6 +296,12 @@ void CManager::Update(void)
 	// キーボードの更新
 	m_pInputKeyboard->Update();
 
+	// ジョイパッドの更新
+	m_pInputJoypad->Update();
+
+	// マウスの更新
+	m_pInputMouse->Update();
+
 	// フェードの更新処理
 	if (m_pFade != NULL)
 	{
@@ -304,7 +312,7 @@ void CManager::Update(void)
 	if (m_pScene->GetMode() == MODE_GAME)
 	{
 		// TABキーでポーズON/OFF
-		if (m_pInputKeyboard->GetTrigger(DIK_TAB))
+		if (m_pInputKeyboard->GetTrigger(DIK_TAB) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_START))
 		{
 			m_isPaused = !m_isPaused;
 		}
@@ -320,17 +328,14 @@ void CManager::Update(void)
 				item->Update();
 			}
 
+			// ポーズ項目の選択処理
+			UpdatePauseInput();
+
 			return;
 		}
 	}
 
 	m_pDynamicsWorld->stepSimulation((btScalar)m_fps);
-
-	// ジョイパッドの更新
-	m_pInputJoypad->Update();
-
-	// マウスの更新
-	m_pInputMouse->Update();
 
 	// カメラの更新
 	m_pCamera->Update();
@@ -379,6 +384,9 @@ void CManager::SetMode(CScene::MODE mode)
 	// 全てのオブジェクトを破棄
 	CObject::ReleaseAll();
 
+	m_isPaused = false;
+	m_nPauseSelectedIndex = 0;
+
 	// ポーズの生成
 	m_pPauseItems.push_back(CPause::Create(CPause::MENU_CONTINUE, D3DXVECTOR3(860.0f, 310.0f, 0.0f), 200.0f, 60.0f));
 	m_pPauseItems.push_back(CPause::Create(CPause::MENU_RETRY, D3DXVECTOR3(860.0f, 510.0f, 0.0f), 200.0f, 60.0f));
@@ -393,4 +401,76 @@ void CManager::SetMode(CScene::MODE mode)
 CScene::MODE CManager::GetMode(void)
 {
 	return m_pScene->GetMode();
+}
+//=============================================================================
+// ポーズ項目の選択処理
+//=============================================================================
+void CManager::UpdatePauseInput(void)
+{
+	if (!m_isPaused)
+	{
+		return;
+	}
+
+	// まずマウスで選択されている項目を探す
+	int mouseOverIndex = -1;
+	for (size_t i = 0; i < m_pPauseItems.size(); i++)
+	{
+		if (m_pPauseItems[i]->IsMouseOver())
+		{
+			mouseOverIndex = (int)i;
+			break;
+		}
+	}
+
+	// マウスで項目が選択されていれば、それを現在の選択として扱う
+	if (mouseOverIndex != -1)
+	{
+		m_nPauseSelectedIndex = mouseOverIndex;  // ← ここでインデックス保存
+	}
+
+	// キーボード・ゲームパッド操作
+	bool up = m_pInputKeyboard->GetTrigger(DIK_UP) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_UP);
+	bool down = m_pInputKeyboard->GetTrigger(DIK_DOWN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_DOWN);
+
+	if ((up || down) && !m_bInputPressed)
+	{
+		if (up)
+		{
+			m_nPauseSelectedIndex--;
+		}
+		else if (down)
+		{
+			m_nPauseSelectedIndex++;
+		}
+
+		int maxIdx = (int)m_pPauseItems.size() - 1;
+		if (m_nPauseSelectedIndex < 0)
+		{
+			m_nPauseSelectedIndex = maxIdx;
+		}
+		if (m_nPauseSelectedIndex > maxIdx)
+		{
+			m_nPauseSelectedIndex = 0;
+		}
+
+		m_bInputPressed = true;
+		// m_pSound->Play(SOUND_SE_SELECT);
+	}
+	else if (!up && !down)
+	{
+		m_bInputPressed = false;
+	}
+
+	// 決定入力
+	if (m_pInputKeyboard->GetTrigger(DIK_RETURN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_A))
+	{
+		m_pPauseItems[m_nPauseSelectedIndex]->Execute(); // 常に現在選択項目を使う
+	}
+
+	// 色の反映（現在選択されているインデックスのみ不透明）
+	for (size_t i = 0; i < m_pPauseItems.size(); ++i)
+	{
+		m_pPauseItems[i]->SetSelected(i == m_nPauseSelectedIndex);
+	}
 }

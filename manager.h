@@ -53,6 +53,7 @@ public:
 
 	static void SetMode(CScene::MODE mode);
 	static CScene::MODE GetMode(void);
+	static void UpdatePauseInput(void);  // ゲームパッド／キーボード入力処理
 
 private:
 	static CRenderer* m_pRenderer;				// レンダラーへのポインタ
@@ -75,7 +76,8 @@ private:
 	static CFade* m_pFade;
 	static CScene* m_pScene;
 	static bool m_isPaused;						// trueならポーズ中
-
+	static int m_nPauseSelectedIndex;
+	static bool m_bInputPressed;  // 押しっぱなし防止用フラグ
 
 };
 
