@@ -41,7 +41,7 @@ public:
 	void SetRot(D3DXVECTOR3 rot) { m_rot = rot; }
 	void SetDis(float fDistance) { m_fDistance = fDistance; }
 	int  SetTimer(int nTime) { return m_nTimer = nTime * 60; }
-	void SetCamMode(bool flag, int nTimer, D3DXVECTOR3 posV, D3DXVECTOR3 posR, D3DXVECTOR3 rot);
+	void SetCamMode(int nTimer, D3DXVECTOR3 posV, D3DXVECTOR3 posR, D3DXVECTOR3 rot);
 
 	//*****************************************************************************
 	// getterä÷êî

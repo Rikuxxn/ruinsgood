@@ -56,8 +56,8 @@ HRESULT CGame::Init(void)
 	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 20.0f);
 
 	// プレイヤーの生成
-	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 	// JSONの読み込み
 	m_pBlockManager->LoadFromJson("data/block_info.json");
@@ -76,7 +76,7 @@ HRESULT CGame::Init(void)
 	m_pColon = CColon::Create(D3DXVECTOR3(fTimePosX + 2 * fTimeWidth, 10.0f, 0.0f), fTimeWidth / 2, fTimeHeight);
 
 	// ポーズUIの生成
-	m_pUi = CUi::Create(CUi::TYPE_PAUSE, "data/TEXTURE/ui_pause.png",D3DXVECTOR3(150.0f, 895.0f, 0.0f), 140.0f, 35.0f);
+	m_pUi = CUi::Create(CUi::TYPE_PAUSE, "data/TEXTURE/ui_pause.png",D3DXVECTOR3(210.0f, 895.0f, 0.0f), 160.0f, 35.0f);
 
 	//m_pSound->Play(CSound::SOUND_LABEL_GAMEBGM);
 

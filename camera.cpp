@@ -565,10 +565,11 @@ void CCamera::AdjustCameraPosition(const D3DXVECTOR3& playerPos)
 //=============================================================================
 // 演出カメラの設定処理
 //=============================================================================
-void CCamera::SetCamMode(bool flag, int nTimer,D3DXVECTOR3 posV, D3DXVECTOR3 posR, D3DXVECTOR3 rot)
+void CCamera::SetCamMode(int nTimer,D3DXVECTOR3 posV, D3DXVECTOR3 posR, D3DXVECTOR3 rot)
 {
 	m_Mode = MODE_DIRECTION;
 
+	// タイマーの設定
 	SetTimer(nTimer);
 
 	m_posV = posV;
@@ -589,6 +590,7 @@ void CCamera::DirectionCamera(int nTimer)
 
 	if (m_nDirectionCamTimer >= nTimer)
 	{
+		// カウンターリセット
 		m_nDirectionCamTimer = 0;
 
 		m_fDistance = 220.0f;

@@ -1318,7 +1318,7 @@ void CSwitchBlock::Update(void)
 	if (n && !m_prevSwitchOn)
 	{
 		// 演出カメラにする
-		CManager::GetCamera()->SetCamMode(m_isSwitchOn, 3, D3DXVECTOR3(900.5f, 214.0f, 530.5f),
+		CManager::GetCamera()->SetCamMode(5, D3DXVECTOR3(900.5f, 214.0f, 530.5f),
 			D3DXVECTOR3(1120.0f, -27.0f, 670.0f),
 			D3DXVECTOR3(0.75f, -2.15f, 0.0f));
 	}
@@ -1363,7 +1363,6 @@ CBridgeSwitchBlock::CBridgeSwitchBlock()
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
 	m_prevSwitchOn = false;
-	//m_isSwitchEnd = false;
 }
 //=============================================================================
 // 橋制御ブロックのデストラクタ
@@ -1454,7 +1453,7 @@ void CBridgeSwitchBlock::Update(void)
 	if (n && !m_prevSwitchOn) // 一回だけ実行
 	{
 		// 演出カメラにする
-		CManager::GetCamera()->SetCamMode(m_isSwitchOn, 9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
+		CManager::GetCamera()->SetCamMode(9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
 			D3DXVECTOR3(-1527.0f, 194.0f, -4085.0f),
 			D3DXVECTOR3(0.43f, 0.23f, 0.0f));
 
@@ -1798,21 +1797,6 @@ void CBridgeBlock::Move(void)
 			if (pos.x - speed <= targetX)
 			{
 				pos.x = targetX;
-				//for (CBlock* block : CBlockManager::GetAllBlocks())
-				//{
-				//	if (block->GetType() != TYPE_SWITCH2)
-				//	{
-				//		continue;
-				//	}
-
-				//	CBridgeSwitchBlock* pBridgeSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
-				//	if (pBridgeSwitch)
-				//	{
-				//		pBridgeSwitch->SetSwitchEnd(true);
-				//	}
-
-				//}
-
 			}
 			else
 			{
