@@ -101,7 +101,7 @@ HRESULT CPause::Init(void)
 
 	VERTEX_2D* pVtx;// 頂点情報へのポインタ
 
-		// 頂点バッファをロックし、頂点情報へのポインタを取得
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuffBack->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定

@@ -1227,6 +1227,7 @@ CSwitchBlock::CSwitchBlock()
 	// 値のクリア
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
+	m_prevSwitchOn = false;
 }
 //=============================================================================
 // スイッチブロックのデストラクタ
@@ -1292,24 +1293,38 @@ void CSwitchBlock::Update(void)
 
 	if (totalMass >= massThreshold)
 	{
-		D3DXVECTOR3 pos = swPos;
-
-		// 押されている（下に少し沈む）
-		pos.y -= 1.0f; // 下に沈める
-
-		if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
-		{
-			m_isSwitchOn = true;
-			SetPos(pos);
-		}
-
-		SetEditMode(true); // 動かすためにキネマティック
+		m_isSwitchOn = true;
 	}
 
 	if (!m_isSwitchOn)
 	{
 		return;
 	}
+
+	D3DXVECTOR3 pos = swPos;
+
+	// 押されている（下に少し沈む）
+	pos.y -= 1.0f; // 下に沈める
+
+	if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
+	{
+		SetPos(pos);
+	}
+
+	SetEditMode(true); // 動かすためにキネマティック
+
+	bool n = m_isSwitchOn;
+
+	if (n && !m_prevSwitchOn)
+	{
+		// 演出カメラにする
+		CManager::GetCamera()->SetCamMode(m_isSwitchOn, 3, D3DXVECTOR3(900.5f, 214.0f, 530.5f),
+			D3DXVECTOR3(1120.0f, -27.0f, 670.0f),
+			D3DXVECTOR3(0.75f, -2.15f, 0.0f));
+	}
+
+	// フラグを更新して次のフレームに備える
+	m_prevSwitchOn = n;
 
 	// 水位上昇処理
 	for (CBlock* block : CBlockManager::GetAllBlocks())
@@ -1326,6 +1341,10 @@ void CSwitchBlock::Update(void)
 			// 徐々に水位を上げる
 			waterPos.y += 0.5f;
 			block->SetPos(waterPos);
+		}
+		else
+		{
+			m_isSwitchOn = false;
 		}
 	}
 
@@ -1344,6 +1363,7 @@ CBridgeSwitchBlock::CBridgeSwitchBlock()
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
 	m_prevSwitchOn = false;
+	//m_isSwitchEnd = false;
 }
 //=============================================================================
 // 橋制御ブロックのデストラクタ
@@ -1407,46 +1427,56 @@ void CBridgeSwitchBlock::Update(void)
 	// 質量のしきい値を超えていたら沈む
 	const float massThreshold = 4.0f;
 
-	bool switchNowOn = false;
-
 	if (totalMass >= massThreshold)
 	{
-		D3DXVECTOR3 pos = swPos;
+		m_isSwitchOn = true;
+	}
 
-		// 押されている（下に少し沈む）
-		pos.y -= 1.0f; // 下に沈める
+	if (!m_isSwitchOn)
+	{
+		return;
+	}
 
-		if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
+	D3DXVECTOR3 pos = swPos;
+
+	// 押されている（下に少し沈む）
+	pos.y -= 1.0f; // 下に沈める
+
+	if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
+	{
+		SetPos(pos);
+	}
+
+	SetEditMode(true); // 動かすためにキネマティック
+
+	bool n = m_isSwitchOn;
+
+	if (n && !m_prevSwitchOn) // 一回だけ実行
+	{
+		// 演出カメラにする
+		CManager::GetCamera()->SetCamMode(m_isSwitchOn, 9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
+			D3DXVECTOR3(-1527.0f, 194.0f, -4085.0f),
+			D3DXVECTOR3(0.43f, 0.23f, 0.0f));
+
+		for (CBlock* block : CBlockManager::GetAllBlocks())
 		{
-			SetPos(pos);
-		}
-
-		SetEditMode(true); // 動かすためにキネマティック
-
-		switchNowOn = true;
-
-		if (!m_prevSwitchOn) // 前フレームがOFF→今回ONなら一回だけ実行
-		{
-			for (CBlock* block : CBlockManager::GetAllBlocks())
+			if (block->GetType() != TYPE_ROCK)
 			{
-				if (block->GetType() != TYPE_ROCK)
-				{
-					continue;
-				}
-
-				CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
-				if (pRock)
-				{
-					pRock->UseBridgeSwitch(true);
-					pRock->Respawn();
-				}
-
+				continue;
 			}
+
+			CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
+			if (pRock)
+			{
+				pRock->UseBridgeSwitch(true);
+				pRock->Respawn();
+			}
+
 		}
 	}
 
-	m_isSwitchOn = switchNowOn;
-	m_prevSwitchOn = switchNowOn;
+	// フラグを更新して次のフレームに備える
+	m_prevSwitchOn = n;
 
 	CBlock::Update(); // 共通処理
 }
@@ -1478,7 +1508,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	//Swing();	// スイング処理
+	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1714,7 +1744,6 @@ CBridgeBlock::CBridgeBlock()
 	SetType(TYPE_BRIDGE2);
 
 	// 値のクリア
-
 }
 //=============================================================================
 // 橋ブロックのデストラクタ
@@ -1769,6 +1798,21 @@ void CBridgeBlock::Move(void)
 			if (pos.x - speed <= targetX)
 			{
 				pos.x = targetX;
+				//for (CBlock* block : CBlockManager::GetAllBlocks())
+				//{
+				//	if (block->GetType() != TYPE_SWITCH2)
+				//	{
+				//		continue;
+				//	}
+
+				//	CBridgeSwitchBlock* pBridgeSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+				//	if (pBridgeSwitch)
+				//	{
+				//		pBridgeSwitch->SetSwitchEnd(true);
+				//	}
+
+				//}
+
 			}
 			else
 			{
@@ -1780,7 +1824,6 @@ void CBridgeBlock::Move(void)
 			// コライダーの更新
 			UpdateCollider();
 		}
-
 	}
 }
 

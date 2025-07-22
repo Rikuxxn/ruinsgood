@@ -186,25 +186,26 @@ void CTime::Count(void)
 //=============================================================================
 void CTime::Draw(void)
 {
-#ifdef _DEBUG
-	// テクスチャの取得
-	CTexture* pTexture = CManager::GetTexture();
-
-	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
-
-	for (int nCnt = 0; nCnt < DIGITS; nCnt++)
+	if (CManager::GetMode() == CScene::MODE_RESULT)
 	{
-		if (m_apNumber[nCnt])
-		{
-			// テクスチャの設定
-			pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
+		// テクスチャの取得
+		CTexture* pTexture = CManager::GetTexture();
 
-			m_apNumber[nCnt]->Draw();
+		// デバイスの取得
+		CRenderer* renderer = CManager::GetRenderer();
+		LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+
+		for (int nCnt = 0; nCnt < DIGITS; nCnt++)
+		{
+			if (m_apNumber[nCnt])
+			{
+				// テクスチャの設定
+				pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
+
+				m_apNumber[nCnt]->Draw();
+			}
 		}
 	}
-#endif
 }
 //=============================================================================
 // 位置の取得
@@ -333,27 +334,27 @@ void CColon::Update(void)
 //=============================================================================
 void CColon::Draw(void)
 {
-#ifdef _DEBUG
+	if (CManager::GetMode() == CScene::MODE_RESULT)
+	{
+		// テクスチャの取得
+		CTexture* pTexture = CManager::GetTexture();
 
-	// テクスチャの取得
-	CTexture* pTexture = CManager::GetTexture();
+		// デバイスの取得
+		CRenderer* renderer = CManager::GetRenderer();
+		LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
 
-	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+		// 頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
 
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
+		// 頂点フォーマットの設定
+		pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
+		// テクスチャの設定
+		pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-#endif
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	}
 }
 //=============================================================================
 // コロンの位置取得処理

@@ -19,15 +19,18 @@
 CCamera::CCamera()
 {
 	// 値のクリア
-	m_posV				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 視点
-	m_posVDest			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 目的の視点
-	m_posR				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 注視点
-	m_posRDest			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 目的の注視点
-	m_vecU				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 上方向ベクトル
-	m_mtxProjection		= {};							// プロジェクションマトリックス
-	m_mtxView			= {};							// ビューマトリックス
-	m_rot				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 向き
-	m_fDistance			= 0.0f;							// 視点から注視点の距離
+	m_posV					= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 視点
+	m_posVDest				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 目的の視点
+	m_posR					= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 注視点
+	m_posRDest				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 目的の注視点
+	m_vecU					= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 上方向ベクトル
+	m_mtxProjection			= {};							// プロジェクションマトリックス
+	m_mtxView				= {};							// ビューマトリックス
+	m_rot					= D3DXVECTOR3(0.0f, 0.0f, 0.0f);// 向き
+	m_fDistance				= 0.0f;							// 視点から注視点の距離
+	m_nDirectionCamTimer	= 0;
+	m_nTimer				= 0;
+
 #ifdef _DEBUG
 	m_Mode = MODE_EDIT;									// カメラのモード
 #else
@@ -127,7 +130,10 @@ void CCamera::Update(void)
 	case MODE_GAME:
 		// ゲームのカメラ処理
 		GameCamera();
-
+		break;
+	case MODE_DIRECTION:
+		// 演出カメラの処理
+		DirectionCamera(m_nTimer);
 		break;
 	}
 
@@ -555,4 +561,39 @@ void CCamera::AdjustCameraPosition(const D3DXVECTOR3& playerPos)
 
 	// 注視点はプレイヤーの頭
 	m_posR = playerEye;
+}
+//=============================================================================
+// 演出カメラの設定処理
+//=============================================================================
+void CCamera::SetCamMode(bool flag, int nTimer,D3DXVECTOR3 posV, D3DXVECTOR3 posR, D3DXVECTOR3 rot)
+{
+	m_Mode = MODE_DIRECTION;
+
+	SetTimer(nTimer);
+
+	m_posV = posV;
+	m_posR = posR;
+	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);// 固定でいい
+	m_rot = rot;
+	m_fDistance = sqrtf(
+		((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x)) +
+		((m_posV.y - m_posR.y) * (m_posV.y - m_posR.y)) +
+		((m_posV.z - m_posR.z) * (m_posV.z - m_posR.z)));
+}
+//=============================================================================
+// 演出カメラの処理
+//=============================================================================
+void CCamera::DirectionCamera(int nTimer)
+{
+	m_nDirectionCamTimer++;
+
+	if (m_nDirectionCamTimer >= nTimer)
+	{
+		m_nDirectionCamTimer = 0;
+
+		m_fDistance = 220.0f;
+
+		// ゲームカメラに戻す
+		m_Mode = MODE_GAME;
+	}
 }

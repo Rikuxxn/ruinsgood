@@ -201,6 +201,7 @@ public:
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
+	bool m_prevSwitchOn;			// 直前のスイッチ状態
 	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
 };
 
@@ -215,12 +216,13 @@ public:
 
 	void Update(void) override;
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
+	//void SetSwitchEnd(bool flag) { m_isSwitchEnd = flag; }
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
-	bool m_prevSwitchOn;	// 直前のスイッチ状態
+	bool m_prevSwitchOn;			// 直前のスイッチ状態
 	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
-
+	//bool m_isSwitchEnd;
 };
 
 //*****************************************************************************
@@ -278,7 +280,6 @@ public:
 	void Move(void);
 
 private:
-
 };
 
 //*****************************************************************************

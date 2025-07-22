@@ -26,7 +26,7 @@ public:
 	// 選択項目の種類
 	typedef enum
 	{
-		MENU_CONTINUE = 0,			// ゲームに戻る
+		MENU_CONTINUE = 0,		// ゲームに戻る
 		MENU_RETRY,				// ゲームをやり直す
 		MENU_QUIT,				// タイトル画面に戻る
 		MENU_MAX
