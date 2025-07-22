@@ -117,10 +117,10 @@ HRESULT CPause::Init(void)
 	pVtx[3].rhw = 1.0f;
 
 	// 頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
-	pVtx[1].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
-	pVtx[2].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
-	pVtx[3].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.2f);
+	pVtx[0].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	pVtx[1].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	pVtx[2].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
+	pVtx[3].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
 
 	// テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -249,12 +249,12 @@ void CPause::Draw(void)
 		//// ポリゴンの描画
 		//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
-		// 頂点バッファをデータストリームに設定
-		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
-
 		//=============================================
 		// ポーズ
 		//=============================================
+		// 頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
+
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_2D);
 

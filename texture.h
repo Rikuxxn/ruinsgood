@@ -100,6 +100,7 @@ private:
 		"data/TEXTURE/ui_result004.png",
 		"data/TEXTURE/ui_result005.png",
 		"data/TEXTURE/ui_result006.png",
+		"data/TEXTURE/resultBG.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

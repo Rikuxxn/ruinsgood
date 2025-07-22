@@ -43,6 +43,7 @@ private:
 	static int m_nClearSeconds;
 	static bool m_isMaskGet;
 	static CUi* m_pUi;							// UI‚Ö‚Ìƒ|ƒCƒ“ƒ^
+	int m_nIdxTexture;
 };
 
 #endif

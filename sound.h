@@ -25,6 +25,7 @@ public:
 	typedef enum
 	{
 		SOUND_LABEL_GAMEBGM = 0,	// ÉQÅ[ÉÄBGM
+		SOUND_LABEL_WATER,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -53,6 +54,8 @@ private:
 	SOUNDINFO m_aSoundInfo[SOUND_LABEL_MAX] =
 	{
 		{"data/BGM/titleBGM.wav", -1},			// ÉQÅ[ÉÄBGM
+		{"data/SE/water.wav", 0},				// ì¸êÖSE
+
 	};
 
 };

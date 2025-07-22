@@ -32,7 +32,6 @@ public:
 	void Draw(void);
 
 	static CPlayer* GetPlayer(void) { return m_pPlayer; }
-	static CScore* GetScore(void) { return m_pScore; }
 	static CTime* GetTime(void) { return m_pTime; }
 	static CBlock* GetBlock(void) { return m_pBlock; }
 	static CBlockManager* GetBlockManager(void) { return m_pBlockManager; }
@@ -42,7 +41,6 @@ public:
 
 private:
 	static CPlayer* m_pPlayer;					// プレイヤーへのポインタ
-	static CScore* m_pScore;					// スコアへのポインタ
 	static CTime* m_pTime;						// タイムへのポインタ
 	static CColon* m_pColon;					// コロンへのポインタ
 	static CBlock* m_pBlock;					// ブロックへのポインタ

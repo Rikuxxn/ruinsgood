@@ -163,6 +163,9 @@ HRESULT CBlock::Init(void)
 //=============================================================================
 void CBlock::Uninit(void)
 {
+	// 指定したラベルのサウンドを停止
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_WATER);
+
 	ReleasePhysics();
 
 	// オブジェクトXの終了処理
@@ -800,7 +803,7 @@ btScalar CBlock::GetMassByType(TYPE type)
 	case TYPE_PILLAR:	return 55.0f;	// 柱
 	case TYPE_ROCK:		return 100.0f;	// 岩
 	case TYPE_BRIDGE:	return 8.0f;	// 橋
-	case TYPE_RAFT:		return 6.0f;	// イカダ
+	case TYPE_RAFT:		return 5.0f;	// イカダ
 	case TYPE_AXE:		return 80.0f;	// 斧
 	default:			return 2.0f;	// デフォルト質量
 	}
@@ -1014,6 +1017,8 @@ void CWaterBlock::ApplyToPlayer(void)
 			// プレイヤーの位置
 			D3DXVECTOR3 pos = pPlayer->GetPos();
 			pos.y += 80.0f;
+
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_WATER);
 
 			// 水しぶきパーティクル生成
 			pParticle = CParticle::Create(pos, D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 50, CParticle::TYPE_WATER, 10);

@@ -196,11 +196,11 @@ void CPlayer::Update(void)
 	m_bIsMoving = false;
 	m_bIsSideMoving = false;
 
+	// コントロール処理
+	Controll();
+
 	if (CManager::GetCamera()->GetMode() != CCamera::MODE_DIRECTION)
 	{
-		// コントロール処理
-		Controll();
-
 		// ブロックを持つ処理
 		HoldBlock();
 	}
@@ -569,9 +569,9 @@ void CPlayer::HoldBlock(void)
 		else
 		{
 			// 持っている → プレイヤー前方に移動
-			D3DXVECTOR3 targetPos = GetPos() + GetForward() * 60.0f;
+			D3DXVECTOR3 targetPos = GetPos() + GetForward();
 
-			targetPos.y = GetPos().y + 50.0f; // 高さ調整
+			targetPos.y = GetPos().y + 140.0f; // 高さ調整
 
 			D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
 			float moveSpeed = 10.0f; // 秒あたりの移動スピード

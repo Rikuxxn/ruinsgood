@@ -472,8 +472,8 @@ void CManager::UpdatePauseInput(void)
 		m_pPauseItems[m_nPauseSelectedIndex]->Execute(); // 常に現在選択項目を使う
 	}
 
-	// 色の反映（現在選択されているインデックスのみ不透明）
-	for (size_t i = 0; i < m_pPauseItems.size(); ++i)
+	// 色の反映（現在選択されているインデックスのみ）
+	for (size_t i = 0; i < m_pPauseItems.size(); i++)
 	{
 		m_pPauseItems[i]->SetSelected(i == m_nPauseSelectedIndex);
 	}

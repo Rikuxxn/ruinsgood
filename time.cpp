@@ -100,12 +100,6 @@ HRESULT CTime::Init(void)
 	CTexture* pTexture = CManager::GetTexture();
 	m_nIdxTexture = pTexture->Register("data/TEXTURE/time.png");
 
-	//// コロンの位置は分の2桁目の右端のすぐ右
-	//float colonX = m_basePos.x + 2 * m_digitWidth;
-	//float colonY = m_basePos.y;
-
-	//m_pColon = CColon::Create(D3DXVECTOR3(colonX, colonY, 0.0f), colonWidth, m_digitHeight);
-
 	return S_OK;
 }
 //=============================================================================

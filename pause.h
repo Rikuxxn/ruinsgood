@@ -46,7 +46,7 @@ public:
 
 	// 選択状態設定・取得
 	void SetSelected(bool selected) { m_isSelected = selected; }
-	bool IsSelected() const { return m_isSelected; }
+	bool IsSelected(void) const { return m_isSelected; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ

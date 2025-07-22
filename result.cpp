@@ -33,6 +33,7 @@ CResult::CResult() : CScene(CScene::MODE_RESULT)
 	m_col = INIT_XCOL;		// 色
 	m_fWidth = 0.0f;
 	m_fHeight = 0.0f;
+	m_nIdxTexture = 0;
 }
 //=============================================================================
 // デストラクタ
@@ -48,6 +49,9 @@ HRESULT CResult::Init(void)
 {
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
+
+	// テクスチャの取得
+	m_nIdxTexture = CManager::GetTexture()->Register("data/TEXTURE/resultBG.png");
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
@@ -80,10 +84,10 @@ HRESULT CResult::Init(void)
 	pVtx[3].rhw = 1.0f;
 
 	// 頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
+	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.8f);
+	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.8f);
+	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.8f);
+	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.8f);
 
 	// テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -110,17 +114,17 @@ HRESULT CResult::Init(void)
 	m_pUi = CUi::Create(CUi::TYPE_RESULT01, "data/TEXTURE/ui_result005.png", D3DXVECTOR3(860.0f, 155.0f, 0.0f), 150.0f, 40.0f);
 
 	// UI(ランク)の生成
-	m_pUi = CUi::Create(CUi::TYPE_RESULT03, "data/TEXTURE/ui_result006.png", D3DXVECTOR3(860.0f, 355.0f, 0.0f), 120.0f, 120.0f);
+	m_pUi = CUi::Create(CUi::TYPE_RESULT03, "data/TEXTURE/ui_result006.png", D3DXVECTOR3(860.0f, 355.0f, 0.0f), 120.0f, 130.0f);
 
 	if (m_isMaskGet)
 	{
 		// UI(発見したかどうか)の生成
-		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result004.png",D3DXVECTOR3(450.0f, 725.0f, 0.0f), 170.0f, 50.0f);
+		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result004.png",D3DXVECTOR3(450.0f, 735.0f, 0.0f), 150.0f, 100.0f);
 	}
 	else if (!m_isMaskGet)
 	{
 		// UI(発見したかどうか)の生成
-		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result003.png",D3DXVECTOR3(450.0f, 725.0f, 0.0f), 150.0f, 50.0f);
+		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result003.png",D3DXVECTOR3(450.0f, 735.0f, 0.0f), 150.0f, 100.0f);
 	}
 
 	return S_OK;
@@ -166,9 +170,9 @@ void CResult::Draw(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
-	//// 黒いポリゴンの描画
-	//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
 	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
+	pDevice->SetTexture(0, CManager::GetTexture()->GetAddress(m_nIdxTexture));
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 }

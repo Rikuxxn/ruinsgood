@@ -112,7 +112,6 @@ void CCamera::Update(void)
 		m_Mode = MODE_EDIT;
 	}
 #endif
-
 	switch (m_Mode)
 	{
 	case MODE_EDIT:
@@ -334,7 +333,7 @@ void CCamera::EditCamera(void)
 //=============================================================================
 void CCamera::GameCamera(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
+	if (CManager::GetMode() != MODE_GAME || m_Mode == MODE_DIRECTION)
 	{
 		return;
 	}

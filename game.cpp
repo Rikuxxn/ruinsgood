@@ -16,7 +16,6 @@
 // 静的メンバ変数宣言
 //*****************************************************************************
 CPlayer* CGame::m_pPlayer = NULL;
-CScore* CGame::m_pScore = NULL;					// スコアへのポインタ
 CTime* CGame::m_pTime = NULL;					// タイムへのポインタ
 CColon* CGame::m_pColon = NULL;					// コロンへのポインタ
 CBlock* CGame::m_pBlock= NULL;					// ブロックへのポインタ
@@ -61,9 +60,6 @@ HRESULT CGame::Init(void)
 
 	// JSONの読み込み
 	m_pBlockManager->LoadFromJson("data/block_info.json");
-
-	//// スコアの生成
-	//m_pScore = CScore::Create(920.0f, 10.0f, 42.0f, 58.0f);
 
 	float fTimePosX = 760.0f;
 	float fTimeWidth = 42.0f;
@@ -114,7 +110,7 @@ void CGame::Update(void)
 		for (auto block : m_pBlockManager->GetAllBlocks())
 		{
 			if (block->IsGet())
-			{
+			{// 仮面を手に入れたか
 				CResult::SetGet(true);
 			}
 
