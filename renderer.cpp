@@ -245,7 +245,7 @@ void CRenderer::Draw(int fps)
 
 		// FPSのセット
 		SetFPS(fps);
-
+		
 #ifdef _DEBUG
 
 		// GUI表示

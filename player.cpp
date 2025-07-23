@@ -46,11 +46,10 @@ CPlayer::CPlayer(int nPriority) : CObject(nPriority)
 	m_pDebug3D			= NULL;							// 3Dデバッグ表示へのポインタ
 	m_radius			= 0.0f;							// カプセルコライダーの半径
 	m_height			= 0.0f;							// カプセルコライダーの高さ
-	m_colliderPos		= INIT_VEC3;
-	m_jumpFrame			= 0;
-	m_pCarryingBlock	= NULL;
-	m_waterStayTime		= 0.0f;							// 水中滞在時間（秒）
-	m_isInWater			= false;						// 今水中にいるか
+	m_colliderPos		= INIT_VEC3;					// コライダーの位置
+	m_jumpFrame			= 0;							// ジャンプしてから何フレーム経過したか
+	m_pCarryingBlock	= NULL;							// 運んでいるブロック
+	m_particleTimer		= 0;							// タイマー
 	for (int nCnt = 0; nCnt < MAX_PARTS; nCnt++)
 	{
 		m_apModel[nCnt] = {};						// モデル(パーツ)へのポインタ
@@ -206,6 +205,27 @@ void CPlayer::Update(void)
 	}
 
 	CParticle* pParticle = NULL;
+
+	if (m_bIsMoving && !m_isJumping)
+	{
+		m_particleTimer++;
+
+		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
+		{
+			m_particleTimer = 0;
+
+			// パーティクルの生成
+			CParticle::Create(m_pos,
+				D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.4f),
+				25,                    // 寿命
+				CParticle::TYPE_MOVE,  // パーティクルタイプ
+				1);                    // 数
+		}
+	}
+	else
+	{
+		m_particleTimer = 0; // 停止時はリセット
+	}
 
 	// モーション切り替え
 	if (m_isJumping)
@@ -857,40 +877,6 @@ void CPlayer::Controll(void)
 		// プレイヤーの向き更新
 		m_rotDest.y = CamRot.y;
 	}
-}
-//=============================================================================
-// 水中にいるフラグ設定処理
-//=============================================================================
-void CPlayer::SetInWater(bool flag)
-{
-	m_isInWater = flag;
-}
-//=============================================================================
-// 水中滞在時間の設定
-//=============================================================================
-void CPlayer::AddWaterStayTime(float delta)
-{
-	if (m_isInWater)
-	{
-		m_waterStayTime += delta;
-
-		if (m_waterStayTime >= 3.0f) // 3秒以上滞在したら
-		{
-			RespawnToCheckpoint(); // 任意の場所へリスポーン
-			m_waterStayTime = 0.0f;
-		}
-	}
-	else
-	{
-		m_waterStayTime = 0.0f;
-	}
-}
-//=============================================================================
-// 水中滞在時間のリセット
-//=============================================================================
-void CPlayer::ResetWaterStayTime(void)
-{
-	m_waterStayTime = 0.0f;
 }
 //=============================================================================
 // リスポーン(一番近い位置)処理

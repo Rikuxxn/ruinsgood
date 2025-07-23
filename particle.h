@@ -29,6 +29,7 @@ public:
 		TYPE_WATER,
 		TYPE_AURA,
 		TYPE_AURA2,
+		TYPE_MOVE,
 		TYPE_MAX
 	}TYPE;
 
@@ -104,6 +105,22 @@ class CAura2Particle : public CParticle
 public:
 	CAura2Particle();
 	~CAura2Particle();
+
+	HRESULT Init(void);
+	void Update(void);
+
+private:
+
+};
+
+//*****************************************************************************
+// 移動時パーティクルクラス
+//*****************************************************************************
+class CMoveParticle : public CParticle
+{
+public:
+	CMoveParticle();
+	~CMoveParticle();
 
 	HRESULT Init(void);
 	void Update(void);

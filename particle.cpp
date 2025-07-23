@@ -52,6 +52,10 @@ CParticle*CParticle::Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType
 		// オーラ(仮面用)パーティクルオブジェクトの生成
 		pParticle = new CAura2Particle;
 		break;
+	case TYPE_MOVE:
+		// 移動時パーティクルオブジェクトの生成
+		pParticle = new CMoveParticle;
+		break;
 	default:
 		// パーティクルオブジェクトの生成
 		pParticle = new CParticle;
@@ -382,6 +386,79 @@ void CAura2Particle::Update(void)
 
 		// 半径
 		fRadius = 35.0f + (rand() % 40);
+
+		// エフェクトの設定
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+	}
+
+	// パーティクルの更新処理
+	CParticle::Update();
+}
+
+
+//=============================================================================
+// 移動時パーティクルのコンストラクタ
+//=============================================================================
+CMoveParticle::CMoveParticle()
+{
+
+}
+//=============================================================================
+// 移動時パーティクルのデストラクタ
+//=============================================================================
+CMoveParticle::~CMoveParticle()
+{
+	// なし
+}
+//=============================================================================
+// 移動時パーティクルの初期化処理
+//=============================================================================
+HRESULT CMoveParticle::Init(void)
+{
+	SetPath("data/TEXTURE/smoke.jpg");
+
+	// パーティクルの初期化処理
+	CParticle::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// 移動時パーティクルの更新処理
+//=============================================================================
+void CMoveParticle::Update(void)
+{
+	D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DCOLOR col = D3DCOLOR_ARGB(255, 0, 0, 0);
+	float fRadius = 0.0f;
+	float fAngle = 0.0f;
+	float fLength = 0.0f;
+	const char* texPath = NULL;
+	int nMaxParticle = GetMaxParticle();
+	int nLife = GetLife();
+
+	// パーティクル生成
+	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
+	{
+		// テクスチャの指定
+		texPath = "data/TEXTURE/smoke.jpg";
+
+		// 位置
+		pos = GetPos();
+
+		// ランダムな角度で横に広がる
+		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
+		float speed = (rand() % 150) / 300.0f + 0.2f;
+
+		move.x = cosf(angle) * speed;
+		move.z = sinf(angle) * speed;
+		move.y = (rand() % 30) / 50.0f + 0.05f; // 少しだけ上方向
+
+		// 色
+		col = GetCol();
+
+		// 半径
+		fRadius = 15.0f + (rand() % 10);
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);

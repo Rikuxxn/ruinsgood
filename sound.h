@@ -35,7 +35,7 @@ public:
 	HRESULT Init(HWND hWnd);
 	void Uninit(void);
 	HRESULT Play(SOUND_LABEL label);
-	HRESULT Play3D(SOUND_LABEL label);
+	HRESULT Play3D(SOUND_LABEL label,D3DXVECTOR3 soundPos,float minDistance,float maxDistance);
 	HRESULT CheckChunk(HANDLE hFile, DWORD format, DWORD* pChunkSize, DWORD* pChunkDataPosition);
 	HRESULT ReadChunkData(HANDLE hFile, void* pBuffer, DWORD dwBuffersize, DWORD dwBufferoffset);
 	void Stop(SOUND_LABEL label);

@@ -228,7 +228,7 @@ void CSound::Uninit(void)
 	CoUninitialize();
 }
 //=============================================================================
-// セグメント再生(再生中なら停止)
+// 2Dセグメント再生(再生中なら停止)
 //=============================================================================
 HRESULT CSound::Play(SOUND_LABEL label)
 {
@@ -244,6 +244,81 @@ HRESULT CSound::Play(SOUND_LABEL label)
 
 	// 状態取得
 	m_apSourceVoice[label]->GetState(&xa2state);
+	if (xa2state.BuffersQueued != 0)
+	{// 再生中
+		// 一時停止
+		m_apSourceVoice[label]->Stop(0);
+
+		// オーディオバッファの削除
+		m_apSourceVoice[label]->FlushSourceBuffers();
+	}
+
+	// オーディオバッファの登録
+	m_apSourceVoice[label]->SubmitSourceBuffer(&buffer);
+
+	// 再生
+	m_apSourceVoice[label]->Start(0);
+
+	return S_OK;
+}
+//=============================================================================
+// 3Dセグメント再生(再生中なら停止)
+//=============================================================================
+HRESULT CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, float maxDistance)
+{
+	if (!m_apSourceVoice[label])
+	{
+		return E_FAIL;
+	}
+
+	//// 音源(エミッター)に設定して位置を更新
+	//UpdateSoundPosition(label, soundPos);
+
+	m_Emitters[label].Velocity = { 0.0f, 0.0f, 0.0f };
+	m_Emitters[label].ChannelCount = 1;
+	m_Emitters[label].CurveDistanceScaler = 80.0f;  // 距離減衰を設定
+
+	// 3Dオーディオ計算用のバッファ
+	X3DAUDIO_DSP_SETTINGS dspSettings = {};
+	FLOAT32 matrix[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	dspSettings.SrcChannelCount = 1;
+	dspSettings.DstChannelCount = 4;
+	dspSettings.pMatrixCoefficients = matrix;
+
+	// カスタムパンニング計算
+	CalculateCustomPanning(label, matrix, minDistance, maxDistance);
+
+	// パンニング値をクリップ（0.0 ～ 0.5 の範囲に収める）
+	matrix[0] = max(0.0f, min(0.5f, matrix[0]));
+	matrix[1] = max(0.0f, min(0.5f, matrix[1]));
+
+	// パンニング値をクリップ
+	for (int i = 0; i < 2; i++)
+	{
+		if (matrix[i] > 1.0f)
+		{
+			matrix[i] = 1.0f;
+		}
+		if (matrix[i] < 0.0f)
+		{
+			matrix[i] = 0.0f;
+		}
+	}
+
+	// 計算結果を適用
+	m_apSourceVoice[label]->SetOutputMatrix(NULL, 1, 4, matrix);
+
+	// バッファ設定
+	XAUDIO2_VOICE_STATE xa2state;
+	XAUDIO2_BUFFER buffer = {};
+	buffer.AudioBytes = m_aSizeAudio[label];
+	buffer.pAudioData = m_apDataAudio[label];
+	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	buffer.LoopCount = 0;
+
+	// 状態取得
+	m_apSourceVoice[label]->GetState(&xa2state);
+
 	if (xa2state.BuffersQueued != 0)
 	{// 再生中
 		// 一時停止
@@ -312,7 +387,7 @@ void CSound::CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float mi
 	D3DXVec3Cross(&right, &up, &front);
 	D3DXVec3Normalize(&right, &right);
 
-	// プレイヤー → 音源のベクトル
+	// リスナー → 音源のベクトル
 	D3DXVECTOR3 toEmitter =
 	{
 		m_Emitters[label].Position.x - m_Listener.Position.x,

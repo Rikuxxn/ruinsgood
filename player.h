@@ -56,9 +56,6 @@ public:
 	D3DXVECTOR3 GetForward(void) const;
 	CBlock* FindFrontBlockByRaycast(float rayLength);
 	void Controll(void);
-	void SetInWater(bool flag);
-	void AddWaterStayTime(float delta);
-	void ResetWaterStayTime(void);
 	void RespawnToCheckpoint(void);
 	void RespawnToCheckpoint(D3DXVECTOR3 pos);
 	void AddRespawnPoint(const D3DXVECTOR3& pos);
@@ -87,15 +84,15 @@ private:
 	CBlock* m_pCarryingBlock;			// 運んでいるブロック
 	int m_nNumModel;					// モデル(パーツ)の総数
 	int m_jumpFrame;					// ジャンプしてから何フレーム経過したか
-	const int JUMP_HOLD_FRAMES = 60;	// このフレーム数まではジャンプ中とみなす
 	bool m_playerUse;					// 使われているかどうか
 	bool m_isJumping;					// ジャンプ中フラグ
 	bool m_bIsMoving;					// 移動入力フラグ
 	bool m_bIsSideMoving;				// 横移動入力フラグ
 	bool m_bOnGround;					// 接地フラグ
-	float m_waterStayTime;				// 水中滞在時間（秒）
-	bool m_isInWater;					// 今水中にいるか
-	std::vector<D3DXVECTOR3> m_ResPos;
+	std::vector<D3DXVECTOR3> m_ResPos;	// リスポーン地点
+	int m_particleTimer;				// タイマー
+	const int JUMP_HOLD_FRAMES = 60;	// このフレーム数まではジャンプ中とみなす
+	const int DASH_PARTICLE_INTERVAL = 10; // パーティクル発生間隔（フレーム数）
 };
 
 #endif
