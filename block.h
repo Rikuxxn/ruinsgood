@@ -240,6 +240,7 @@ private:
 	int m_nSwingCounter;		// フレームカウンター
 	float m_swingAmplitude;		// ±振れ角
 	float m_swingPeriod;		// 周期フレーム
+	bool m_isPrevHit;
 };
 
 //*****************************************************************************
@@ -263,6 +264,9 @@ private:
 	int m_currentTargetIndex;					// 今の目標地点インデックス
 	float m_speed;								// 力の強さ（速度の代わり）
 	bool m_isBridgeSwitchOn;
+	bool m_isHit;
+	bool m_isPrevHit;
+
 };
 
 //*****************************************************************************
@@ -294,6 +298,7 @@ public:
 
 private:
 	bool m_isHit;// 岩が当たったかどうか
+	bool m_isPrevHit;// 直前に当たったか
 };
 
 //*****************************************************************************
@@ -308,7 +313,6 @@ public:
 	void Update(void) override;
 
 private:
-
 };
 
 //*****************************************************************************
@@ -323,7 +327,6 @@ public:
 	void Update(void) override;
 
 private:
-
 };
 
 //*****************************************************************************

@@ -7,11 +7,6 @@
 #ifndef _SOUND_H_// このマクロ定義がされていなかったら
 #define _SOUND_H_// 2重インクルード防止のマクロ定義
 
-//*****************************************************************************
-// インクルードファイル
-//*****************************************************************************
-#include "main.h"
-
 // サウンドクラス
 class CSound
 {
@@ -26,6 +21,14 @@ public:
 	{
 		SOUND_LABEL_GAMEBGM = 0,	// ゲームBGM
 		SOUND_LABEL_WATER,
+		SOUND_LABEL_WATERRISE,
+		SOUND_LABEL_HIT,
+		SOUND_LABEL_FIRE,
+		SOUND_LABEL_ROCKHIT,
+		SOUND_LABEL_SWITCH,
+		SOUND_LABEL_PAUSE,
+		SOUND_LABEL_SELECT,
+		SOUND_LABEL_ENTER,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -44,6 +47,11 @@ private:
 	BYTE* m_apDataAudio[SOUND_LABEL_MAX];					// オーディオデータ
 	DWORD m_aSizeAudio[SOUND_LABEL_MAX];					// オーディオデータサイズ
 
+	// 3Dオーディオ用の変数
+	X3DAUDIO_HANDLE m_X3DInstance;       // X3DAudio インスタンス
+	X3DAUDIO_LISTENER m_Listener;   // リスナー（プレイヤーの位置）
+	X3DAUDIO_EMITTER m_Emitters[SOUND_LABEL_MAX]; // 各サウンドの音源
+
 	typedef struct
 	{
 		const char* pFilename;	// ファイル名
@@ -55,7 +63,14 @@ private:
 	{
 		{"data/BGM/titleBGM.wav", -1},			// ゲームBGM
 		{"data/SE/water.wav", 0},				// 入水SE
-
+		{"data/SE/waterrise.wav", 0},			// 水位上昇SE
+		{"data/SE/hit.wav", 0},					// プレイヤーヒットSE
+		{"data/BGM/fire.wav", -1},				// 炎BGM
+		{"data/SE/rock_hit.wav", 0},			// 岩衝突SE
+		{"data/SE/switch.wav", 0},				// スイッチSE
+		{"data/SE/menu.wav", 0},				// ポーズSE
+		{"data/SE/select.wav", 0},				// 選択SE
+		{"data/SE/enter.wav", 0},				// 決定SE
 	};
 
 };

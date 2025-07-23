@@ -16,14 +16,16 @@
 CSound::CSound()
 {
 	// 値のクリア
-	m_pXAudio2        = NULL;
-	m_pMasteringVoice = NULL;
+	m_pXAudio2			= NULL;
+	m_pMasteringVoice	= NULL;
+	m_Listener			= {};					// リスナーの位置
 
 	for (int nCnt = 0; nCnt < SOUND_LABEL_MAX; nCnt++)
 	{
 		m_apSourceVoice[nCnt] = {};		// ソースボイス
 		m_apDataAudio[nCnt] = {};		// オーディオデータ
 		m_aSizeAudio[nCnt] = {};		// オーディオデータサイズ
+		m_Emitters[nCnt] = {};			// 各サウンドの音源(3D用)
 	}
 }
 //=============================================================================
@@ -73,6 +75,19 @@ HRESULT CSound::Init(HWND hWnd)
 
 		return E_FAIL;
 	}
+
+	//// スピーカー設定を取得
+	//XAUDIO2_VOICE_DETAILS details;
+	//m_pMasteringVoice->GetVoiceDetails(&details);
+
+	//UINT32 speakerConfig = details.InputChannels; // 現在のスピーカー設定
+	//X3DAudioInitialize(speakerConfig, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
+
+	//// リスナーの初期位置
+	//m_Listener.Position = { 0.0f, 0.0f, 0.0f };   // 中央
+	//m_Listener.OrientFront = { 0.0f, 0.0f, 0.0f }; // 前方向
+	//m_Listener.OrientTop = { 0.0f, 1.0f, 0.0f };   // 上方向
+	//m_Listener.Velocity = { 0.0f, 0.0f, 0.0f };
 
 	// サウンドデータの初期化
 	for (int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)

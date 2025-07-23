@@ -314,6 +314,9 @@ void CManager::Update(void)
 		// TABキーでポーズON/OFF
 		if (m_pInputKeyboard->GetTrigger(DIK_TAB) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_START))
 		{
+			// ポーズSE
+			m_pSound->Play(CSound::SOUND_LABEL_PAUSE);
+
 			m_isPaused = !m_isPaused;
 		}
 
@@ -435,6 +438,9 @@ void CManager::UpdatePauseInput(void)
 
 	if ((up || down) && !m_bInputPressed)
 	{
+		// 選択SE
+		m_pSound->Play(CSound::SOUND_LABEL_SELECT);
+
 		if (up)
 		{
 			m_nPauseSelectedIndex--;
@@ -445,6 +451,7 @@ void CManager::UpdatePauseInput(void)
 		}
 
 		int maxIdx = (int)m_pPauseItems.size() - 1;
+
 		if (m_nPauseSelectedIndex < 0)
 		{
 			m_nPauseSelectedIndex = maxIdx;
@@ -455,7 +462,6 @@ void CManager::UpdatePauseInput(void)
 		}
 
 		m_bInputPressed = true;
-		// m_pSound->Play(SOUND_SE_SELECT);
 	}
 	else if (!up && !down)
 	{
@@ -464,11 +470,17 @@ void CManager::UpdatePauseInput(void)
 	// 決定入力
 	if (CManager::GetFade()->GetFade() == CFade::FADE_NONE && mouseOverIndex != -1 && m_pInputMouse->GetTrigger(0))
 	{
+		// 決定SE
+		m_pSound->Play(CSound::SOUND_LABEL_ENTER);
+
 		m_pPauseItems[mouseOverIndex]->Execute();// 常に現在選択項目を使う
 	}
 	else if (CManager::GetFade()->GetFade() == CFade::FADE_NONE && 
 		(m_pInputKeyboard->GetTrigger(DIK_RETURN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_A)))
 	{
+		// 決定SE
+		m_pSound->Play(CSound::SOUND_LABEL_ENTER);
+
 		m_pPauseItems[m_nPauseSelectedIndex]->Execute(); // 常に現在選択項目を使う
 	}
 

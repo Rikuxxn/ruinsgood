@@ -165,6 +165,10 @@ void CBlock::Uninit(void)
 {
 	// 指定したラベルのサウンドを停止
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_WATER);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_WATERRISE);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_HIT);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROCKHIT);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWITCH);
 
 	ReleasePhysics();
 
@@ -868,6 +872,8 @@ void CWaterBlock::Update(void)
 //=============================================================================
 void CWaterBlock::ApplyToBlocks(void)
 {
+	CParticle* pParticle = NULL;
+
 	// 水の AABB を取得
 	D3DXVECTOR3 wtPos = GetPos();
 	D3DXVECTOR3 modelSize = GetModelSize();
@@ -1017,7 +1023,8 @@ void CWaterBlock::ApplyToPlayer(void)
 			// プレイヤーの位置
 			D3DXVECTOR3 pos = pPlayer->GetPos();
 			pos.y += 80.0f;
-
+			
+			// 入水SE
 			CManager::GetSound()->Play(CSound::SOUND_LABEL_WATER);
 
 			// 水しぶきパーティクル生成
@@ -1322,6 +1329,12 @@ void CSwitchBlock::Update(void)
 
 	if (n && !m_prevSwitchOn)
 	{
+		// スイッチSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+
+		// 水位上昇SE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_WATERRISE);
+
 		// 演出カメラにする
 		CManager::GetCamera()->SetCamMode(5, D3DXVECTOR3(900.5f, 214.0f, 530.5f),
 			D3DXVECTOR3(1120.0f, -27.0f, 670.0f),
@@ -1457,6 +1470,9 @@ void CBridgeSwitchBlock::Update(void)
 
 	if (n && !m_prevSwitchOn) // 一回だけ実行
 	{
+		// スイッチSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+
 		// 演出カメラにする
 		CManager::GetCamera()->SetCamMode(9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
 			D3DXVECTOR3(-1527.0f, 194.0f, -4085.0f),
@@ -1567,6 +1583,17 @@ void CAxeBlock::IsPlayerHit(void)
 	// contactTest を使って片方の剛体だけチェック
 	CManager::GetPhysicsWorld()->contactPairTest(pPlayerBody, pAxeBody, callback);
 
+	bool isNowHit = callback.isHit;
+
+	if (isNowHit && !m_isPrevHit)
+	{
+		// プレイヤーヒットSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_HIT);
+	}
+
+	// プレイヤーが当たっていたかを記録
+	m_isPrevHit = isNowHit;
+
 	if (callback.isHit)
 	{
 		// プレイヤーのリスポーン
@@ -1587,6 +1614,8 @@ CRockBlock::CRockBlock()
 	m_currentTargetIndex = 0;
 	m_speed = 86500.0f;
 	m_isBridgeSwitchOn = false;
+	m_isHit = false;
+	m_isPrevHit = false;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1732,10 +1761,27 @@ void CRockBlock::IsPlayerHit(void)
 	float dy = fabsf(playerPos.y - rockPos.y);
 	float hitHeight = (playerHeight * 0.5f) + rockHeight;
 
+	bool isNowHit = m_isHit;
+
+	if (isNowHit && !m_isPrevHit)
+	{
+		// プレイヤーヒットSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_HIT);
+	}
+
+	// プレイヤーが当たっていたかを記録
+	m_isPrevHit = isNowHit;
+
 	if (distXZSq < (hitDistXZ * hitDistXZ) && dy < hitHeight)
 	{
+		m_isHit = true;
+
 		// プレイヤーのリスポーン
 		pPlayer->RespawnToCheckpoint();
+	}
+	else
+	{
+		m_isHit = false;
 	}
 }
 
@@ -1826,6 +1872,7 @@ CTargetBlock::CTargetBlock()
 
 	// 値のクリア
 	m_isHit = false;
+	m_isPrevHit = false;
 }
 //=============================================================================
 // ターゲットブロックのデストラクタ
@@ -1886,6 +1933,16 @@ void CTargetBlock::Update(void)
 			myMin.y <= otherMax.y && myMax.y >= otherMin.y &&
 			myMin.z <= otherMax.z && myMax.z >= otherMin.z;
 
+		bool isNowHit = isOverlap;
+
+		if (isNowHit && !m_isPrevHit)
+		{
+			// 岩ヒットSE
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_ROCKHIT);
+		}
+
+		m_isPrevHit = isNowHit;
+
 		if (isOverlap)
 		{
 			m_isHit = true;
@@ -1903,7 +1960,6 @@ CTorchBlock::CTorchBlock()
 	SetType(TYPE_TORCH);
 
 	// 値のクリア
-
 }
 //=============================================================================
 // 壁掛け松明ブロックのデストラクタ
@@ -1973,7 +2029,6 @@ CTorch2Block::CTorch2Block()
 	SetType(TYPE_TORCH2);
 
 	// 値のクリア
-
 }
 //=============================================================================
 // 置き型松明ブロックのデストラクタ

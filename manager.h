@@ -78,7 +78,6 @@ private:
 	static bool m_isPaused;						// trueならポーズ中
 	static int m_nPauseSelectedIndex;
 	static bool m_bInputPressed;  // 押しっぱなし防止用フラグ
-
 };
 
 #endif
