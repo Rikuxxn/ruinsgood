@@ -568,13 +568,15 @@ void CPlayer::HoldBlock(void)
 		}
 		else
 		{
+			//btRigidBody* pRigid = m_pCarryingBlock->GetRigidBody();
+
 			// 持っている → プレイヤー前方に移動
 			D3DXVECTOR3 targetPos = GetPos() + GetForward();
 
 			targetPos.y = GetPos().y + 140.0f; // 高さ調整
 
 			D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
-			float moveSpeed = 10.0f; // 秒あたりの移動スピード
+			float moveSpeed = 10.0f; // 移動スピード
 
 			// 補間する
 			D3DXVECTOR3 newPos = Lerp(currentPos, targetPos, moveSpeed * 1.0f/60.0f);
@@ -891,7 +893,7 @@ void CPlayer::ResetWaterStayTime(void)
 	m_waterStayTime = 0.0f;
 }
 //=============================================================================
-// リスポーン処理
+// リスポーン(一番近い位置)処理
 //=============================================================================
 void CPlayer::RespawnToCheckpoint(void)
 {
@@ -901,6 +903,40 @@ void CPlayer::RespawnToCheckpoint(void)
 	}
 
 	D3DXVECTOR3 respawnPos = GetNearestRespawnPoint(); // 任意の保存位置
+
+	m_pos = respawnPos;
+
+	btRigidBody* pRigid = GetRigidBody();
+
+	if (pRigid)
+	{
+		pRigid->setLinearVelocity(btVector3(0, 0, 0));
+		pRigid->setAngularVelocity(btVector3(0, 0, 0));
+
+		// ワールド座標更新
+		btTransform trans;
+		trans.setIdentity();
+		trans.setOrigin(btVector3(respawnPos.x, respawnPos.y, respawnPos.z));
+
+		pRigid->setWorldTransform(trans);
+
+		if (pRigid->getMotionState())
+		{
+			pRigid->getMotionState()->setWorldTransform(trans);
+		}
+	}
+}
+//=============================================================================
+// リスポーン(直接設定)処理
+//=============================================================================
+void CPlayer::RespawnToCheckpoint(D3DXVECTOR3 pos)
+{
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
+	D3DXVECTOR3 respawnPos = pos; // 任意の位置
 
 	m_pos = respawnPos;
 

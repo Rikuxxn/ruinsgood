@@ -35,10 +35,13 @@ public:
 	HRESULT Init(HWND hWnd);
 	void Uninit(void);
 	HRESULT Play(SOUND_LABEL label);
+	HRESULT Play3D(SOUND_LABEL label);
 	HRESULT CheckChunk(HANDLE hFile, DWORD format, DWORD* pChunkSize, DWORD* pChunkDataPosition);
 	HRESULT ReadChunkData(HANDLE hFile, void* pBuffer, DWORD dwBuffersize, DWORD dwBufferoffset);
 	void Stop(SOUND_LABEL label);
 	void Stop(void);
+	void CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float minDistance, float maxDistance);
+	void UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos);
 
 private:
 	IXAudio2* m_pXAudio2;									// XAudio2オブジェクトへのインターフェイス

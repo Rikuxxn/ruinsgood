@@ -60,6 +60,7 @@ public:
 	void AddWaterStayTime(float delta);
 	void ResetWaterStayTime(void);
 	void RespawnToCheckpoint(void);
+	void RespawnToCheckpoint(D3DXVECTOR3 pos);
 	void AddRespawnPoint(const D3DXVECTOR3& pos);
 	D3DXVECTOR3 GetNearestRespawnPoint(void) const;
 	D3DXVECTOR3 Lerp(const D3DXVECTOR3& a, const D3DXVECTOR3& b, float t);

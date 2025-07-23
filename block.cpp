@@ -535,6 +535,7 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 
 	m_pRigidBody = new btRigidBody(rbInfo);
 	m_pRigidBody->setUserPointer(this);
+	m_pRigidBody->setActivationState(DISABLE_DEACTIVATION);// スリープ状態にしない
 
 	int flags = m_pRigidBody->getCollisionFlags();
 
@@ -1777,7 +1778,7 @@ void CRockBlock::IsPlayerHit(void)
 		m_isHit = true;
 
 		// プレイヤーのリスポーン
-		pPlayer->RespawnToCheckpoint();
+		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(2810.0f, 30.0f, -1518.0f));
 	}
 	else
 	{
