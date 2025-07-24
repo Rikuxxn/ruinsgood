@@ -44,7 +44,7 @@ public:
 	void CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float minDistance, float maxDistance);
 	void UpdateListener(D3DXVECTOR3 pos);
 	void UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos);
-
+	void SetDistance(float minDis, float maxDis) { m_minDistance = minDis; m_maxDistance = maxDis; }
 private:
 	IXAudio2* m_pXAudio2;									// XAudio2オブジェクトへのインターフェイス
 	IXAudio2MasteringVoice* m_pMasteringVoice;				// マスターボイス
@@ -53,9 +53,10 @@ private:
 	DWORD m_aSizeAudio[SOUND_LABEL_MAX];					// オーディオデータサイズ
 
 	// 3Dオーディオ用の変数
-	X3DAUDIO_HANDLE m_X3DInstance;       // X3DAudio インスタンス
-	X3DAUDIO_LISTENER m_Listener;   // リスナー（プレイヤーの位置）
-	X3DAUDIO_EMITTER m_Emitters[SOUND_LABEL_MAX]; // 各サウンドの音源
+	X3DAUDIO_HANDLE m_X3DInstance;							// X3DAudio インスタンス
+	X3DAUDIO_LISTENER m_Listener;							// リスナー（プレイヤーの位置）
+	X3DAUDIO_EMITTER m_Emitters[SOUND_LABEL_MAX];			// 各サウンドの音源
+	float m_minDistance, m_maxDistance;						// 最小距離と最大距離（距離減衰の範囲）
 
 	typedef struct
 	{

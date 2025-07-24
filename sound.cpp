@@ -22,7 +22,8 @@ CSound::CSound()
 	m_pXAudio2			= NULL;
 	m_pMasteringVoice	= NULL;
 	m_Listener			= {};					// リスナーの位置
-
+	m_minDistance = 0.0f;
+	m_maxDistance = 0.0f;
 	for (int nCnt = 0; nCnt < SOUND_LABEL_MAX; nCnt++)
 	{
 		m_apSourceVoice[nCnt] = {};		// ソースボイス
@@ -285,6 +286,9 @@ HRESULT CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistanc
 	dspSettings.DstChannelCount = 4;
 	dspSettings.pMatrixCoefficients = matrix;
 
+	// 最小距離と最大距離（距離減衰の範囲）を設定
+	SetDistance(minDistance, maxDistance);
+
 	// カスタムパンニング計算
 	CalculateCustomPanning(label, matrix, minDistance, maxDistance);
 
@@ -417,7 +421,7 @@ void CSound::CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float mi
 	matrix[3] = rearRight;
 }
 //=============================================================================
-// リスナー(プレイヤー)の更新
+// リスナー(プレイヤー)の更新処理
 //=============================================================================
 void CSound::UpdateListener(D3DXVECTOR3 pos)
 {
@@ -471,15 +475,11 @@ void CSound::UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos)
 	// パンニング値をクリップ
 	for (int nCnt = 0; nCnt < 4; nCnt++)
 	{
-		matrix[nCnt] = max(0.0f, min(1.0f, matrix[nCnt]));
+		matrix[nCnt] = max(0.0f, min(2.0f, matrix[nCnt]));
 	}
 
 	// カスタムパンニング計算
-	CalculateCustomPanning(label, matrix, 1050.0f, 1450.0f);
-
-	// パンニング値をクリップ（0.0 ～ 2.0 の範囲に収める）
-	matrix[0] = max(0.0f, min(2.0f, matrix[0]));
-	matrix[1] = max(0.0f, min(2.0f, matrix[1]));
+	CalculateCustomPanning(label, matrix, m_minDistance, m_maxDistance);
 
 	// 音のパンニングを更新
 	m_apSourceVoice[label]->SetOutputMatrix(NULL, 1, 4, matrix);
@@ -551,7 +551,6 @@ HRESULT CSound::CheckChunk(HANDLE hFile, DWORD format, DWORD* pChunkSize, DWORD*
 
 	return S_OK;
 }
-
 //=============================================================================
 // チャンクデータの読み込み
 //=============================================================================
