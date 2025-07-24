@@ -22,7 +22,7 @@
 #include "dinput.h"												// 入力処理に必要
 #include "Xinput.h"												// ジョイパッド処理に必要
 #include "xaudio2.h"											// 2Dサウンド処理に必要
-#include <x3daudio.h>											// 3Dサウンド処理に必要
+#include <X3DAudio.h>											// 3Dサウンド処理に必要
 #include <array>
 #include <string>
 #include <vector>
@@ -40,6 +40,7 @@
 #pragma comment(lib,"winmm.lib")								// システム時刻取得に必要
 #pragma comment(lib,"dinput8.lib")								// 入力処理に必要
 #pragma comment(lib,"xinput.lib")								// ジョイパッド処理に必要
+#pragma comment(lib,"X3DAudio.lib")								// 3Dサウンド処理に必要
 
 // Bullet Physics
 #include <btBulletDynamicsCommon.h>

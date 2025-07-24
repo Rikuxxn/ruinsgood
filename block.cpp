@@ -169,6 +169,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_HIT);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROCKHIT);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWITCH);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
 
 	ReleasePhysics();
 
@@ -1617,6 +1618,8 @@ CRockBlock::CRockBlock()
 	m_isBridgeSwitchOn = false;
 	m_isHit = false;
 	m_isPrevHit = false;
+	m_isThrough = false;
+	m_isPrevThrough = false;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1648,6 +1651,9 @@ void CRockBlock::Update(void)
 //=============================================================================
 void CRockBlock::Respawn(void)
 {
+	// 転がる音の停止
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
+
 	// 動かすためにキネマティックにする
 	SetEditMode(true);
 
@@ -1715,6 +1721,25 @@ void CRockBlock::MoveToTarget(void)
 
 	btVector3 force(0.0f, 0.0f, 0.0f);
 
+	if (m_currentTargetIndex >= 1)
+	{
+		m_isThrough = true;
+	}
+	else
+	{
+		m_isThrough = false;
+	}
+
+	bool isThroughNow = m_isThrough;
+
+	if (isThroughNow && !m_isPrevThrough)
+	{
+		// 転がる音の再生(ループ)
+		CManager::GetSound()->Play3D(CSound::SOUND_LABEL_ROLL, currentPos, 1150.0f, 1450.0f);
+	}
+
+	m_isPrevThrough = isThroughNow;
+
 	if (m_currentTargetIndex >= 6 && !m_isBridgeSwitchOn)
 	{// インデックスが 6 を超えたら
 		float fSpeedDown = 0.001f;
@@ -1727,6 +1752,9 @@ void CRockBlock::MoveToTarget(void)
 		// Z軸中心で転がす
 		force = btVector3(dir.x * m_speed, 0.0f, dir.z * m_speed);
 	}
+
+	// 音源の位置更新
+	CManager::GetSound()->UpdateSoundPosition(CSound::SOUND_LABEL_ROLL, currentPos);
 
 	// 適用中の速度に加える
 	pRigid->applyCentralForce(force);
@@ -1947,6 +1975,10 @@ void CTargetBlock::Update(void)
 		if (isOverlap)
 		{
 			m_isHit = true;
+
+			// 岩の転がる音を止める
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
+
 			break;
 		}
 	}
@@ -2001,6 +2033,9 @@ void CTorchBlock::Update(void)
 			// パーティクル生成
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+
+			//// 炎サウンドの再生
+			//CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 450.0f, 1050.0f);
 		}
 	}
 

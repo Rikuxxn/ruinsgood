@@ -204,28 +204,8 @@ void CPlayer::Update(void)
 		HoldBlock();
 	}
 
-	CParticle* pParticle = NULL;
-
-	if (m_bIsMoving && !m_isJumping)
-	{
-		m_particleTimer++;
-
-		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
-		{
-			m_particleTimer = 0;
-
-			// パーティクルの生成
-			CParticle::Create(m_pos,
-				D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.4f),
-				25,                    // 寿命
-				CParticle::TYPE_MOVE,  // パーティクルタイプ
-				1);                    // 数
-		}
-	}
-	else
-	{
-		m_particleTimer = 0; // 停止時はリセット
-	}
+	// リスナーの位置の更新
+	CManager::GetSound()->UpdateListener(D3DXVECTOR3(m_pos.x, m_pos.y + 50.0f, m_pos.z));
 
 	// モーション切り替え
 	if (m_isJumping)
@@ -724,6 +704,7 @@ void CPlayer::Controll(void)
 		float magnitude = sqrtf(stickX * stickX + stickY * stickY);
 
 		const float DEADZONE = 10922.0f;
+
 		if (magnitude >= DEADZONE)
 		{
 			// 正規化
@@ -809,6 +790,29 @@ void CPlayer::Controll(void)
 
 	// RayCastで接地チェック
 	m_bOnGround = OnGround(CManager::GetPhysicsWorld(), m_pRigidBody, 65.0f);
+
+	CParticle* pParticle = NULL;
+
+	if (m_bIsMoving && !m_isJumping && m_bOnGround)
+	{
+		m_particleTimer++;
+
+		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
+		{
+			m_particleTimer = 0;
+
+			// パーティクルの生成
+			CParticle::Create(m_pos,
+				D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.4f),
+				25,                    // 寿命
+				CParticle::TYPE_MOVE,  // パーティクルタイプ
+				1);                    // 数
+		}
+	}
+	else
+	{
+		m_particleTimer = 0; // 停止時はリセット
+	}
 
 	// ジャンプ入力があって、かつ地面に立っている時だけジャンプ
 	if (!m_isJumping &&

@@ -266,7 +266,8 @@ private:
 	bool m_isBridgeSwitchOn;
 	bool m_isHit;
 	bool m_isPrevHit;
-
+	bool m_isThrough;							// ’Ê‰ß‚µ‚½‚©
+	bool m_isPrevThrough;						// ’¼‘O‚É’Ê‰ß‚µ‚½‚©
 };
 
 //*****************************************************************************

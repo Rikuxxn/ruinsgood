@@ -29,6 +29,7 @@ public:
 		SOUND_LABEL_PAUSE,
 		SOUND_LABEL_SELECT,
 		SOUND_LABEL_ENTER,
+		SOUND_LABEL_ROLL,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -41,6 +42,7 @@ public:
 	void Stop(SOUND_LABEL label);
 	void Stop(void);
 	void CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float minDistance, float maxDistance);
+	void UpdateListener(D3DXVECTOR3 pos);
 	void UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos);
 
 private:
@@ -68,12 +70,13 @@ private:
 		{"data/SE/water.wav", 0},				// 入水SE
 		{"data/SE/waterrise.wav", 0},			// 水位上昇SE
 		{"data/SE/hit.wav", 0},					// プレイヤーヒットSE
-		{"data/BGM/fire.wav", -1},				// 炎BGM
+		{"data/SE/fire.wav", -1},				// 炎SE(ループ)
 		{"data/SE/rock_hit.wav", 0},			// 岩衝突SE
 		{"data/SE/switch.wav", 0},				// スイッチSE
 		{"data/SE/menu.wav", 0},				// ポーズSE
 		{"data/SE/select.wav", 0},				// 選択SE
 		{"data/SE/enter.wav", 0},				// 決定SE
+		{"data/SE/roll.wav", -1},				// 岩転がるSE(ループ)
 	};
 
 };
