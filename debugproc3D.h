@@ -29,7 +29,6 @@ public:
 	static void DrawLine3D(const D3DXVECTOR3& start, const D3DXVECTOR3& end, D3DXCOLOR color);
 	static void DrawCapsuleCollider(btCapsuleShape* capsule, const btTransform& transform, D3DXCOLOR color);
 	static void DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color);
-	static void DrawTestLine(void);
 
 private:
 	static LPD3DXLINE m_pLine;   // ライン描画用オブジェクト

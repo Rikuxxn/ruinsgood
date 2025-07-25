@@ -246,8 +246,8 @@ void CPause::Draw(void)
 		// テクスチャの設定
 		pDevice->SetTexture(0, NULL);
 
-		//// ポリゴンの描画
-		//pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 		//=============================================
 		// ポーズ

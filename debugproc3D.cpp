@@ -442,15 +442,3 @@ void CDebugProc3D::DrawBlockCollider(btRigidBody* rigidBody, D3DXCOLOR color)
         break;
     }
 }
-//=============================================================================
-// テストライン描画処理
-//=============================================================================
-void CDebugProc3D::DrawTestLine(void)
-{
-    // ライン
-    D3DXVECTOR3 v0(0, 0, 0);
-    D3DXVECTOR3 v1(0, 500, 0);
-
-    // 描画
-    DrawLine3D(v0, v1, D3DXCOLOR(1, 1, 0, 1));
-}
