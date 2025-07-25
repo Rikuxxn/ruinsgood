@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // ブロック処理 [block.cpp]
-// Author : TANEKAWA RIKU
+// Author : RIKU TANEKAWA
 //
 //=============================================================================
 
@@ -244,7 +244,7 @@ void CBlock::Update(void)
 		sy = std::max(-1.0f, std::min(1.0f, sy));
 		euler.x = asinf(sy);  // pitch (X)
 
-		// cos(pitch) が0に近いとgimbal lockなので、その回避処理
+		// cos(pitch) が0に近いとジンバルロックなので、その回避処理
 		if (fabsf(cosf(euler.x)) > 1e-4f)
 		{
 			euler.y = atan2f(matRot._31, matRot._33);  // yaw (Y)
@@ -1531,7 +1531,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	//Swing();	// スイング処理
+	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1644,7 +1644,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2212,7 +2212,7 @@ void CMaskBlock::Update(void)
 			if (!m_isGet)
 			{
 				// 仮面取得UIの生成
-				CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 130.0f);
+				CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 140.0f);
 			}
 
 			m_isGet = true;

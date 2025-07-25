@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // プレイヤー処理 [player.cpp]
-// Author : TANEKAWA RIKU
+// Author : RIKU TANEKAWA
 //
 //=============================================================================
 
@@ -568,7 +568,37 @@ void CPlayer::HoldBlock(void)
 		}
 		else
 		{
+			//// ブロックの浮力設定
+			//const float B_maxLiftSpeed = 150.0f;
+
 			//btRigidBody* pRigid = m_pCarryingBlock->GetRigidBody();
+
+			//if (pRigid)
+			//{
+			//	btVector3 velocity = pRigid->getLinearVelocity();
+
+			//	if (velocity.getY() < B_maxLiftSpeed)
+			//	{
+			//		// 浮かばせる目標上向き速度
+			//		const float targetUpSpeed = 130.0f; // 浮上スピード
+			//		const float maxUpSpeed = 120.0f;    // 上限速度
+			//		const float forceScale = 0.12f;		// 差分にかける係数（反応の速さ）
+
+			//		btVector3 velocity = pRigid->getLinearVelocity();
+
+			//		// 浮力：現在のY速度との差を補正
+			//		float diffY = targetUpSpeed - velocity.getY();
+			//		velocity.setY(velocity.getY() + diffY * forceScale);
+
+			//		// 最大上昇速度制限
+			//		if (velocity.getY() > maxUpSpeed)
+			//		{
+			//			velocity.setY(maxUpSpeed);
+			//		}
+
+			//		pRigid->setLinearVelocity(velocity);
+			//	}
+			//}
 
 			// 持っている → プレイヤー前方に移動
 			D3DXVECTOR3 targetPos = GetPos() + GetForward();
@@ -736,13 +766,15 @@ void CPlayer::Controll(void)
 				m_rotDest.y = CamRot.y;
 			}
 
-			// フラグ
-			m_bIsMoving = true;
-
 			// 横移動だけなら m_bIsSideMoving を立てる
 			if (fabsf(stickX) > 0.5f && fabsf(stickY) < 0.3f)
 			{
 				m_bIsSideMoving = true;
+			}
+			else
+			{
+				// フラグ
+				m_bIsMoving = true;
 			}
 		}
 	}
@@ -793,7 +825,7 @@ void CPlayer::Controll(void)
 
 	CParticle* pParticle = NULL;
 
-	if (m_bIsMoving && !m_isJumping && m_bOnGround)
+	if (m_bIsMoving && !m_isJumping && m_bOnGround && !m_bIsSideMoving)
 	{
 		m_particleTimer++;
 

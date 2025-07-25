@@ -1,7 +1,7 @@
 //=============================================================================
 //
 // マネージャー処理 [manager.cpp]
-// Author : TANEKAWA RIKU
+// Author : RIKU TANEKAWA
 //
 //=============================================================================
 
@@ -102,7 +102,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 	{
 		return E_FAIL;
 	}
-
 
 	// Bullet物理ワールドの生成
 	m_pBroadphase = new btDbvtBroadphase();
