@@ -1531,7 +1531,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1644,7 +1644,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2163,6 +2163,7 @@ CMaskBlock::CMaskBlock()
 
 	// 値のクリア
 	m_isGet = false;
+	m_isSoundPlayed = false;
 }
 //=============================================================================
 // 仮面ブロックのデストラクタ
@@ -2208,14 +2209,37 @@ void CMaskBlock::Update(void)
 
 		if (distance < getDistance)
 		{
-			m_isGet = true;
+			if (!m_isGet)
+			{
+				// 仮面取得UIの生成
+				CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 130.0f);
+			}
 
-			// 仮面取得UIの生成
-			CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 130.0f);
+			m_isGet = true;
 
 			// リスポーン処理
 			CGame::GetPlayer()->RespawnToCheckpoint();
 		}
+
+		if (distance < kTriggerDistance && !m_isGet)
+		{
+			// 仮面サウンド再生
+			if (!m_isSoundPlayed)
+			{
+				CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 150.0f, kTriggerDistance);
+				m_isSoundPlayed = true;
+			}
+
+			// 音源の位置更新
+			CManager::GetSound()->UpdateSoundPosition(CSound::SOUND_LABEL_MASK, GetPos());
+		}
+		else
+		{
+			// プレイヤーが離れたらフラグをリセット
+			m_isSoundPlayed = false; // 近づいたらまた再生
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
+		}
+
 	}
 }
 

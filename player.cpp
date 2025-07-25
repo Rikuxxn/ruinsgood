@@ -576,7 +576,7 @@ void CPlayer::HoldBlock(void)
 			targetPos.y = GetPos().y + 140.0f; // 高さ調整
 
 			D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
-			float moveSpeed = 10.0f; // 移動スピード
+			float moveSpeed = 8.0f; // 移動スピード
 
 			// 補間する
 			D3DXVECTOR3 newPos = Lerp(currentPos, targetPos, moveSpeed * 1.0f/60.0f);
@@ -586,7 +586,7 @@ void CPlayer::HoldBlock(void)
 			D3DXVECTOR3 rot = m_pCarryingBlock->GetRot();
 			rot.x = 0.0f;                   // 水平を保つ
 			rot.z = 0.0f;
-			rot.y = m_rot.y;               // プレイヤーの向きと同じに
+			rot.y = m_rot.y;				// プレイヤーの向きと同じに
 			m_pCarryingBlock->SetRot(rot);
 		}
 	}

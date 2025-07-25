@@ -30,6 +30,7 @@ public:
 		SOUND_LABEL_SELECT,
 		SOUND_LABEL_ENTER,
 		SOUND_LABEL_ROLL,
+		SOUND_LABEL_MASK,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -45,6 +46,7 @@ public:
 	void UpdateListener(D3DXVECTOR3 pos);
 	void UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos);
 	void SetDistance(float minDis, float maxDis) { m_minDistance = minDis; m_maxDistance = maxDis; }
+
 private:
 	IXAudio2* m_pXAudio2;									// XAudio2オブジェクトへのインターフェイス
 	IXAudio2MasteringVoice* m_pMasteringVoice;				// マスターボイス
@@ -78,6 +80,7 @@ private:
 		{"data/SE/select.wav", 0},				// 選択SE
 		{"data/SE/enter.wav", 0},				// 決定SE
 		{"data/SE/roll.wav", -1},				// 岩転がるSE(ループ)
+		{"data/SE/mask.wav", -1},				// 仮面SE(ループ)
 	};
 
 };
