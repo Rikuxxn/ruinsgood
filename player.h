@@ -92,7 +92,7 @@ private:
 	std::vector<D3DXVECTOR3> m_ResPos;	// リスポーン地点
 	int m_particleTimer;				// タイマー
 	const int JUMP_HOLD_FRAMES = 60;	// このフレーム数まではジャンプ中とみなす
-	const int DASH_PARTICLE_INTERVAL = 10; // パーティクル発生間隔（フレーム数）
+	const int DASH_PARTICLE_INTERVAL = 5; // パーティクル発生間隔（フレーム数）
 };
 
 #endif

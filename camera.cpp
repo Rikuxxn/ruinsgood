@@ -87,10 +87,10 @@ void CCamera::Update(void)
 	// タイトル画面だったら
 	if (CManager::GetMode() == MODE_TITLE)
 	{// カメラの位置の設定
-		m_posV = D3DXVECTOR3(-1235.5f, 292.0f, -2220.2f);
-		m_posR = D3DXVECTOR3(-1524.1f, 142.5f, -1489.2f);
+		m_posV = D3DXVECTOR3(-1373.5f, 331.5f, -1130.5f);
+		m_posR = D3DXVECTOR3(-913.5f, 150.0f, -1700.0f);
 		m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);// 固定でいい
-		m_rot = D3DXVECTOR3(0.19f, 2.77f, 0.0f);
+		m_rot = D3DXVECTOR3(0.25f, -0.70f, 0.0f);
 		m_fDistance = sqrtf(
 			((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x)) +
 			((m_posV.y - m_posR.y) * (m_posV.y - m_posR.y)) +

@@ -111,6 +111,9 @@ HRESULT CTitle::Init(void)
 	// 頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 
+	// 炎サウンドの再生
+	CManager::GetSound()->Play(CSound::SOUND_LABEL_FIRE);
+
 	return S_OK;
 }
 //=============================================================================
@@ -118,6 +121,8 @@ HRESULT CTitle::Init(void)
 //=============================================================================
 void CTitle::Uninit(void)
 {
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+
 	// ブロックマネージャーの破棄
 	if (m_pBlockManager != NULL)
 	{

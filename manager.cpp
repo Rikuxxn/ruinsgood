@@ -147,12 +147,12 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 	// タイトル画面だったら
 	if (m_pScene->GetMode() == MODE_TITLE)
 	{// カメラの位置の設定
-		D3DXVECTOR3 posV(D3DXVECTOR3(-1235.5f, 292.0f, -2220.2f));
-		D3DXVECTOR3 posR(D3DXVECTOR3(-1524.1f, 142.5f, -1489.2f));
+		D3DXVECTOR3 posV(D3DXVECTOR3(-1373.5f, 331.5f, -1130.5f));
+		D3DXVECTOR3 posR(D3DXVECTOR3(-913.5f, 150.0f, -1700.0f));
 
 		m_pCamera->SetPosV(posV);
 		m_pCamera->SetPosR(posR);
-		m_pCamera->SetRot(D3DXVECTOR3(0.19f, 2.77f, 0.0f));
+		m_pCamera->SetRot(D3DXVECTOR3(0.25f, -0.70f, 0.0f));
 		m_pCamera->SetDis(sqrtf(
 			((posV.x - posR.x) * (posV.x - posR.x)) +
 			((posV.y - posR.y) * (posV.y - posR.y)) +

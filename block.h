@@ -268,6 +268,8 @@ private:
 	bool m_isPrevHit;
 	bool m_isThrough;							// 通過したか
 	bool m_isPrevThrough;						// 直前に通過したか
+	int m_particleTimer;						// タイマー
+	const int DASH_PARTICLE_INTERVAL = 8;		// パーティクル発生間隔（フレーム数）
 };
 
 //*****************************************************************************
@@ -314,7 +316,7 @@ public:
 	void Update(void) override;
 
 private:
-
+	bool m_isSoundPlayed; // サウンド再生済みフラグ
 };
 
 //*****************************************************************************

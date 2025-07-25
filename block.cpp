@@ -170,6 +170,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROCKHIT);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWITCH);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
 
 	ReleasePhysics();
 
@@ -1620,6 +1621,7 @@ CRockBlock::CRockBlock()
 	m_isPrevHit = false;
 	m_isThrough = false;
 	m_isPrevThrough = false;
+	m_particleTimer = 0;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1701,6 +1703,25 @@ void CRockBlock::MoveToTarget(void)
 	if (!pRigid)
 	{
 		return;
+	}
+
+	CParticle* pParticle = NULL;
+
+	if (m_currentTargetIndex >= 1)
+	{
+		m_particleTimer++;
+
+		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
+		{
+			m_particleTimer = 0;
+
+			// パーティクルの生成
+			CParticle::Create(D3DXVECTOR3(GetPos().x, GetPos().y - 200.0f, GetPos().z),
+				D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f),
+				30,                    // 寿命
+				CParticle::TYPE_WATER,  // パーティクルタイプ
+				5);                    // 数
+		}
 	}
 
 	D3DXVECTOR3 currentPos = GetPos();
@@ -1993,6 +2014,7 @@ CTorchBlock::CTorchBlock()
 	SetType(TYPE_TORCH);
 
 	// 値のクリア
+	m_isSoundPlayed = false;
 }
 //=============================================================================
 // 壁掛け松明ブロックのデストラクタ
@@ -2034,9 +2056,30 @@ void CTorchBlock::Update(void)
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
 
-			//// 炎サウンドの再生
-			//CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 450.0f, 1050.0f);
 		}
+
+		//const float SoundTriggerDistance = 550.0f; // 反応距離
+
+		//if (distance < SoundTriggerDistance)
+		//{
+		//	// サウンド再生
+		//	if (!m_isSoundPlayed)
+		//	{
+		//		CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+		//		CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, SoundTriggerDistance);
+		//		m_isSoundPlayed = true;
+		//	}
+
+		//	// 音源の位置更新
+		//	CManager::GetSound()->UpdateSoundPosition(CSound::SOUND_LABEL_FIRE, GetPos());
+		//}
+		//else
+		//{
+		//	// プレイヤーが離れたらフラグをリセット
+		//	//m_isSoundPlayed = false; // 近づいたらまた再生してほしい場合
+		//	//CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+		//}
+
 	}
 
 	if (CManager::GetMode() == MODE_TITLE)
