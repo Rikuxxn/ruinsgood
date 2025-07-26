@@ -42,6 +42,9 @@ CTitle::~CTitle()
 //=============================================================================
 HRESULT CTitle::Init(void)
 {
+	// マウスカーソルを表示する
+	CManager::GetInputMouse()->SetCursorVisibility(true);
+
 	// ブロックマネージャーの生成
 	m_pBlockManager = new CBlockManager;
 

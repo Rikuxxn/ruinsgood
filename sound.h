@@ -11,6 +11,9 @@
 class CSound
 {
 public:
+	// 最大同時再生数
+	static constexpr int MAX_SIMULTANEOUS_PLAY = 2;
+
 	CSound();
 	~CSound();
 
@@ -36,35 +39,43 @@ public:
 
 	HRESULT Init(HWND hWnd);
 	void Uninit(void);
-	HRESULT Play(SOUND_LABEL label);
-	HRESULT Play3D(SOUND_LABEL label,D3DXVECTOR3 soundPos,float minDistance,float maxDistance);
-	HRESULT CheckChunk(HANDLE hFile, DWORD format, DWORD* pChunkSize, DWORD* pChunkDataPosition);
-	HRESULT ReadChunkData(HANDLE hFile, void* pBuffer, DWORD dwBuffersize, DWORD dwBufferoffset);
-	void Stop(SOUND_LABEL label);
+
+	void Stop(int instanceId);
 	void Stop(void);
-	void CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float minDistance, float maxDistance);
+	int Play(SOUND_LABEL label);
+	int Play3D(SOUND_LABEL label,D3DXVECTOR3 soundPos,float minDistance,float maxDistance);
+
 	void UpdateListener(D3DXVECTOR3 pos);
-	void UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos);
-	void SetDistance(float minDis, float maxDis) { m_minDistance = minDis; m_maxDistance = maxDis; }
+	void UpdateSoundPosition(int instanceId, D3DXVECTOR3 pos);
+
+private:
+	// 一つのサウンド再生インスタンス
+	struct SoundInstance
+	{
+		int id = -1;
+		IXAudio2SourceVoice* pSourceVoice = nullptr;
+		X3DAUDIO_EMITTER emitter = {};
+		SOUND_LABEL label;
+		bool active = false;
+		float minDistance = 0.0f, maxDistance = 0.0f;						// 最小距離と最大距離（距離減衰の範囲）
+	};
+
+	struct SoundData
+	{
+		BYTE* pAudioData = nullptr;
+		DWORD audioBytes = 0;
+		WAVEFORMATEXTENSIBLE wfx = {};
+	};
+
+	struct SOUNDINFO
+	{
+		const char* pFilename;
+		int loopCount;
+	};
 
 private:
 	IXAudio2* m_pXAudio2;									// XAudio2オブジェクトへのインターフェイス
 	IXAudio2MasteringVoice* m_pMasteringVoice;				// マスターボイス
-	IXAudio2SourceVoice* m_apSourceVoice[SOUND_LABEL_MAX];	// ソースボイス
-	BYTE* m_apDataAudio[SOUND_LABEL_MAX];					// オーディオデータ
-	DWORD m_aSizeAudio[SOUND_LABEL_MAX];					// オーディオデータサイズ
-
-	// 3Dオーディオ用の変数
-	X3DAUDIO_HANDLE m_X3DInstance;							// X3DAudio インスタンス
-	X3DAUDIO_LISTENER m_Listener;							// リスナー（プレイヤーの位置）
-	X3DAUDIO_EMITTER m_Emitters[SOUND_LABEL_MAX];			// 各サウンドの音源
-	float m_minDistance, m_maxDistance;						// 最小距離と最大距離（距離減衰の範囲）
-
-	typedef struct
-	{
-		const char* pFilename;	// ファイル名
-		int nCntLoop;			// ループカウント
-	} SOUNDINFO;
 
 	// サウンドの情報
 	SOUNDINFO m_aSoundInfo[SOUND_LABEL_MAX] =
@@ -83,7 +94,21 @@ private:
 		{"data/SE/mask.wav", -1},				// 仮面SE(ループ)
 	};
 
-};
+	SoundData m_SoundData[SOUND_LABEL_MAX];
 
+	// インスタンス管理
+	std::vector<SoundInstance> m_Instances;
+	int m_nextInstanceId;
+
+	X3DAUDIO_HANDLE m_X3DInstance;							// X3DAudio インスタンス
+	X3DAUDIO_LISTENER m_Listener;							// リスナー（プレイヤーの位置）
+
+private:
+	HRESULT LoadWave(SOUND_LABEL label);
+	void CalculateCustomPanning(SoundInstance& inst, FLOAT32* matrix);
+	HRESULT CheckChunk(HANDLE hFile, DWORD format, DWORD* pChunkSize, DWORD* pChunkDataPosition);
+	HRESULT ReadChunkData(HANDLE hFile, void* pBuffer, DWORD dwBuffersize, DWORD dwBufferoffset);
+
+};
 
 #endif

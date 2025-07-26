@@ -10,6 +10,7 @@
 //*****************************************************************************
 #include "sound.h"
 #include "game.h"
+#include "manager.h"
 
 using namespace std;
 
@@ -19,18 +20,11 @@ using namespace std;
 CSound::CSound()
 {
 	// 値のクリア
-	m_pXAudio2			= NULL;
-	m_pMasteringVoice	= NULL;
-	m_Listener			= {};					// リスナーの位置
-	m_minDistance = 0.0f;
-	m_maxDistance = 0.0f;
-	for (int nCnt = 0; nCnt < SOUND_LABEL_MAX; nCnt++)
-	{
-		m_apSourceVoice[nCnt] = {};		// ソースボイス
-		m_apDataAudio[nCnt] = {};		// オーディオデータ
-		m_aSizeAudio[nCnt] = {};		// オーディオデータサイズ
-		m_Emitters[nCnt] = {};			// 各サウンドの音源(3D用)
-	}
+	m_pXAudio2 = NULL;
+	m_pMasteringVoice = NULL;
+	m_Listener = {};					// リスナーの位置
+	//m_minDistance = 0.0f;
+	//m_maxDistance = 0.0f;
 }
 //=============================================================================
 // デストラクタ
@@ -46,150 +40,60 @@ HRESULT CSound::Init(HWND hWnd)
 {
 	HRESULT hr;
 
-	// COMライブラリの初期化
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
-	// XAudio2オブジェクトの作成
 	hr = XAudio2Create(&m_pXAudio2, 0);
 	if (FAILED(hr))
 	{
 		MessageBox(hWnd, "XAudio2オブジェクトの作成に失敗！", "警告！", MB_ICONWARNING);
-
-		// COMライブラリの終了処理
 		CoUninitialize();
-
-		return E_FAIL;
+		return hr;
 	}
 
-	// マスターボイスの生成
-	hr = m_pXAudio2->CreateMasteringVoice(&m_pMasteringVoice, 4, 48000, 0, NULL, NULL);
+	XAUDIO2_DEVICE_DETAILS deviceDetails;
+	hr = m_pXAudio2->GetDeviceDetails(0, &deviceDetails);
+	if (FAILED(hr))
+	{
+		MessageBox(hWnd, "デバイス情報の取得に失敗！", "警告！", MB_ICONWARNING);
+		m_pXAudio2->Release();
+		m_pXAudio2 = nullptr;
+		CoUninitialize();
+		return hr;
+	}
+
+	UINT32 channels = deviceDetails.OutputFormat.Format.nChannels;
+	UINT32 sampleRate = deviceDetails.OutputFormat.Format.nSamplesPerSec;
+
+	hr = m_pXAudio2->CreateMasteringVoice(&m_pMasteringVoice, channels, sampleRate);
 	if (FAILED(hr))
 	{
 		MessageBox(hWnd, "マスターボイスの生成に失敗！", "警告！", MB_ICONWARNING);
-
-		if (m_pXAudio2 != NULL)
-		{
-			// XAudio2オブジェクトの開放
-			m_pXAudio2->Release();
-			m_pXAudio2 = NULL;
-		}
-
-		// COMライブラリの終了処理
+		m_pXAudio2->Release();
+		m_pXAudio2 = nullptr;
 		CoUninitialize();
-
-		return E_FAIL;
+		return hr;
 	}
 
-	// スピーカー設定を取得
-	XAUDIO2_VOICE_DETAILS details;
-	m_pMasteringVoice->GetVoiceDetails(&details);
+	X3DAudioInitialize(deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
 
-	UINT32 speakerConfig = details.InputChannels; // 現在のスピーカー設定
-	X3DAudioInitialize(speakerConfig, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
-
-	// リスナーの初期位置
-	m_Listener.Position = { 0.0f, 0.0f, 0.0f };   // 中央
-	m_Listener.OrientFront = { 0.0f, 0.0f, 0.0f }; // 前方向
-	m_Listener.OrientTop = { 0.0f, 1.0f, 0.0f };   // 上方向
+	m_Listener.pCone = nullptr;
+	m_Listener.Position = { 0.0f, 0.0f, 0.0f };
+	m_Listener.OrientFront = { 0.0f, 0.0f, 1.0f };
+	m_Listener.OrientTop = { 0.0f, 1.0f, 0.0f };
 	m_Listener.Velocity = { 0.0f, 0.0f, 0.0f };
 
-	// サウンドデータの初期化
-	for (int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)
+	for (int i = 0; i < SOUND_LABEL_MAX; ++i)
 	{
-		HANDLE hFile;
-		DWORD dwChunkSize = 0;
-		DWORD dwChunkPosition = 0;
-		DWORD dwFiletype;
-		WAVEFORMATEXTENSIBLE wfx;
-		XAUDIO2_BUFFER buffer;
-
-		// バッファのクリア
-		memset(&wfx, 0, sizeof(WAVEFORMATEXTENSIBLE));
-		memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
-
-		// サウンドデータファイルの生成
-		hFile = CreateFile(m_aSoundInfo[nCntSound].pFilename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-		if (hFile == INVALID_HANDLE_VALUE)
-		{
-			MessageBox(hWnd, "サウンドデータファイルの生成に失敗！(1)", "警告！", MB_ICONWARNING);
-			return HRESULT_FROM_WIN32(GetLastError());
-		}
-		if (SetFilePointer(hFile, 0, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
-		{// ファイルポインタを先頭に移動
-			MessageBox(hWnd, "サウンドデータファイルの生成に失敗！(2)", "警告！", MB_ICONWARNING);
-			return HRESULT_FROM_WIN32(GetLastError());
-		}
-
-		// WAVEファイルのチェック
-		hr = CheckChunk(hFile, 'FFIR', &dwChunkSize, &dwChunkPosition);
+		hr = LoadWave((SOUND_LABEL)i);
 		if (FAILED(hr))
 		{
-			MessageBox(hWnd, "WAVEファイルのチェックに失敗！(1)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
+			char msg[128];
+			sprintf_s(msg, "サウンドの読み込みに失敗: %s", m_aSoundInfo[i].pFilename);
+			MessageBox(hWnd, msg, "Error", MB_OK);
+			Uninit();
+			return hr;
 		}
-		hr = ReadChunkData(hFile, &dwFiletype, sizeof(DWORD), dwChunkPosition);
-		if (FAILED(hr))
-		{
-			MessageBox(hWnd, "WAVEファイルのチェックに失敗！(2)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-		if (dwFiletype != 'EVAW')
-		{
-			MessageBox(hWnd, "WAVEファイルのチェックに失敗！(3)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-
-		// フォーマットチェック
-		hr = CheckChunk(hFile, ' tmf', &dwChunkSize, &dwChunkPosition);
-		if (FAILED(hr))
-		{
-			MessageBox(hWnd, "フォーマットチェックに失敗！(1)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-		hr = ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
-		if (FAILED(hr))
-		{
-			MessageBox(hWnd, "フォーマットチェックに失敗！(2)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-
-		// オーディオデータ読み込み
-		hr = CheckChunk(hFile, 'atad', &m_aSizeAudio[nCntSound], &dwChunkPosition);
-		if (FAILED(hr))
-		{
-			MessageBox(hWnd, "オーディオデータ読み込みに失敗！(1)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-		m_apDataAudio[nCntSound] = (BYTE*)malloc(m_aSizeAudio[nCntSound]);
-		hr = ReadChunkData(hFile, m_apDataAudio[nCntSound], m_aSizeAudio[nCntSound], dwChunkPosition);
-		if (FAILED(hr))
-		{
-			MessageBox(hWnd, "オーディオデータ読み込みに失敗！(2)", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-
-		// ソースボイスの生成
-		hr = m_pXAudio2->CreateSourceVoice(&m_apSourceVoice[nCntSound], &(wfx.Format));
-		if (FAILED(hr))
-		{
-			MessageBox(hWnd, "ソースボイスの生成に失敗！", "警告！", MB_ICONWARNING);
-			return S_FALSE;
-		}
-
-		// バッファの値設定
-		memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
-		buffer.AudioBytes = m_aSizeAudio[nCntSound];
-		buffer.pAudioData = m_apDataAudio[nCntSound];
-		buffer.Flags = XAUDIO2_END_OF_STREAM;
-		buffer.LoopCount = m_aSoundInfo[nCntSound].nCntLoop;
-
-		// オーディオバッファの登録
-		m_apSourceVoice[nCntSound]->SubmitSourceBuffer(&buffer);
-
-		// ファイルをクローズ
-		CloseHandle(hFile);
 	}
-
 	return S_OK;
 }
 //=============================================================================
@@ -197,34 +101,40 @@ HRESULT CSound::Init(HWND hWnd)
 //=============================================================================
 void CSound::Uninit(void)
 {
-	// 一時停止
-	for (int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)
+	// 全てのSoundInstanceを停止・破棄
+	for (auto& inst : m_Instances)
 	{
-		if (m_apSourceVoice[nCntSound] != NULL)
+		if (inst.pSourceVoice)
 		{
-			// 一時停止
-			m_apSourceVoice[nCntSound]->Stop(0);
+			inst.pSourceVoice->Stop(0);
+			inst.pSourceVoice->DestroyVoice();
+			inst.pSourceVoice = nullptr;
+		}
+	}
+	m_Instances.clear();
 
-			// ソースボイスの破棄
-			m_apSourceVoice[nCntSound]->DestroyVoice();
-			m_apSourceVoice[nCntSound] = NULL;
-
-			// オーディオデータの開放
-			free(m_apDataAudio[nCntSound]);
-			m_apDataAudio[nCntSound] = NULL;
+	// 各サウンドのオーディオデータ解放
+	for (int i = 0; i < SOUND_LABEL_MAX; ++i)
+	{
+		if (m_SoundData[i].pAudioData)
+		{
+			free(m_SoundData[i].pAudioData);
+			m_SoundData[i].pAudioData = nullptr;
 		}
 	}
 
-
-	if (m_pXAudio2 != NULL)
+	// マスターボイスの破棄
+	if (m_pMasteringVoice)
 	{
-		// マスターボイスの破棄
 		m_pMasteringVoice->DestroyVoice();
-		m_pMasteringVoice = NULL;
+		m_pMasteringVoice = nullptr;
+	}
 
-		// XAudio2オブジェクトの開放
+	// XAudio2オブジェクトの開放
+	if (m_pXAudio2)
+	{
 		m_pXAudio2->Release();
-		m_pXAudio2 = NULL;
+		m_pXAudio2 = nullptr;
 	}
 
 	// COMライブラリの終了処理
@@ -233,116 +143,143 @@ void CSound::Uninit(void)
 //=============================================================================
 // 2Dセグメント再生(再生中なら停止)
 //=============================================================================
-HRESULT CSound::Play(SOUND_LABEL label)
+int CSound::Play(SOUND_LABEL label)
 {
-	XAUDIO2_VOICE_STATE xa2state;
-	XAUDIO2_BUFFER buffer;
-
-	// バッファの値設定
-	memset(&buffer, 0, sizeof(XAUDIO2_BUFFER));
-	buffer.AudioBytes = m_aSizeAudio[label];
-	buffer.pAudioData = m_apDataAudio[label];
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-	buffer.LoopCount = m_aSoundInfo[label].nCntLoop;
-
-	// 状態取得
-	m_apSourceVoice[label]->GetState(&xa2state);
-	if (xa2state.BuffersQueued != 0)
-	{// 再生中
-		// 一時停止
-		m_apSourceVoice[label]->Stop(0);
-
-		// オーディオバッファの削除
-		m_apSourceVoice[label]->FlushSourceBuffers();
+	if (label < 0 || label >= SOUND_LABEL_MAX)
+	{
+		return -1;
 	}
 
-	// オーディオバッファの登録
-	m_apSourceVoice[label]->SubmitSourceBuffer(&buffer);
+	SoundInstance inst = {};
+	inst.id = m_nextInstanceId++;
+	inst.label = label;
+	inst.active = true;
 
-	// 再生
-	m_apSourceVoice[label]->Start(0);
+	HRESULT hr = m_pXAudio2->CreateSourceVoice(&inst.pSourceVoice, &(m_SoundData[label].wfx.Format));
+	if (FAILED(hr))
+	{
+		return -1;
+	}
 
-	return S_OK;
+	XAUDIO2_BUFFER buffer = {};
+	buffer.AudioBytes = m_SoundData[label].audioBytes;
+	buffer.pAudioData = m_SoundData[label].pAudioData;
+	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	buffer.LoopCount = m_aSoundInfo[label].loopCount;
+
+	hr = inst.pSourceVoice->SubmitSourceBuffer(&buffer);
+	if (FAILED(hr))
+	{
+		inst.pSourceVoice->DestroyVoice();
+		return -1;
+	}
+
+	hr = inst.pSourceVoice->Start(0);
+	if (FAILED(hr))
+	{
+		inst.pSourceVoice->DestroyVoice();
+		return -1;
+	}
+
+	m_Instances.push_back(inst);
+
+	return inst.id;
 }
 //=============================================================================
 // 3Dセグメント再生(再生中なら停止)
 //=============================================================================
-HRESULT CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, float maxDistance)
+int CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, float maxDistance)
 {
-	if (!m_apSourceVoice[label])
+	if (label < 0 || label >= SOUND_LABEL_MAX)
 	{
-		return E_FAIL;
+		return -1;
+	}
+	
+	// 同じラベルの再生中インスタンス数をカウント
+	int playingCount = 0;
+	for (const auto& inst : m_Instances)
+	{
+		if (inst.active && inst.label == label)
+		{
+			playingCount++;
+		}
 	}
 
-	m_Emitters[label].Position = soundPos;
-	m_Emitters[label].Velocity = { 0.0f, 0.0f, 0.0f };
-	m_Emitters[label].ChannelCount = 1;
-	m_Emitters[label].CurveDistanceScaler = 50.0f;  // 距離減衰を設定
+	// 最大数超えたら新規再生しない
+	if (playingCount >= MAX_SIMULTANEOUS_PLAY)
+	{
+		return -1;
+	}
 
-	// 3Dオーディオ計算用のバッファ
-	X3DAUDIO_DSP_SETTINGS dspSettings = {};
-	FLOAT32 matrix[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	dspSettings.SrcChannelCount = 1;
-	dspSettings.DstChannelCount = 4;
-	dspSettings.pMatrixCoefficients = matrix;
+	SoundInstance inst = {};
+	inst.id = m_nextInstanceId++;
+	inst.label = label;
+	inst.active = true;
 
-	// 最小距離と最大距離（距離減衰の範囲）を設定
-	SetDistance(minDistance, maxDistance);
+	HRESULT hr = m_pXAudio2->CreateSourceVoice(&inst.pSourceVoice, &(m_SoundData[label].wfx.Format));
+	if (FAILED(hr))
+		return -1;
 
-	// カスタムパンニング計算
-	CalculateCustomPanning(label, matrix, minDistance, maxDistance);
+	// エミッター設定
+	inst.emitter.Position = { soundPos.x, soundPos.y, soundPos.z };
+	inst.emitter.Velocity = { 0.0f, 0.0f, 0.0f };
+	inst.emitter.ChannelCount = 1;
+	inst.emitter.CurveDistanceScaler = 150.0f;
 
-	// パンニング値をクリップ（0.0 ～ 2.0 の範囲に収める）
-	matrix[0] = max(0.0f, min(2.0f, matrix[0]));
-	matrix[1] = max(0.0f, min(2.0f, matrix[1]));
+	// 距離範囲を保存
+	inst.minDistance = minDistance;
+	inst.maxDistance = maxDistance;
 
-	// 計算結果を適用
-	m_apSourceVoice[label]->SetOutputMatrix(NULL, 1, 4, matrix);
-
-	// バッファ設定
-	XAUDIO2_VOICE_STATE xa2state;
 	XAUDIO2_BUFFER buffer = {};
-	buffer.AudioBytes = m_aSizeAudio[label];
-	buffer.pAudioData = m_apDataAudio[label];
+	buffer.AudioBytes = m_SoundData[label].audioBytes;
+	buffer.pAudioData = m_SoundData[label].pAudioData;
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
-	buffer.LoopCount = m_aSoundInfo[label].nCntLoop;
+	buffer.LoopCount = m_aSoundInfo[label].loopCount;
 
-	// 状態取得
-	m_apSourceVoice[label]->GetState(&xa2state);
-
-	if (xa2state.BuffersQueued != 0)
-	{// 再生中
-		// 一時停止
-		m_apSourceVoice[label]->Stop(0);
-
-		// オーディオバッファの削除
-		m_apSourceVoice[label]->FlushSourceBuffers();
+	hr = inst.pSourceVoice->SubmitSourceBuffer(&buffer);
+	if (FAILED(hr))
+	{
+		inst.pSourceVoice->DestroyVoice();
+		return -1;
 	}
 
-	// オーディオバッファの登録
-	m_apSourceVoice[label]->SubmitSourceBuffer(&buffer);
+	// 3Dパンニング行列を計算
+	FLOAT32 matrix[8] = {}; // 適切なサイズ（出力チャンネル×入力チャンネル）
+	CalculateCustomPanning(inst, matrix);
 
-	// 再生
-	m_apSourceVoice[label]->Start(0);
+	// パンニング適用（例: 出力チャンネル4、入力1）
+	inst.pSourceVoice->SetOutputMatrix(NULL, 1, 4, matrix);
 
-	return S_OK;
+	hr = inst.pSourceVoice->Start(0);
+	if (FAILED(hr))
+	{
+		inst.pSourceVoice->DestroyVoice();
+		return -1;
+	}
+
+	m_Instances.push_back(inst);
+
+	return inst.id;
 }
 //=============================================================================
 // セグメント停止(ラベル指定)
 //=============================================================================
-void CSound::Stop(SOUND_LABEL label)
+void CSound::Stop(int instanceId)
 {
-	XAUDIO2_VOICE_STATE xa2state;
-
-	// 状態取得
-	m_apSourceVoice[label]->GetState(&xa2state);
-	if (xa2state.BuffersQueued != 0)
-	{// 再生中
-		// 一時停止
-		m_apSourceVoice[label]->Stop(0);
-
-		// オーディオバッファの削除
-		m_apSourceVoice[label]->FlushSourceBuffers();
+	for (auto it = m_Instances.begin(); it != m_Instances.end(); ++it)
+	{
+		if (it->id == instanceId)
+		{
+			if (it->pSourceVoice)
+			{
+				it->pSourceVoice->Stop(0);
+				it->pSourceVoice->FlushSourceBuffers();
+				it->pSourceVoice->DestroyVoice();
+				it->pSourceVoice = nullptr;
+			}
+			m_Instances.erase(it);
+			return;
+		}
 	}
 }
 //=============================================================================
@@ -350,20 +287,21 @@ void CSound::Stop(SOUND_LABEL label)
 //=============================================================================
 void CSound::Stop(void)
 {
-	// 一時停止
-	for (int nCntSound = 0; nCntSound < SOUND_LABEL_MAX; nCntSound++)
+	for (auto& inst : m_Instances)
 	{
-		if (m_apSourceVoice[nCntSound] != NULL)
+		if (inst.pSourceVoice)
 		{
-			// 一時停止
-			m_apSourceVoice[nCntSound]->Stop(0);
+			inst.pSourceVoice->Stop(0);
+			inst.pSourceVoice->FlushSourceBuffers();
+			inst.pSourceVoice->DestroyVoice();
 		}
 	}
+	m_Instances.clear();  // 一括でクリア
 }
 //=============================================================================
 // カスタムパンニング
 //=============================================================================
-void CSound::CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float minDis, float maxDis)
+void CSound::CalculateCustomPanning(SoundInstance& inst, FLOAT32* matrix)
 {
 	// プレイヤーの向き（前方向ベクトル）
 	D3DXVECTOR3 front = m_Listener.OrientFront;
@@ -381,20 +319,16 @@ void CSound::CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float mi
 	// リスナー → 音源のベクトル
 	D3DXVECTOR3 toEmitter =
 	{
-		m_Emitters[label].Position.x - m_Listener.Position.x,
-		m_Emitters[label].Position.y - m_Listener.Position.y,
-		m_Emitters[label].Position.z - m_Listener.Position.z
+		inst.emitter.Position.x - m_Listener.Position.x,
+		inst.emitter.Position.y - m_Listener.Position.y,
+		inst.emitter.Position.z - m_Listener.Position.z
 	};
 
 	// 距離を計算
 	float distance = D3DXVec3Length(&toEmitter);
 
-	// 最小距離と最大距離（距離減衰の範囲）
-	float minDistance = minDis;
-	float maxDistance = maxDis;
-
 	// 距離減衰計算
-	float volumeScale = 1.0f - ((distance - minDistance) / (maxDistance - minDistance));
+	float volumeScale = 1.0f - ((distance - inst.minDistance) / (inst.maxDistance - inst.minDistance));
 	volumeScale = max(0.0f, min(2.0f, volumeScale));
 
 	// 方向ベクトルを正規化
@@ -421,12 +355,12 @@ void CSound::CalculateCustomPanning(SOUND_LABEL label, FLOAT32* matrix, float mi
 	matrix[3] = rearRight;
 }
 //=============================================================================
-// リスナー(プレイヤー)の更新処理
+// リスナー(カメラ)の更新処理
 //=============================================================================
 void CSound::UpdateListener(D3DXVECTOR3 pos)
 {
 	// カメラの向きベクトルを計算
-	D3DXVECTOR3 forward = CGame::GetPlayer()->GetForward();
+	D3DXVECTOR3 forward = CManager::GetCamera()->GetForward();
 
 	// 正規化して g_Listener.OrientFront に代入
 	D3DXVec3Normalize(&forward, &forward);
@@ -442,47 +376,52 @@ void CSound::UpdateListener(D3DXVECTOR3 pos)
 
 	m_Listener.OrientTop = orienttop;
 
-	m_Listener.Position = { pos.x, pos.y, pos.z };				// リスナー(プレイヤー)の位置
+	m_Listener.Position = { pos.x, pos.y, pos.z };				// リスナー(カメラ)の位置
 }
 //=============================================================================
 // 音源の位置更新処理
 //=============================================================================
-void CSound::UpdateSoundPosition(SOUND_LABEL label, D3DXVECTOR3 pos)
+void CSound::UpdateSoundPosition(int instanceId, D3DXVECTOR3 pos)
 {
-	if (label < 0 || label >= SOUND_LABEL_MAX)
+	for (auto& inst : m_Instances)
 	{
-		return;
+		if (inst.id == instanceId)
+		{
+			// 音源の現在位置を適用
+			inst.emitter.Position = { pos.x, pos.y, pos.z };
+
+			// 3Dオーディオ計算
+			X3DAUDIO_DSP_SETTINGS dspSettings = {};
+			FLOAT32 matrix[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			dspSettings.SrcChannelCount = 1;
+			dspSettings.DstChannelCount = 4;
+			dspSettings.pMatrixCoefficients = matrix;
+
+			X3DAudioCalculate(
+				m_X3DInstance,
+				&m_Listener,
+				&inst.emitter,
+				X3DAUDIO_CALCULATE_MATRIX,
+				&dspSettings
+			);
+
+			// パンニング値をクリップ
+			for (int nCnt = 0; nCnt < 4; nCnt++)
+			{
+				matrix[nCnt] = max(0.0f, min(1.0f, matrix[nCnt]));
+			}
+
+			// カスタムパンニング計算
+			CalculateCustomPanning(inst, matrix);
+
+			// 出力マトリクスを更新
+			if (inst.pSourceVoice)
+			{
+				inst.pSourceVoice->SetOutputMatrix(NULL, 1, 4, matrix);
+			}
+			break;
+		}
 	}
-
-	// 音源の現在位置を適用
-	m_Emitters[label].Position = { pos.x, pos.y, pos.z };
-
-	// 3Dオーディオ計算
-	X3DAUDIO_DSP_SETTINGS dspSettings = {};
-	FLOAT32 matrix[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	dspSettings.SrcChannelCount = 1;
-	dspSettings.DstChannelCount = 4;
-	dspSettings.pMatrixCoefficients = matrix;
-
-	X3DAudioCalculate(
-		m_X3DInstance,
-		&m_Listener,
-		&m_Emitters[label],
-		X3DAUDIO_CALCULATE_MATRIX,
-		&dspSettings
-	);
-
-	// パンニング値をクリップ
-	for (int nCnt = 0; nCnt < 4; nCnt++)
-	{
-		matrix[nCnt] = max(0.0f, min(2.0f, matrix[nCnt]));
-	}
-
-	// カスタムパンニング計算
-	CalculateCustomPanning(label, matrix, m_minDistance, m_maxDistance);
-
-	// 音のパンニングを更新
-	m_apSourceVoice[label]->SetOutputMatrix(NULL, 1, 4, matrix);
 }
 //=============================================================================
 // チャンクのチェック
@@ -568,5 +507,80 @@ HRESULT CSound::ReadChunkData(HANDLE hFile, void* pBuffer, DWORD dwBuffersize, D
 		return HRESULT_FROM_WIN32(GetLastError());
 	}
 
+	return S_OK;
+}
+//=============================================================================
+// WAVEの読み込み
+//=============================================================================
+HRESULT CSound::LoadWave(SOUND_LABEL label)
+{
+	if (label < 0 || label >= SOUND_LABEL_MAX)
+		return E_FAIL;
+
+	HANDLE hFile = CreateFileA(
+		m_aSoundInfo[label].pFilename,
+		GENERIC_READ, FILE_SHARE_READ,
+		NULL, OPEN_EXISTING,
+		0, NULL);
+
+	if (hFile == INVALID_HANDLE_VALUE)
+		return E_FAIL;
+
+	DWORD dwChunkSize;
+	DWORD dwChunkPosition;
+
+	// "RIFF" チャンクチェック
+	if (FAILED(CheckChunk(hFile, 'FFIR', &dwChunkSize, &dwChunkPosition))) {
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	// "fmt " チャンク
+	if (FAILED(CheckChunk(hFile, ' tmf', &dwChunkSize, &dwChunkPosition))) {
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	WAVEFORMATEXTENSIBLE wfx = {};
+	if (FAILED(ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition))) {
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	// "data" チャンク
+	if (FAILED(CheckChunk(hFile, 'atad', &dwChunkSize, &dwChunkPosition))) {
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	BYTE* pDataBuffer = new BYTE[dwChunkSize];
+	if (FAILED(ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition))) {
+		delete[] pDataBuffer;
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	// ソースボイス作成
+	IXAudio2SourceVoice* pSourceVoice = nullptr;
+	if (FAILED(m_pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx))) {
+		delete[] pDataBuffer;
+		CloseHandle(hFile);
+		return E_FAIL;
+	}
+
+	// バッファ設定
+	XAUDIO2_BUFFER buffer = {};
+	buffer.AudioBytes = dwChunkSize;
+	buffer.pAudioData = pDataBuffer;
+	buffer.Flags = XAUDIO2_END_OF_STREAM;
+
+	pSourceVoice->SubmitSourceBuffer(&buffer);
+
+	// 保持
+	m_SoundData[label].pAudioData = pDataBuffer;  // 読み込んだPCMデータのバッファ
+	m_SoundData[label].audioBytes = dwChunkSize; // データのバイト数
+	m_SoundData[label].wfx = wfx;                 // フォーマット情報
+
+	CloseHandle(hFile);
 	return S_OK;
 }

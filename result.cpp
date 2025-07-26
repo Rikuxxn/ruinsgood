@@ -47,6 +47,9 @@ CResult::~CResult()
 //=============================================================================
 HRESULT CResult::Init(void)
 {
+	// マウスカーソルを表示する
+	CManager::GetInputMouse()->SetCursorVisibility(true);
+
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 

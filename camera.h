@@ -48,6 +48,7 @@ public:
 	//*****************************************************************************
 	D3DXVECTOR3 GetRot(void) { return m_rot; }			// ƒJƒƒ‰‚ÌŠp“x‚Ìæ“¾
 	MODE GetMode(void) { return m_Mode; }
+	D3DXVECTOR3 GetForward(void) const;
 
 private:
 	D3DXVECTOR3 m_posV;			// ‹“_

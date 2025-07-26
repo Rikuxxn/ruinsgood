@@ -270,6 +270,7 @@ private:
 	bool m_isPrevThrough;						// 直前に通過したか
 	int m_particleTimer;						// タイマー
 	const int DASH_PARTICLE_INTERVAL = 8;		// パーティクル発生間隔（フレーム数）
+	int m_playedRollSoundID;					// 再生中の音ID
 };
 
 //*****************************************************************************
@@ -316,7 +317,7 @@ public:
 	void Update(void) override;
 
 private:
-	bool m_isSoundPlayed; // サウンド再生済みフラグ
+	int m_playedFireSoundID;	// 再生中の音ID
 };
 
 //*****************************************************************************
@@ -331,6 +332,7 @@ public:
 	void Update(void) override;
 
 private:
+	int m_playedFireSoundID;// 再生中の音ID
 };
 
 //*****************************************************************************
@@ -347,7 +349,7 @@ public:
 
 private:
 	bool m_isGet;
-	bool m_isSoundPlayed;
+	int m_playedSoundID;					// 再生中の音ID
 };
 
 //*****************************************************************************

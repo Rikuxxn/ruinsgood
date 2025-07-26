@@ -107,6 +107,7 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 			pRock->AddPathPoint(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
+			pRock->AddPathPoint(D3DXVECTOR3(-1230.5f, 217.0f, -3898.0f));
 			pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
 		}
 
@@ -171,6 +172,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWITCH);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
 
 	ReleasePhysics();
 
@@ -1622,6 +1624,7 @@ CRockBlock::CRockBlock()
 	m_isThrough = false;
 	m_isPrevThrough = false;
 	m_particleTimer = 0;
+	m_playedRollSoundID = -1;
 }
 //=============================================================================
 // 岩ブロックのデストラクタ
@@ -1755,11 +1758,15 @@ void CRockBlock::MoveToTarget(void)
 
 	if (isThroughNow && !m_isPrevThrough)
 	{
-		// 転がる音の再生(ループ)
-		CManager::GetSound()->Play3D(CSound::SOUND_LABEL_ROLL, currentPos, 1150.0f, 1450.0f);
+		// ループ再生してIDを保存
+		if (m_playedRollSoundID == -1)
+		{
+			m_playedRollSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_ROLL, currentPos, 850.0f, 1650.0f);
+		}
 	}
 
 	m_isPrevThrough = isThroughNow;
+
 
 	if (m_currentTargetIndex >= 6 && !m_isBridgeSwitchOn)
 	{// インデックスが 6 を超えたら
@@ -1767,15 +1774,32 @@ void CRockBlock::MoveToTarget(void)
 
 		// 減速させる
 		force = btVector3(dir.x * (m_speed * fSpeedDown), 0.0f, dir.z * (m_speed * fSpeedDown));
+
+		if (m_currentTargetIndex >= 8 && m_playedRollSoundID != -1)
+		{
+			// 転がる音の停止
+			CManager::GetSound()->Stop(m_playedRollSoundID);
+			m_playedRollSoundID = -1;
+		}
 	}
 	else
 	{// 通常
 		// Z軸中心で転がす
 		force = btVector3(dir.x * m_speed, 0.0f, dir.z * m_speed);
+
+		if (m_currentTargetIndex >= 8 && m_playedRollSoundID != -1)
+		{
+			// 転がる音の停止
+			CManager::GetSound()->Stop(m_playedRollSoundID);
+			m_playedRollSoundID = -1;
+		}
 	}
 
-	// 音源の位置更新
-	CManager::GetSound()->UpdateSoundPosition(CSound::SOUND_LABEL_ROLL, currentPos);
+	// 音源の位置更新（再生中のみ）
+	if (m_playedRollSoundID != -1)
+	{
+		CManager::GetSound()->UpdateSoundPosition(m_playedRollSoundID, currentPos);
+	}
 
 	// 適用中の速度に加える
 	pRigid->applyCentralForce(force);
@@ -2014,7 +2038,7 @@ CTorchBlock::CTorchBlock()
 	SetType(TYPE_TORCH);
 
 	// 値のクリア
-	m_isSoundPlayed = false;
+	m_playedFireSoundID = -1;
 }
 //=============================================================================
 // 壁掛け松明ブロックのデストラクタ
@@ -2058,27 +2082,34 @@ void CTorchBlock::Update(void)
 
 		}
 
-		//const float SoundTriggerDistance = 550.0f; // 反応距離
+		const float SoundTriggerDistance = 550.0f; // 反応距離
 
-		//if (distance < SoundTriggerDistance)
-		//{
-		//	// サウンド再生
-		//	if (!m_isSoundPlayed)
-		//	{
-		//		CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
-		//		CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, SoundTriggerDistance);
-		//		m_isSoundPlayed = true;
-		//	}
+		if (distance < SoundTriggerDistance)
+		{
+			if (m_playedFireSoundID == -1) // 再生していなければ再生開始
+			{
+				// 前の音を止める（念のため）
+				CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
 
-		//	// 音源の位置更新
-		//	CManager::GetSound()->UpdateSoundPosition(CSound::SOUND_LABEL_FIRE, GetPos());
-		//}
-		//else
-		//{
-		//	// プレイヤーが離れたらフラグをリセット
-		//	//m_isSoundPlayed = false; // 近づいたらまた再生してほしい場合
-		//	//CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
-		//}
+				// 3Dサウンド再生してIDを保持
+				m_playedFireSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, SoundTriggerDistance);
+			}
+
+			// 音源の位置更新はIDを使う
+			if (m_playedFireSoundID != -1)
+			{
+				CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
+			}
+		}
+		else
+		{
+			// 離れたら音停止してIDリセット
+			if (m_playedFireSoundID != -1)
+			{
+				CManager::GetSound()->Stop(m_playedFireSoundID);
+				m_playedFireSoundID = -1;
+			}
+		}
 
 	}
 
@@ -2108,6 +2139,7 @@ CTorch2Block::CTorch2Block()
 	SetType(TYPE_TORCH2);
 
 	// 値のクリア
+	m_playedFireSoundID = -1;
 }
 //=============================================================================
 // 置き型松明ブロックのデストラクタ
@@ -2151,6 +2183,36 @@ void CTorch2Block::Update(void)
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
 	}
+
+	const float SoundTriggerDistance = 550.0f; // 反応距離
+
+	if (distance < SoundTriggerDistance)
+	{
+		if (m_playedFireSoundID == -1) // 再生していなければ再生開始
+		{
+			// 前の音を止める（念のため）
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+
+			// 3Dサウンド再生してIDを保持
+			m_playedFireSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, SoundTriggerDistance);
+		}
+
+		// 音源の位置更新はIDを使う
+		if (m_playedFireSoundID != -1)
+		{
+			CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
+		}
+	}
+	else
+	{
+		// 離れたら音停止してIDリセット
+		if (m_playedFireSoundID != -1)
+		{
+			CManager::GetSound()->Stop(m_playedFireSoundID);
+			m_playedFireSoundID = -1;
+		}
+	}
+
 }
 
 
@@ -2163,7 +2225,7 @@ CMaskBlock::CMaskBlock()
 
 	// 値のクリア
 	m_isGet = false;
-	m_isSoundPlayed = false;
+	m_playedSoundID = -1;
 }
 //=============================================================================
 // 仮面ブロックのデストラクタ
@@ -2223,21 +2285,29 @@ void CMaskBlock::Update(void)
 
 		if (distance < kTriggerDistance && !m_isGet)
 		{
-			// 仮面サウンド再生
-			if (!m_isSoundPlayed)
+			if (m_playedSoundID == -1) // 再生していなければ再生開始
 			{
-				CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 150.0f, kTriggerDistance);
-				m_isSoundPlayed = true;
+				// 前の音を止める（念のため）
+				CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
+
+				// 3Dサウンド再生してIDを保持
+				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 150.0f, 1000.0f);
 			}
 
-			// 音源の位置更新
-			CManager::GetSound()->UpdateSoundPosition(CSound::SOUND_LABEL_MASK, GetPos());
+			// 音源の位置更新はIDを使う
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
+			}
 		}
 		else
 		{
-			// プレイヤーが離れたらフラグをリセット
-			m_isSoundPlayed = false; // 近づいたらまた再生
-			CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
+			// 離れたら音停止してIDリセット
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->Stop(m_playedSoundID);
+				m_playedSoundID = -1;
+			}
 		}
 
 	}

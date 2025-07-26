@@ -204,9 +204,6 @@ void CPlayer::Update(void)
 		HoldBlock();
 	}
 
-	// リスナーの位置の更新
-	CManager::GetSound()->UpdateListener(D3DXVECTOR3(m_pos.x, m_pos.y + 50.0f, m_pos.z));
-
 	// モーション切り替え
 	if (m_isJumping)
 	{

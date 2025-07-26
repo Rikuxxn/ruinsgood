@@ -97,6 +97,9 @@ void CCamera::Update(void)
 			((m_posV.z - m_posR.z) * (m_posV.z - m_posR.z)));
 	}
 
+	// リスナーの位置の更新
+	CManager::GetSound()->UpdateListener(m_posV);
+
 #ifdef _DEBUG
 	// キーボードの取得
 	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
@@ -597,4 +600,19 @@ void CCamera::DirectionCamera(int nTimer)
 		// ゲームカメラに戻す
 		m_Mode = MODE_GAME;
 	}
+}
+//=============================================================================
+// カメラの前方ベクトル取得
+//=============================================================================
+D3DXVECTOR3 CCamera::GetForward(void) const
+{
+	// カメラの回転角度（Y軸）から前方ベクトルを計算
+	float yaw = m_rot.y;
+
+	D3DXVECTOR3 forward(-sinf(yaw), 0.0f, -cosf(yaw));
+
+	// 正規化する
+	D3DXVec3Normalize(&forward, &forward);
+
+	return forward;
 }
