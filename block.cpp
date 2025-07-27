@@ -173,6 +173,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_INSPIRATION);
 
 	ReleasePhysics();
 
@@ -1337,6 +1338,9 @@ void CSwitchBlock::Update(void)
 		// スイッチSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
+		// ひらめきSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
+
 		// 水位上昇SE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_WATERRISE);
 
@@ -1477,6 +1481,9 @@ void CBridgeSwitchBlock::Update(void)
 	{
 		// スイッチSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+
+		// ひらめきSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
 
 		// 演出カメラにする
 		CManager::GetCamera()->SetCamMode(9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),

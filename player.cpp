@@ -557,7 +557,6 @@ void CPlayer::HoldBlock(void)
 				}
 
 				m_pCarryingBlock = target;
-				m_pCarryingBlock->SetEditMode(true); // キネマティック化
 
 				// Y軸のみ回転
 				m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
@@ -565,56 +564,61 @@ void CPlayer::HoldBlock(void)
 		}
 		else
 		{
-			//// ブロックの浮力設定
-			//const float B_maxLiftSpeed = 150.0f;
+			btRigidBody* pRigid = m_pCarryingBlock->GetRigidBody();
 
-			//btRigidBody* pRigid = m_pCarryingBlock->GetRigidBody();
+			if (pRigid && !m_pCarryingBlock->IsStaticBlock())
+			{
+				// 現在の位置
+				D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
+				D3DXVECTOR3 playerPos = GetPos();
 
-			//if (pRigid)
-			//{
-			//	btVector3 velocity = pRigid->getLinearVelocity();
+				// 距離チェック
+				D3DXVECTOR3 diff = currentPos - playerPos;
+				float distance = D3DXVec3Length(&diff);
+				const float maxCarryDistance = 200.0f; // 離し上限距離
 
-			//	if (velocity.getY() < B_maxLiftSpeed)
-			//	{
-			//		// 浮かばせる目標上向き速度
-			//		const float targetUpSpeed = 130.0f; // 浮上スピード
-			//		const float maxUpSpeed = 120.0f;    // 上限速度
-			//		const float forceScale = 0.12f;		// 差分にかける係数（反応の速さ）
+				if (distance > maxCarryDistance)
+				{
+					// 離す
+					m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+					m_pCarryingBlock = NULL;
+					return;
+				}
 
-			//		btVector3 velocity = pRigid->getLinearVelocity();
+				// 持ち上げたいターゲット位置
+				D3DXVECTOR3 targetPos = GetPos() + GetForward() * 60.0f;
+				targetPos.y = GetPos().y + 70.0f;
 
-			//		// 浮力：現在のY速度との差を補正
-			//		float diffY = targetUpSpeed - velocity.getY();
-			//		velocity.setY(velocity.getY() + diffY * forceScale);
+				// Bullet用の差分
+				btVector3 posDiff(
+					targetPos.x - currentPos.x,
+					targetPos.y - currentPos.y,
+					targetPos.z - currentPos.z
+				);
 
-			//		// 最大上昇速度制限
-			//		if (velocity.getY() > maxUpSpeed)
-			//		{
-			//			velocity.setY(maxUpSpeed);
-			//		}
+				// 現在の速度
+				btVector3 vel = pRigid->getLinearVelocity();
 
-			//		pRigid->setLinearVelocity(velocity);
-			//	}
-			//}
+				// スプリング定数・減衰係数（調整用）
+				const float stiffness = 300.0f;  // バネの強さ
+				const float damping = 30.0f;   // 減衰の強さ
 
-			// 持っている → プレイヤー前方に移動
-			D3DXVECTOR3 targetPos = GetPos() + GetForward();
+				// スプリング＋ダンパー力 = -kX - cV
+				btVector3 springForce = posDiff * stiffness;
+				btVector3 dampingForce = vel * -damping;
+				btVector3 totalForce = springForce + dampingForce;
 
-			targetPos.y = GetPos().y + 140.0f; // 高さ調整
+				// 力を加える
+				pRigid->applyCentralForce(totalForce);
 
-			D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
-			float moveSpeed = 8.0f; // 移動スピード
+				// 横の速度を抑えて安定させる（オプション）
+				vel.setX(vel.getX() * 1.0f);
+				vel.setZ(vel.getZ() * 1.0f);
+				pRigid->setLinearVelocity(vel);
 
-			// 補間する
-			D3DXVECTOR3 newPos = Lerp(currentPos, targetPos, moveSpeed * 1.0f/60.0f);
-			m_pCarryingBlock->SetPos(newPos);
-
-			// プレイヤーの向きに合わせてY軸回転
-			D3DXVECTOR3 rot = m_pCarryingBlock->GetRot();
-			rot.x = 0.0f;                   // 水平を保つ
-			rot.z = 0.0f;
-			rot.y = m_rot.y;				// プレイヤーの向きと同じに
-			m_pCarryingBlock->SetRot(rot);
+				// 回転も抑えると安定する
+				pRigid->setAngularVelocity(btVector3(0, 0, 0));
+			}
 		}
 	}
 	else
@@ -624,7 +628,6 @@ void CPlayer::HoldBlock(void)
 			// 回転制限解除（自由に転がる）
 			m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
 
-			m_pCarryingBlock->SetEditMode(false); // 物理に戻す
 			m_pCarryingBlock = NULL;
 		}
 	}
