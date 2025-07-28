@@ -869,6 +869,15 @@ const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 	case CBlock::TYPE_SWORD:
 		return "data/MODELS/sword.x";
 
+	case CBlock::TYPE_SWITCH3:
+		return "data/MODELS/switch3.x";
+
+	case CBlock::TYPE_BAR:
+		return "data/MODELS/bar.x";
+
+	case CBlock::TYPE_BRIDGE3:
+		return "data/MODELS/bridge_03.x";
+
 	default: 
 		return "";
 	}

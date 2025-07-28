@@ -16,7 +16,7 @@
 //*****************************************************************************
 // É}ÉNÉçíËã`
 //*****************************************************************************
-#define MAX_TEXTURE (64)
+#define MAX_TEXTURE (128)
 
 
 //*****************************************************************************
@@ -101,6 +101,10 @@ private:
 		"data/TEXTURE/ui_result005.png",
 		"data/TEXTURE/ui_result006.png",
 		"data/TEXTURE/resultBG.png",
+		"data/TEXTURE/controlswitch2.png",
+		"data/TEXTURE/switch3.png",
+		"data/TEXTURE/bridge3.png",
+		"data/TEXTURE/bar.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

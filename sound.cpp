@@ -515,7 +515,9 @@ HRESULT CSound::ReadChunkData(HANDLE hFile, void* pBuffer, DWORD dwBuffersize, D
 HRESULT CSound::LoadWave(SOUND_LABEL label)
 {
 	if (label < 0 || label >= SOUND_LABEL_MAX)
+	{
 		return E_FAIL;
+	}
 
 	HANDLE hFile = CreateFileA(
 		m_aSoundInfo[label].pFilename,
@@ -530,31 +532,36 @@ HRESULT CSound::LoadWave(SOUND_LABEL label)
 	DWORD dwChunkPosition;
 
 	// "RIFF" チャンクチェック
-	if (FAILED(CheckChunk(hFile, 'FFIR', &dwChunkSize, &dwChunkPosition))) {
+	if (FAILED(CheckChunk(hFile, 'FFIR', &dwChunkSize, &dwChunkPosition)))
+	{
 		CloseHandle(hFile);
 		return E_FAIL;
 	}
 
 	// "fmt " チャンク
-	if (FAILED(CheckChunk(hFile, ' tmf', &dwChunkSize, &dwChunkPosition))) {
+	if (FAILED(CheckChunk(hFile, ' tmf', &dwChunkSize, &dwChunkPosition)))
+	{
 		CloseHandle(hFile);
 		return E_FAIL;
 	}
 
 	WAVEFORMATEXTENSIBLE wfx = {};
-	if (FAILED(ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition))) {
+	if (FAILED(ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition))) 
+	{
 		CloseHandle(hFile);
 		return E_FAIL;
 	}
 
 	// "data" チャンク
-	if (FAILED(CheckChunk(hFile, 'atad', &dwChunkSize, &dwChunkPosition))) {
+	if (FAILED(CheckChunk(hFile, 'atad', &dwChunkSize, &dwChunkPosition))) 
+	{
 		CloseHandle(hFile);
 		return E_FAIL;
 	}
 
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
-	if (FAILED(ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition))) {
+	if (FAILED(ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition))) 
+	{
 		delete[] pDataBuffer;
 		CloseHandle(hFile);
 		return E_FAIL;
@@ -562,7 +569,8 @@ HRESULT CSound::LoadWave(SOUND_LABEL label)
 
 	// ソースボイス作成
 	IXAudio2SourceVoice* pSourceVoice = nullptr;
-	if (FAILED(m_pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx))) {
+	if (FAILED(m_pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx)))
+	{
 		delete[] pDataBuffer;
 		CloseHandle(hFile);
 		return E_FAIL;
@@ -577,9 +585,9 @@ HRESULT CSound::LoadWave(SOUND_LABEL label)
 	pSourceVoice->SubmitSourceBuffer(&buffer);
 
 	// 保持
-	m_SoundData[label].pAudioData = pDataBuffer;  // 読み込んだPCMデータのバッファ
-	m_SoundData[label].audioBytes = dwChunkSize; // データのバイト数
-	m_SoundData[label].wfx = wfx;                 // フォーマット情報
+	m_SoundData[label].pAudioData = pDataBuffer;	// 読み込んだPCMデータのバッファ
+	m_SoundData[label].audioBytes = dwChunkSize;	// データのバイト数
+	m_SoundData[label].wfx = wfx;					// フォーマット情報
 
 	CloseHandle(hFile);
 	return S_OK;

@@ -92,6 +92,15 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 	case TYPE_SWORD:
 		pBlock = new CSwordBlock();
 		break;
+	case TYPE_SWITCH3:
+		pBlock = new CBarSwitchBlock();
+		break;
+	case TYPE_BAR:
+		pBlock = new CBarBlock();
+		break;
+	case TYPE_BRIDGE3:
+		pBlock = new CFootingBlock();
+		break;
 	case TYPE_ROCK:
 		pBlock = new CRockBlock();
 
@@ -446,6 +455,15 @@ const char* CBlock::GetTexPathFromType(TYPE type)
 	case TYPE_SWORD:
 		return "data/TEXTURE/sword.png";
 
+	case TYPE_SWITCH3:
+		return "data/TEXTURE/controlswitch2.png";
+
+	case TYPE_BAR:
+		return "data/TEXTURE/bar.png";
+
+	case TYPE_BRIDGE3:
+		return "data/TEXTURE/bridge3.png";
+
 	default: 
 		return "";
 	}
@@ -746,6 +764,9 @@ bool CBlock::IsStaticBlock(void) const
 	case TYPE_DOOR2:
 	case TYPE_MASK:
 	case TYPE_SWORD:
+	case TYPE_SWITCH3:
+	case TYPE_BAR:
+	case TYPE_BRIDGE3:
 		return true; // 静的（動かない）
 
 	default:
@@ -1259,6 +1280,8 @@ CSwitchBlock::~CSwitchBlock()
 //=============================================================================
 void CSwitchBlock::Update(void)
 {
+	CBlock::Update(); // 共通処理
+
 	m_closedPos = GetPos();
 
 	// スイッチの AABB を取得
@@ -1375,7 +1398,6 @@ void CSwitchBlock::Update(void)
 		}
 	}
 
-	CBlock::Update(); // 共通処理
 }
 
 
@@ -1403,6 +1425,8 @@ CBridgeSwitchBlock::~CBridgeSwitchBlock()
 //=============================================================================
 void CBridgeSwitchBlock::Update(void)
 {
+	CBlock::Update(); // 共通処理
+
 	m_closedPos = GetPos();
 
 	// スイッチの AABB を取得
@@ -1473,8 +1497,6 @@ void CBridgeSwitchBlock::Update(void)
 		SetPos(pos);
 	}
 
-	SetEditMode(true); // 動かすためにキネマティック
-
 	bool n = m_isSwitchOn;
 
 	if (n && !m_prevSwitchOn) // 一回だけ実行
@@ -1509,8 +1531,147 @@ void CBridgeSwitchBlock::Update(void)
 
 	// フラグを更新して次のフレームに備える
 	m_prevSwitchOn = n;
+}
 
+
+//=============================================================================
+// 格子制御ブロックのコンストラクタ
+//=============================================================================
+CBarSwitchBlock::CBarSwitchBlock()
+{
+	SetType(TYPE_SWITCH3);
+
+	// 値のクリア
+	m_closedPos = INIT_VEC3;
+	m_isSwitchOn = false;
+	m_prevSwitchOn = false;
+	m_timerCnt = 0;
+	m_Timer = 0;
+}
+//=============================================================================
+// 格子制御ブロックのデストラクタ
+//=============================================================================
+CBarSwitchBlock::~CBarSwitchBlock()
+{
+	// なし
+}
+//=============================================================================
+// 格子制御ブロックの更新処理
+//=============================================================================
+void CBarSwitchBlock::Update(void)
+{
 	CBlock::Update(); // 共通処理
+
+	m_closedPos = GetPos();
+
+	// スイッチの AABB を取得
+	D3DXVECTOR3 swPos = GetPos();
+	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
+	D3DXVECTOR3 scale = GetSize();// 拡大率
+
+	D3DXVECTOR3 swSize;
+
+	// 拡大率を適用する
+	swSize.x = modelSize.x * scale.x;
+	swSize.y = modelSize.y * scale.y;
+	swSize.z = modelSize.z * scale.z;
+
+	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
+	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
+
+	CPlayer* pPlayer = CGame::GetPlayer();
+
+	if (pPlayer)
+	{
+		D3DXVECTOR3 pPos = pPlayer->GetColliderPos(); // カプセルコライダー中心位置
+
+		// カプセルコライダーのサイズからAABBサイズを計算
+		float radius = pPlayer->GetRadius();
+		float height = pPlayer->GetHeight();
+
+		D3DXVECTOR3 pSize;
+		pSize.x = radius * 2.0f;
+		pSize.z = radius * 2.0f;
+		pSize.y = height + radius * 2.0f;
+
+		// AABB計算
+		D3DXVECTOR3 pMin = pPos - pSize * 0.5f;
+		D3DXVECTOR3 pMax = pPos + pSize * 0.5f;
+
+		bool isOverlap =
+			swMin.x <= pMax.x && swMax.x >= pMin.x &&
+			swMin.y <= pMax.y && swMax.y >= pMin.y &&
+			swMin.z <= pMax.z && swMax.z >= pMin.z;
+
+		// 制御スイッチが存在するか確認
+		std::vector<CBlock*> blocks = CBlockManager::GetAllBlocks();
+
+		for (CBlock* block : blocks)
+		{
+			if (block->GetType() != TYPE_BRIDGE3)
+			{
+				continue;
+			}
+
+			CFootingBlock* pFooting = dynamic_cast<CFootingBlock*>(block);
+
+			if (isOverlap && !pFooting->GetMove())
+			{
+				m_isSwitchOn = true;
+
+				// タイムを設定
+				SetTimer(3);
+			}
+		}
+	}
+
+	if (!m_isSwitchOn)
+	{
+		return;
+	}
+
+	if (m_isSwitchOn && CManager::GetCamera()->GetMode() == CCamera::MODE_GAME)
+	{
+		m_timerCnt++;
+
+		D3DXVECTOR3 pos = swPos;
+
+		//// 押されている（下に少し沈む）
+		//pos.y -= 1.0f; // 下に沈める
+
+		//if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
+		//{
+		//	SetPos(pos);
+		//}
+
+		if (m_timerCnt >= m_Timer)
+		{// 指定時間を経過したら
+			// スイッチを戻す
+			m_isSwitchOn = false;
+			m_timerCnt = 0;
+
+
+		}
+	}
+
+	bool n = m_isSwitchOn;
+
+	if (n && !m_prevSwitchOn) // 一回だけ実行
+	{
+		// スイッチSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+
+		// ひらめきSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
+
+		// 演出カメラにする
+		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(2466.5f, 230.0f, -154.5f),
+			D3DXVECTOR3(3035.5f, 39.5f, -505.0f),
+			D3DXVECTOR3(0.28f, -1.02f, 0.0f));
+	}
+
+	// フラグを更新して次のフレームに備える
+	m_prevSwitchOn = n;
 }
 
 
@@ -1540,7 +1701,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1654,7 +1815,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2132,8 +2293,8 @@ void CTorchBlock::Update(void)
 		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 	}
 }
 
@@ -2187,8 +2348,8 @@ void CTorch2Block::Update(void)
 		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 	}
 
 	const float SoundTriggerDistance = 550.0f; // 反応距離
@@ -2395,3 +2556,188 @@ void CSwordBlock::Update(void)
 	}
 }
 
+
+//=============================================================================
+// 鉄格子ブロックのコンストラクタ
+//=============================================================================
+CBarBlock::CBarBlock()
+{
+	SetType(TYPE_BAR);
+
+	// 値のクリア
+}
+//=============================================================================
+// 鉄格子ブロックのデストラクタ
+//=============================================================================
+CBarBlock::~CBarBlock()
+{
+	// なし
+	m_isOpened = false;
+}
+//=============================================================================
+// 鉄格子ブロックの更新処理
+//=============================================================================
+void CBarBlock::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	if (CManager::GetMode() != MODE_GAME)
+	{
+		return;
+	}
+
+	if (!m_isOpened)
+	{
+		// 鉄格子制御スイッチブロックを探す
+		for (CBlock* block : CBlockManager::GetAllBlocks())
+		{
+			if (block->GetType() != TYPE_SWITCH3)
+			{
+				continue;
+			}
+
+			CBarSwitchBlock* pBarSwitch = dynamic_cast<CBarSwitchBlock*>(block);
+
+			// 押されていたら
+			if (pBarSwitch && pBarSwitch->IsSwitchOn())
+			{
+				m_isOpened = true;
+				break;
+			}
+
+		}
+	}
+
+	if (m_isOpened)
+	{
+		// ドアを開く
+		D3DXVECTOR3 newPos = GetPos();
+
+		if (newPos.y <= 290.0f)
+		{
+			newPos.y += 1.0f;
+			SetPos(newPos);
+		}
+		else
+		{
+			m_isOpened = false;
+		}
+	}
+	else
+	{
+		// ドアを閉める
+		D3DXVECTOR3 newPos = GetPos();
+
+		if (newPos.y > 90.0f && !m_isOpened)
+		{
+			newPos.y -= 1.0f;
+			SetPos(newPos);
+		}
+	}
+}
+
+
+//=============================================================================
+// 足場ブロックのコンストラクタ
+//=============================================================================
+CFootingBlock::CFootingBlock()
+{
+	SetType(TYPE_BRIDGE3);
+
+	// 値のクリア
+	m_isMove = false;
+}
+//=============================================================================
+// 足場ブロックのデストラクタ
+//=============================================================================
+CFootingBlock::~CFootingBlock()
+{
+	// なし
+}
+//=============================================================================
+// 足場ブロックの更新処理
+//=============================================================================
+void CFootingBlock::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	// 制御スイッチが存在するか確認
+	std::vector<CBlock*> blocks = CBlockManager::GetAllBlocks();
+
+	for (CBlock* block : blocks)
+	{
+		if (block->GetType() != TYPE_SWITCH3)
+		{
+			continue;
+		}
+
+		CBarSwitchBlock* pSwitch = dynamic_cast<CBarSwitchBlock*>(block);
+
+		if (!pSwitch)
+		{
+			continue;
+		}
+
+		if(pSwitch->IsSwitchOn())
+		{
+			// 現在位置取得
+			D3DXVECTOR3 pos = GetPos();
+
+			// 移動目標座標
+			const float targetX = 2957.0f;
+
+			// まだ目標位置に達してないなら移動
+			if (pos.x > targetX)
+			{
+				const float speed = 1.0f; // 速度
+
+				// 到達チェック：次のフレームで通り過ぎるか
+				if (pos.x - speed <= targetX)
+				{
+					pos.x = targetX;
+				}
+				else
+				{
+					pos.x -= speed;
+					m_isMove = true;
+				}
+
+				SetPos(pos);
+			}
+		}
+		else
+		{
+			// 現在位置取得
+			D3DXVECTOR3 pos = GetPos();
+
+			// 移動目標座標
+			const float targetX = 3160.0f;
+
+			// まだ目標位置に達してないなら移動
+			if (pos.x < targetX)
+			{
+				const float speed = 1.0f; // 速度
+
+				// 到達チェック：次のフレームで通り過ぎるか
+				if (pos.x - speed >= targetX)
+				{
+					pos.x = targetX;
+					//m_isMove = false;
+				}
+				else
+				{
+					pos.x += speed;
+				}
+
+				SetPos(pos);
+			}
+			else
+			{
+				m_isMove = false;
+			}
+		}
+
+		// コライダーの更新
+		UpdateCollider();
+	}
+}

@@ -585,8 +585,19 @@ void CPlayer::HoldBlock(void)
 					return;
 				}
 
+				float ftargetDis = 0.0f;
+
+				if (m_pCarryingBlock->GetType() == CBlock::TYPE_RAFT)
+				{
+					ftargetDis = 80.0f;
+				}
+				else
+				{
+					ftargetDis = 60.0f;
+				}
+
 				// 持ち上げたいターゲット位置
-				D3DXVECTOR3 targetPos = GetPos() + GetForward() * 60.0f;
+				D3DXVECTOR3 targetPos = GetPos() + GetForward() * ftargetDis;
 				targetPos.y = GetPos().y + 70.0f;
 
 				// Bullet用の差分

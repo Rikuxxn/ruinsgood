@@ -64,6 +64,9 @@ public:
 		TYPE_DOOR2,
 		TYPE_MASK,
 		TYPE_SWORD,
+		TYPE_SWITCH3,
+		TYPE_BAR,
+		TYPE_BRIDGE3,
 		TYPE_MAX
 	}TYPE;
 
@@ -224,6 +227,27 @@ private:
 };
 
 //*****************************************************************************
+// 格子と足場制御スイッチブロッククラス
+//*****************************************************************************
+class CBarSwitchBlock : public CBlock
+{
+public:
+	CBarSwitchBlock();
+	~CBarSwitchBlock();
+
+	void Update(void) override;
+	bool IsSwitchOn(void) { return m_isSwitchOn; }
+	void SetTimer(int nTimer) { m_Timer = nTimer * 60; }
+
+private:
+	bool m_isSwitchOn;				// 押されたかどうか
+	bool m_prevSwitchOn;			// 直前のスイッチ状態
+	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
+	int m_timerCnt;
+	int m_Timer;
+};
+
+//*****************************************************************************
 // 斧ブロッククラス
 //*****************************************************************************
 class CAxeBlock : public CBlock
@@ -366,6 +390,37 @@ public:
 
 private:
 	bool m_isEnd;
+};
+
+//*****************************************************************************
+// 鉄格子ブロッククラス
+//*****************************************************************************
+class CBarBlock : public CBlock
+{
+public:
+	CBarBlock();
+	~CBarBlock();
+
+	void Update(void) override;
+
+private:
+	bool m_isOpened;
+};
+
+//*****************************************************************************
+// 足場橋ブロッククラス
+//*****************************************************************************
+class CFootingBlock : public CBlock
+{
+public:
+	CFootingBlock();
+	~CFootingBlock();
+
+	void Update(void) override;
+	bool GetMove(void) { return m_isMove; }
+
+private:
+	bool m_isMove;
 };
 
 //=============================================================================
