@@ -1710,7 +1710,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	//Swing();	// スイング処理
+	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1836,7 +1836,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }

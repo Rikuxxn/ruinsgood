@@ -74,7 +74,6 @@ HRESULT CSound::Init(HWND hWnd)
 
 	X3DAudioInitialize(deviceDetails.OutputFormat.dwChannelMask, X3DAUDIO_SPEED_OF_SOUND, m_X3DInstance);
 
-	m_Listener.pCone = nullptr;
 	m_Listener.Position = { 0.0f, 0.0f, 0.0f };
 	m_Listener.OrientFront = { 0.0f, 0.0f, 1.0f };
 	m_Listener.OrientTop = { 0.0f, 1.0f, 0.0f };
@@ -327,24 +326,29 @@ void CSound::CalculateCustomPanning(SoundInstance& inst, FLOAT32* matrix)
 
 	// 距離減衰計算
 	float volumeScale = 1.0f - ((distance - inst.minDistance) / (inst.maxDistance - inst.minDistance));
-	volumeScale = max(0.0f, min(2.0f, volumeScale));
+	volumeScale = max(0.0f, min(1.0f, volumeScale));
 
 	// 方向ベクトルを正規化
 	D3DXVec3Normalize(&toEmitter, &toEmitter);
 
-	// 左右パンニング
-	FLOAT32 panFactorLR = D3DXVec3Dot(&right, &toEmitter);
-	FLOAT32 panCurveLR = sinf(panFactorLR * D3DX_PI * 0.5f); // -1.0 ～ 1.0 の範囲
+	// 左右・前後パンニング因子
+	float panLR = D3DXVec3Dot(&right, &toEmitter); // -1 (左) ～ 1 (右)
+	float panFB = D3DXVec3Dot(&front, &toEmitter); // -1 (後) ～ 1 (前)
 
-	// 前後パンニング
-	FLOAT32 panFactorFB = D3DXVec3Dot(&front, &toEmitter);
-	FLOAT32 panCurveFB = sinf(panFactorFB * D3DX_PI * 0.5f); // -1.0 ～ 1.0 の範囲
+	// 方向補正
+	float lrWeight = panLR * 0.5f; // -0.5 ～ +0.5
+	float fbWeight = panFB * 0.5f + 0.5f; // 0（背後）～1（正面）
 
-	// チャンネルごとの音量計算
-	FLOAT32 frontLeft = (1.0f - max(0.0f, panCurveLR)) * (1.0f + panCurveFB) * 0.5f * volumeScale;
-	FLOAT32 frontRight = (1.0f - max(0.0f, -panCurveLR)) * (1.0f + panCurveFB) * 0.5f * volumeScale;
-	FLOAT32 rearLeft = (1.0f - max(0.0f, panCurveLR)) * (1.0f - panCurveFB) * 0.5f * volumeScale;
-	FLOAT32 rearRight = (1.0f - max(0.0f, -panCurveLR)) * (1.0f - panCurveFB) * 0.5f * volumeScale;
+	// 背後でも最低限音が残るように補正
+	const float minVolume = 0.3f;
+	fbWeight = fbWeight * (1.0f - minVolume) + minVolume;
+	float backWeight = 1.0f - fbWeight;
+
+	// 音量設定
+	float frontLeft = (0.5f - lrWeight) * fbWeight * volumeScale;
+	float frontRight = (0.5f + lrWeight) * fbWeight * volumeScale;
+	float rearLeft = (0.5f - lrWeight) * backWeight * volumeScale;
+	float rearRight = (0.5f + lrWeight) * backWeight * volumeScale;
 
 	// 音量マトリックスにセット（4ch: FL, FR, RL, RR）
 	matrix[0] = frontLeft;
