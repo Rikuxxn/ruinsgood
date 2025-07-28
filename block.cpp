@@ -1620,7 +1620,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(3);
+				SetTimer(25);
 			}
 		}
 	}
@@ -1701,7 +1701,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	//Swing();	// スイング処理
+	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1710,6 +1710,18 @@ void CAxeBlock::Update(void)
 //=============================================================================
 void CAxeBlock::Swing(void)
 {
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 1150.0f; // 反応距離
+
+	if (distance > kTriggerDistance)
+	{
+		return;
+	}
+
 	m_nSwingCounter++;
 
 	float angle = m_swingAmplitude * sinf((2.0f * D3DX_PI * m_nSwingCounter) / m_swingPeriod);
@@ -1815,7 +1827,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2222,8 +2234,6 @@ void CTorchBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	CParticle* pParticle = NULL;
-
 	if (CManager::GetMode() == MODE_GAME)
 	{
 		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
@@ -2231,7 +2241,7 @@ void CTorchBlock::Update(void)
 
 		float distance = D3DXVec3Length(&disPos);
 
-		const float kTriggerDistance = 1080.0f; // 反応距離
+		const float kTriggerDistance = 980.0f; // 反応距離
 
 		if (distance < kTriggerDistance)
 		{
@@ -2245,9 +2255,8 @@ void CTorchBlock::Update(void)
 			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 			// パーティクル生成
-			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
-			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 20, CParticle::TYPE_FIRE, 1);
-
+			CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
+			CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 		}
 
 		const float SoundTriggerDistance = 550.0f; // 反応距離
@@ -2293,8 +2302,8 @@ void CTorchBlock::Update(void)
 		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+		CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
+		CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 	}
 }
 
@@ -2348,7 +2357,7 @@ void CTorch2Block::Update(void)
 		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 	}
 

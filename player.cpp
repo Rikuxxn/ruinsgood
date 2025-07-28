@@ -577,7 +577,7 @@ void CPlayer::HoldBlock(void)
 				float distance = D3DXVec3Length(&diff);
 				const float maxCarryDistance = 200.0f; // —£‚µãŒÀ‹——£
 
-				if (distance > maxCarryDistance)
+				if (distance > maxCarryDistance || currentPos <= playerPos)
 				{
 					// —£‚·
 					m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
