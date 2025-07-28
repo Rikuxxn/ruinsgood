@@ -2477,7 +2477,7 @@ void CMaskBlock::Update(void)
 				CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
 
 				// 3Dサウンド再生してIDを保持
-				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 150.0f, 1000.0f);
+				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 250.0f, 1100.0f);
 			}
 
 			// 音源の位置更新はIDを使う

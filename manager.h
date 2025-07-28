@@ -45,8 +45,7 @@ public:
 	static CLight* GetLight(void) { return m_pLight; }
 	static CFade* GetFade(void) { return m_pFade; }
 	static bool GetisPaused(void) { return m_isPaused; };
-	static void SetEnablePause(bool bPause) { m_isPaused = bPause; }
-
+	static void SetEnablePause(bool bPause);
 	int GetFPS(int fps) { return m_fps = fps; };
 	int GetFPSCnt(void) { return m_fps; }
 	static btDiscreteDynamicsWorld* GetPhysicsWorld(void) { return m_pDynamicsWorld; }

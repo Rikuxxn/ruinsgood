@@ -316,7 +316,22 @@ void CManager::Update(void)
 			// ポーズSE
 			m_pSound->Play(CSound::SOUND_LABEL_PAUSE);
 
+			// ポーズ切り替え前の状態を記録
+			bool wasPaused = m_isPaused;
+
 			m_isPaused = !m_isPaused;
+
+			// ポーズ状態に応じて音を制御
+			if (m_isPaused && !wasPaused)
+			{
+				// 一時停止する
+				m_pSound->PauseAll();
+			}
+			else if (!m_isPaused && wasPaused)
+			{
+				// 再開する
+				m_pSound->ResumeAll();
+			}
 		}
 
 		// ポーズ中はゲーム更新しない
@@ -487,5 +502,21 @@ void CManager::UpdatePauseInput(void)
 	for (size_t i = 0; i < m_pPauseItems.size(); i++)
 	{
 		m_pPauseItems[i]->SetSelected(i == m_nPauseSelectedIndex);
+	}
+}
+//=============================================================================
+// ポーズの設定
+//=============================================================================
+void CManager::SetEnablePause(bool bPause)
+{
+	m_isPaused = bPause;
+
+	if (bPause)
+	{
+		m_pSound->PauseAll();
+	}
+	else
+	{
+		m_pSound->ResumeAll();
 	}
 }

@@ -49,6 +49,8 @@ public:
 
 	void UpdateListener(D3DXVECTOR3 pos);
 	void UpdateSoundPosition(int instanceId, D3DXVECTOR3 pos);
+	void PauseAll(void);
+	void ResumeAll(void);
 
 private:
 	// 一つのサウンド再生インスタンス

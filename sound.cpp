@@ -594,3 +594,30 @@ HRESULT CSound::LoadWave(SOUND_LABEL label)
 	CloseHandle(hFile);
 	return S_OK;
 }
+//=============================================================================
+// 一時停止
+//=============================================================================
+void CSound::PauseAll(void)
+{
+	for (auto& inst : m_Instances)
+	{
+		if (inst.pSourceVoice)
+		{
+			inst.pSourceVoice->Stop(0); // フラグ0で一時停止
+		}
+	}
+}
+//=============================================================================
+// 再開
+//=============================================================================
+void CSound::ResumeAll(void)
+{
+	for (auto& inst : m_Instances)
+	{
+		if (inst.pSourceVoice)
+		{
+			inst.pSourceVoice->Start(0); // フラグ0で再開
+		}
+	}
+}
+
