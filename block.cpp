@@ -183,6 +183,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_INSPIRATION);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TIMER);
 
 	ReleasePhysics();
 
@@ -1620,7 +1621,9 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(25);
+				SetTimer(26);
+
+				CManager::GetCamera()->IsDirection(true);
 			}
 		}
 	}
@@ -1630,8 +1633,14 @@ void CBarSwitchBlock::Update(void)
 		return;
 	}
 
-	if (m_isSwitchOn && CManager::GetCamera()->GetMode() == CCamera::MODE_GAME)
+	if (m_isSwitchOn && !CManager::GetCamera()->GetDirection())
 	{
+		if (m_timerCnt == 0)
+		{
+			// タイマーSE
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_TIMER);
+		}
+
 		m_timerCnt++;
 
 		D3DXVECTOR3 pos = swPos;
@@ -1701,7 +1710,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1827,7 +1836,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2716,6 +2725,8 @@ void CFootingBlock::Update(void)
 		}
 		else
 		{
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_TIMER);
+
 			// 現在位置取得
 			D3DXVECTOR3 pos = GetPos();
 

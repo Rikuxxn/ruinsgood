@@ -30,7 +30,7 @@ CCamera::CCamera()
 	m_fDistance				= 0.0f;							// 視点から注視点の距離
 	m_nDirectionCamTimer	= 0;
 	m_nTimer				= 0;
-
+	m_isDirection			= false;
 #ifdef _DEBUG
 	m_Mode = MODE_EDIT;									// カメラのモード
 #else
@@ -592,6 +592,7 @@ void CCamera::DirectionCamera(int nTimer)
 
 	if (m_nDirectionCamTimer >= nTimer)
 	{
+		m_isDirection = false;
 		// カウンターリセット
 		m_nDirectionCamTimer = 0;
 

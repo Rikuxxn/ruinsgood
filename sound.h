@@ -35,6 +35,7 @@ public:
 		SOUND_LABEL_ROLL,
 		SOUND_LABEL_MASK,
 		SOUND_LABEL_INSPIRATION,
+		SOUND_LABEL_TIMER,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -93,7 +94,8 @@ private:
 		{"data/SE/enter.wav", 0},				// 決定SE
 		{"data/SE/roll.wav", -1},				// 岩転がるSE(ループ)
 		{"data/SE/mask.wav", -1},				// 仮面SE(ループ)
-		{"data/SE/Inspiration.wav", 0},		// ひらめきSE
+		{"data/SE/Inspiration.wav", 0},			// ひらめきSE
+		{"data/SE/timer.wav", 0},				// タイマーSE
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

@@ -23,8 +23,6 @@ CSound::CSound()
 	m_pXAudio2 = NULL;
 	m_pMasteringVoice = NULL;
 	m_Listener = {};					// リスナーの位置
-	//m_minDistance = 0.0f;
-	//m_maxDistance = 0.0f;
 }
 //=============================================================================
 // デストラクタ
@@ -362,7 +360,7 @@ void CSound::UpdateListener(D3DXVECTOR3 pos)
 	// カメラの向きベクトルを計算
 	D3DXVECTOR3 forward = CManager::GetCamera()->GetForward();
 
-	// 正規化して g_Listener.OrientFront に代入
+	// 正規化して代入
 	D3DXVec3Normalize(&forward, &forward);
 
 	m_Listener.OrientFront = forward;

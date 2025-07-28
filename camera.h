@@ -42,6 +42,8 @@ public:
 	void SetDis(float fDistance) { m_fDistance = fDistance; }
 	int  SetTimer(int nTime) { return m_nTimer = nTime * 60; }
 	void SetCamMode(int nTimer, D3DXVECTOR3 posV, D3DXVECTOR3 posR, D3DXVECTOR3 rot);
+	bool GetDirection(void) { return m_isDirection; }
+	void IsDirection(bool flag) { m_isDirection = flag; }
 
 	//*****************************************************************************
 	// getterä÷êî
@@ -63,6 +65,7 @@ private:
 	MODE m_Mode;				// ÉJÉÅÉâÇÃÉÇÅ[Éh
 	int m_nDirectionCamTimer;
 	int m_nTimer;
+	bool m_isDirection;
 };
 
 #endif
