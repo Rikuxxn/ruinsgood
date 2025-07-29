@@ -184,6 +184,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_INSPIRATION);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TIMER);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TREASURE);
 
 	ReleasePhysics();
 
@@ -2447,26 +2448,7 @@ void CMaskBlock::Update(void)
 
 			// パーティクル生成
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
-		}
 
-		const float getDistance = 200.0f; // 反応距離
-
-		if (distance < getDistance)
-		{
-			if (!m_isGet)
-			{
-				// 仮面取得UIの生成
-				CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 140.0f);
-			}
-
-			m_isGet = true;
-
-			// リスポーン処理
-			CGame::GetPlayer()->RespawnToCheckpoint();
-		}
-
-		if (distance < kTriggerDistance && !m_isGet)
-		{
 			if (m_playedSoundID == -1) // 再生していなければ再生開始
 			{
 				// 前の音を止める（念のため）
@@ -2492,6 +2474,21 @@ void CMaskBlock::Update(void)
 			}
 		}
 
+		const float getDistance = 200.0f; // 反応距離
+
+		if (distance < getDistance)
+		{
+			if (!m_isGet)
+			{
+				// 仮面取得UIの生成
+				CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 140.0f);
+			}
+
+			m_isGet = true;
+
+			// リスポーン処理
+			CGame::GetPlayer()->RespawnToCheckpoint();
+		}
 	}
 }
 
@@ -2505,6 +2502,7 @@ CSwordBlock::CSwordBlock()
 
 	// 値のクリア
 	m_isEnd = false;
+	m_playedSoundID = -1;
 }
 //=============================================================================
 // 剣ブロックのデストラクタ
@@ -2544,6 +2542,30 @@ void CSwordBlock::Update(void)
 
 			// パーティクル生成
 			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+
+			if (m_playedSoundID == -1) // 再生していなければ再生開始
+			{
+				// 前の音を止める（念のため）
+				CManager::GetSound()->Stop(CSound::SOUND_LABEL_TREASURE);
+
+				// 3Dサウンド再生してIDを保持
+				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_TREASURE, GetPos(), 250.0f, kTriggerDistance);
+			}
+
+			// 音源の位置更新はIDを使う
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
+			}
+		}
+		else
+		{
+			// 離れたら音停止してIDリセット
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->Stop(m_playedSoundID);
+				m_playedSoundID = -1;
+			}
 		}
 
 		const float getDistance = 250.0f; // 反応距離

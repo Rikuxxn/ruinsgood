@@ -36,11 +36,15 @@ public:
 		SOUND_LABEL_MASK,
 		SOUND_LABEL_INSPIRATION,
 		SOUND_LABEL_TIMER,
+		SOUND_LABEL_TREASURE,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
 	HRESULT Init(HWND hWnd);
 	void Uninit(void);
+
+	void PauseAll(void);
+	void ResumeAll(void);
 
 	void Stop(int instanceId);
 	void Stop(void);
@@ -49,8 +53,6 @@ public:
 
 	void UpdateListener(D3DXVECTOR3 pos);
 	void UpdateSoundPosition(int instanceId, D3DXVECTOR3 pos);
-	void PauseAll(void);
-	void ResumeAll(void);
 
 private:
 	// 一つのサウンド再生インスタンス
@@ -98,6 +100,7 @@ private:
 		{"data/SE/mask.wav", -1},				// 仮面SE(ループ)
 		{"data/SE/Inspiration.wav", 0},			// ひらめきSE
 		{"data/SE/timer.wav", 0},				// タイマーSE
+		{"data/SE/treasure.wav", -1},			// 秘宝SE(ループ)
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

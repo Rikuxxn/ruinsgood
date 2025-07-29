@@ -109,7 +109,7 @@ void CPauseManager::Update(void)
         m_inputLock = false;
     }
 
-    // Enterまたはゲームパッドボタンで実行
+    // クリックまたはゲームパッドボタンで実行
     if (CManager::GetFade()->GetFade() == CFade::FADE_NONE)
     {
         bool confirm = false;
