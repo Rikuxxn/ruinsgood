@@ -1900,7 +1900,7 @@ void CRockBlock::MoveToTarget(void)
 	{
 		m_particleTimer++;
 
-		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
+		if (m_particleTimer >= ROLL_PARTICLE_INTERVAL)
 		{
 			m_particleTimer = 0;
 
@@ -2247,7 +2247,7 @@ void CTorchBlock::Update(void)
 
 		float distance = D3DXVec3Length(&disPos);
 
-		const float kTriggerDistance = 980.0f; // 反応距離
+		const float kTriggerDistance = 780.0f; // 反応距離
 
 		if (distance < kTriggerDistance)
 		{
@@ -2263,26 +2263,16 @@ void CTorchBlock::Update(void)
 			// パーティクル生成
 			CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
 			CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
-		}
 
-		const float SoundTriggerDistance = 550.0f; // 反応距離
-
-		if (distance < SoundTriggerDistance)
-		{
 			if (m_playedFireSoundID == -1) // 再生していなければ再生開始
 			{
 				// 前の音を止める（念のため）
 				CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
 
 				// 3Dサウンド再生してIDを保持
-				m_playedFireSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, SoundTriggerDistance);
+				m_playedFireSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, kTriggerDistance);
 			}
 
-			// 音源の位置更新はIDを使う
-			if (m_playedFireSoundID != -1)
-			{
-				CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
-			}
 		}
 		else
 		{
@@ -2294,6 +2284,11 @@ void CTorchBlock::Update(void)
 			}
 		}
 
+		// 音源の位置更新はIDを使う
+		if (m_playedFireSoundID != -1)
+		{
+			CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
+		}
 	}
 
 	if (CManager::GetMode() == MODE_TITLE)
@@ -2349,7 +2344,7 @@ void CTorch2Block::Update(void)
 
 	float distance = D3DXVec3Length(&disPos);
 
-	const float kTriggerDistance = 1280.0f; // 反応距離
+	const float kTriggerDistance = 1080.0f; // 反応距離
 
 	if (distance < kTriggerDistance)
 	{
@@ -2365,26 +2360,16 @@ void CTorch2Block::Update(void)
 		// パーティクル生成
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
-	}
 
-	const float SoundTriggerDistance = 550.0f; // 反応距離
-
-	if (distance < SoundTriggerDistance)
-	{
 		if (m_playedFireSoundID == -1) // 再生していなければ再生開始
 		{
 			// 前の音を止める（念のため）
 			CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
 
 			// 3Dサウンド再生してIDを保持
-			m_playedFireSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, SoundTriggerDistance);
+			m_playedFireSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, kTriggerDistance);
 		}
 
-		// 音源の位置更新はIDを使う
-		if (m_playedFireSoundID != -1)
-		{
-			CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
-		}
 	}
 	else
 	{
@@ -2396,6 +2381,11 @@ void CTorch2Block::Update(void)
 		}
 	}
 
+	// 音源の位置更新はIDを使う
+	if (m_playedFireSoundID != -1)
+	{
+		CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
+	}
 }
 
 
@@ -2433,7 +2423,7 @@ void CMaskBlock::Update(void)
 
 		float distance = D3DXVec3Length(&disPos);
 
-		const float kTriggerDistance = 1280.0f; // 反応距離
+		const float kTriggerDistance = 1100.0f; // 反応距離
 
 		if (distance < kTriggerDistance && !m_isGet)
 		{
@@ -2455,7 +2445,7 @@ void CMaskBlock::Update(void)
 				CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
 
 				// 3Dサウンド再生してIDを保持
-				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 250.0f, 1100.0f);
+				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 250.0f, kTriggerDistance);
 			}
 
 			// 音源の位置更新はIDを使う

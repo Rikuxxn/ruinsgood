@@ -293,7 +293,7 @@ private:
 	bool m_isThrough;							// 通過したか
 	bool m_isPrevThrough;						// 直前に通過したか
 	int m_particleTimer;						// タイマー
-	const int DASH_PARTICLE_INTERVAL = 8;		// パーティクル発生間隔（フレーム数）
+	const int ROLL_PARTICLE_INTERVAL = 8;		// パーティクル発生間隔（フレーム数）
 	int m_playedRollSoundID;					// 再生中の音ID
 };
 

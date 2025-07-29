@@ -192,21 +192,21 @@ int CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, f
 		return -1;
 	}
 	
-	// 同じラベルの再生中インスタンス数をカウント
-	int playingCount = 0;
-	for (const auto& inst : m_Instances)
-	{
-		if (inst.active && inst.label == label)
-		{
-			playingCount++;
-		}
-	}
+	//// 同じラベルの再生中インスタンス数をカウント
+	//int playingCount = 0;
+	//for (const auto& inst : m_Instances)
+	//{
+	//	if (inst.active && inst.label == label)
+	//	{
+	//		playingCount++;
+	//	}
+	//}
 
-	// 最大数超えたら新規再生しない
-	if (playingCount >= MAX_SIMULTANEOUS_PLAY)
-	{
-		return -1;
-	}
+	//// 最大数超えたら新規再生しない
+	//if (playingCount > MAX_SIMULTANEOUS_PLAY)
+	//{
+	//	return -1;
+	//}
 
 	SoundInstance inst = {};
 	inst.id = m_nextInstanceId++;
