@@ -50,7 +50,6 @@ public:
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
-	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuffBack; // 背景用頂点バッファへのポインタ
 	D3DXVECTOR3 m_pos;						// 位置
 	D3DCOLOR m_col;							// 色
 	float m_fWidth, m_fHeight;				// サイズ

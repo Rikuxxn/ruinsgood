@@ -24,12 +24,10 @@ CSound* CManager::m_pSound = NULL;
 CTexture* CManager::m_pTexture = NULL;
 CCamera* CManager::m_pCamera = NULL;
 CLight* CManager::m_pLight = NULL;
-std::vector<CPause*> CManager::m_pPauseItems = {};
-int CManager::m_nPauseSelectedIndex = 0;
-bool CManager::m_bInputPressed = false;
-
 CScene* CManager::m_pScene = NULL;
 CFade* CManager::m_pFade = NULL;
+CPauseManager* CManager::m_pPauseManager = NULL;
+
 bool CManager::m_isPaused = false;					// trueならポーズ中
 
 btDiscreteDynamicsWorld* CManager::m_pDynamicsWorld = NULL;
@@ -40,11 +38,11 @@ btDiscreteDynamicsWorld* CManager::m_pDynamicsWorld = NULL;
 CManager::CManager()
 {
 	// 値のクリア
-	m_fps					  = 0;
-	m_pBroadphase			  = NULL;	// 衝突判定のクラスへのポインタ
-	m_pCollisionConfiguration = NULL;	// 衝突検出の設定を管理するクラスへのポインタ
-	m_pDispatcher			  = NULL;	// 実際に衝突判定処理を実行するクラスへのポインタ
-	m_pSolver				  = NULL;	// 物理シミュレーションの制約ソルバーへのポインタ
+	m_fps						= 0;
+	m_pBroadphase				= NULL;	// 衝突判定のクラスへのポインタ
+	m_pCollisionConfiguration	= NULL;	// 衝突検出の設定を管理するクラスへのポインタ
+	m_pDispatcher				= NULL;	// 実際に衝突判定処理を実行するクラスへのポインタ
+	m_pSolver					= NULL;	// 物理シミュレーションの制約ソルバーへのポインタ
 }
 //=============================================================================
 // デストラクタ
@@ -132,10 +130,11 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 	// テクスチャの読み込み
 	m_pTexture->Load();
 
-	// ポーズの生成
-	m_pPauseItems.push_back(CPause::Create(CPause::MENU_CONTINUE, D3DXVECTOR3(860.0f, 310.0f, 0.0f), 200.0f, 60.0f));
-	m_pPauseItems.push_back(CPause::Create(CPause::MENU_RETRY, D3DXVECTOR3(860.0f, 510.0f, 0.0f), 200.0f, 60.0f));
-	m_pPauseItems.push_back(CPause::Create(CPause::MENU_QUIT, D3DXVECTOR3(860.0f, 710.0f, 0.0f), 200.0f, 60.0f));
+	// ポーズマネージャーの生成
+	m_pPauseManager = new CPauseManager();
+
+	// ポーズマネージャーの初期化
+	m_pPauseManager->Init();
 
 	// タイトル画面
 	m_pFade = CFade::Create(CScene::MODE_TITLE);
@@ -275,7 +274,15 @@ void CManager::Uninit(void)
 		m_pFade = NULL;
 	}
 
-	m_pPauseItems.clear();
+	// ポーズマネージャーの破棄
+	if (m_pPauseManager != NULL)
+	{
+		// ポーズマネージャーの終了処理
+		m_pPauseManager->Uninit();
+
+		delete m_pPauseManager;
+		m_pPauseManager = NULL;
+	}
 
 	// レンダラーの破棄
 	if (m_pRenderer != NULL)
@@ -340,13 +347,8 @@ void CManager::Update(void)
 			// マウスカーソルを表示にする
 			m_pInputMouse->SetCursorVisibility(true);
 
-			for (auto item : m_pPauseItems)
-			{
-				item->Update();
-			}
-
-			// ポーズ項目の選択処理
-			UpdatePauseInput();
+			// ポーズマネージャーの更新処理
+			m_pPauseManager->Update();
 
 			return;
 		}
@@ -374,10 +376,8 @@ void CManager::Draw(void)
 	// ポーズ中だったら
 	if (m_isPaused)
 	{
-		for (auto item : m_pPauseItems)
-		{
-			item->Draw();
-		}
+		// ポーズマネージャーの描画処理
+		m_pPauseManager->Draw();
 	}
 }
 //=============================================================================
@@ -385,7 +385,8 @@ void CManager::Draw(void)
 //=============================================================================
 void CManager::SetMode(CScene::MODE mode)
 {
-	m_pPauseItems.clear();
+	// ポーズマネージャーの終了処理
+	m_pPauseManager->Uninit();
 
 	// カメラの初期化処理
 	m_pCamera->Init();
@@ -401,13 +402,11 @@ void CManager::SetMode(CScene::MODE mode)
 	// 全てのオブジェクトを破棄
 	CObject::ReleaseAll();
 
-	m_isPaused = false;
-	m_nPauseSelectedIndex = 0;
+	// ポーズをfalseにしておく
+	CManager::SetEnablePause(false);
 
-	// ポーズの生成
-	m_pPauseItems.push_back(CPause::Create(CPause::MENU_CONTINUE, D3DXVECTOR3(860.0f, 310.0f, 0.0f), 200.0f, 60.0f));
-	m_pPauseItems.push_back(CPause::Create(CPause::MENU_RETRY, D3DXVECTOR3(860.0f, 510.0f, 0.0f), 200.0f, 60.0f));
-	m_pPauseItems.push_back(CPause::Create(CPause::MENU_QUIT, D3DXVECTOR3(860.0f, 710.0f, 0.0f), 200.0f, 60.0f));
+	// ポーズマネージャーの初期化処理
+	m_pPauseManager->Init();
 
 	// 新しいモードの生成
 	m_pScene = CScene::Create(mode);
@@ -420,91 +419,6 @@ CScene::MODE CManager::GetMode(void)
 	return m_pScene->GetMode();
 }
 //=============================================================================
-// ポーズ項目の選択処理
-//=============================================================================
-void CManager::UpdatePauseInput(void)
-{
-	if (!m_isPaused)
-	{
-		return;
-	}
-
-	// まずマウスで選択されている項目を探す
-	int mouseOverIndex = -1;
-	for (size_t i = 0; i < m_pPauseItems.size(); i++)
-	{
-		if (m_pPauseItems[i]->IsMouseOver())
-		{
-			mouseOverIndex = (int)i;
-			break;
-		}
-	}
-
-	// マウスで項目が選択されていれば、それを現在の選択として扱う
-	if (mouseOverIndex != -1)
-	{
-		m_nPauseSelectedIndex = mouseOverIndex;  // インデックス保存
-	}
-
-	// キーボード・ゲームパッド操作
-	bool up = m_pInputKeyboard->GetTrigger(DIK_UP) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_UP);
-	bool down = m_pInputKeyboard->GetTrigger(DIK_DOWN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_DOWN);
-
-	if ((up || down) && !m_bInputPressed)
-	{
-		// 選択SE
-		m_pSound->Play(CSound::SOUND_LABEL_SELECT);
-
-		if (up)
-		{
-			m_nPauseSelectedIndex--;
-		}
-		else if (down)
-		{
-			m_nPauseSelectedIndex++;
-		}
-
-		int maxIdx = (int)m_pPauseItems.size() - 1;
-
-		if (m_nPauseSelectedIndex < 0)
-		{
-			m_nPauseSelectedIndex = maxIdx;
-		}
-		if (m_nPauseSelectedIndex > maxIdx)
-		{
-			m_nPauseSelectedIndex = 0;
-		}
-
-		m_bInputPressed = true;
-	}
-	else if (!up && !down)
-	{
-		m_bInputPressed = false;
-	}
-	// 決定入力
-	if (CManager::GetFade()->GetFade() == CFade::FADE_NONE && mouseOverIndex != -1 && m_pInputMouse->GetTrigger(0))
-	{
-		// 決定SE
-		m_pSound->Play(CSound::SOUND_LABEL_ENTER);
-
-		m_pPauseItems[mouseOverIndex]->Execute();// 常に現在選択項目を使う
-	}
-	else if (CManager::GetFade()->GetFade() == CFade::FADE_NONE && 
-		(m_pInputKeyboard->GetTrigger(DIK_RETURN) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_A)))
-	{
-		// 決定SE
-		m_pSound->Play(CSound::SOUND_LABEL_ENTER);
-
-		m_pPauseItems[m_nPauseSelectedIndex]->Execute(); // 常に現在選択項目を使う
-	}
-
-	// 色の反映（現在選択されているインデックスのみ）
-	for (size_t i = 0; i < m_pPauseItems.size(); i++)
-	{
-		m_pPauseItems[i]->SetSelected(i == m_nPauseSelectedIndex);
-	}
-}
-//=============================================================================
 // ポーズの設定
 //=============================================================================
 void CManager::SetEnablePause(bool bPause)
@@ -513,10 +427,12 @@ void CManager::SetEnablePause(bool bPause)
 
 	if (bPause)
 	{
+		// 音を一時停止
 		m_pSound->PauseAll();
 	}
 	else
 	{
+		// 音を再開
 		m_pSound->ResumeAll();
 	}
 }

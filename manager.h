@@ -20,6 +20,7 @@
 #include "scene.h"
 #include "fade.h"
 #include "pause.h"
+#include "pausemanager.h"
 
 //*****************************************************************************
 // マネージャークラス
@@ -52,7 +53,6 @@ public:
 
 	static void SetMode(CScene::MODE mode);
 	static CScene::MODE GetMode(void);
-	static void UpdatePauseInput(void);  // ゲームパッド／キーボード入力処理
 
 private:
 	static CRenderer* m_pRenderer;				// レンダラーへのポインタ
@@ -63,7 +63,7 @@ private:
 	static CTexture* m_pTexture;				// テクスチャへのポインタ
 	static CCamera* m_pCamera;					// カメラへのポインタ
 	static CLight* m_pLight;					// ライトへのポインタ
-	static std::vector<CPause*> m_pPauseItems;	// ポーズの各項目
+	static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
 	int m_fps;									// FPS値
 
 	btBroadphaseInterface* m_pBroadphase;						// 衝突判定のクラスへのポインタ
@@ -75,8 +75,6 @@ private:
 	static CFade* m_pFade;
 	static CScene* m_pScene;
 	static bool m_isPaused;						// trueならポーズ中
-	static int m_nPauseSelectedIndex;
-	static bool m_bInputPressed;  // 押しっぱなし防止用フラグ
 };
 
 #endif
