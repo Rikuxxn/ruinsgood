@@ -99,6 +99,7 @@ void CCamera::Update(void)
 
 	// リスナーの位置の更新
 	CManager::GetSound()->UpdateListener(m_posV);
+	CManager::GetSound()->UpdateListener(m_posR);
 
 #ifdef _DEBUG
 	// キーボードの取得

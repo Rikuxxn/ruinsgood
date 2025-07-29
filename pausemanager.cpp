@@ -74,9 +74,9 @@ void CPauseManager::Update(void)
         CManager::GetSound()->Play(CSound::SOUND_LABEL_SELECT);
     }
 
-    // キーボード/ゲームパッドでの上下移動
-    bool up = CManager::GetInputKeyboard()->GetTrigger(DIK_UP) || CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_UP);
-    bool down = CManager::GetInputKeyboard()->GetTrigger(DIK_DOWN) || CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_DOWN);
+    // ゲームパッドでの上下移動
+    bool up = CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_UP);
+    bool down = CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_DOWN);
 
     if ((up || down) && !m_inputLock)
     {
@@ -120,8 +120,8 @@ void CPauseManager::Update(void)
             confirm = true;
         }
 
-        // キーボード or ゲームパッド
-        if (CManager::GetInputKeyboard()->GetTrigger(DIK_RETURN) || CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_A))
+        // ゲームパッド
+        if (CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_A))
         {
             confirm = true;
         }
