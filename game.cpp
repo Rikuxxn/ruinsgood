@@ -97,8 +97,6 @@ void CGame::Uninit(void)
 //=============================================================================
 void CGame::Update(void)
 {
-	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
-	CInputMouse* pInputMouse = CManager::GetInputMouse();
 	CFade* pFade = CManager::GetFade();
 
 	// ブロックマネージャーの更新処理
@@ -128,6 +126,8 @@ void CGame::Update(void)
 	}
 
 #ifdef _DEBUG
+	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
+
 	if (pFade->GetFade() == CFade::FADE_NONE && pInputKeyboard->GetTrigger(DIK_RETURN))
 	{
 		// リザルトにセット

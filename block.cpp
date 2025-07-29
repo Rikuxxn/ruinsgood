@@ -900,8 +900,6 @@ void CWaterBlock::Update(void)
 //=============================================================================
 void CWaterBlock::ApplyToBlocks(void)
 {
-	CParticle* pParticle = NULL;
-
 	// …‚Ì AABB ‚ðŽæ“¾
 	D3DXVECTOR3 wtPos = GetPos();
 	D3DXVECTOR3 modelSize = GetModelSize();
@@ -1896,8 +1894,6 @@ void CRockBlock::MoveToTarget(void)
 	{
 		return;
 	}
-
-	CParticle* pParticle = NULL;
 
 	if (m_currentTargetIndex >= 1)
 	{

@@ -834,8 +834,6 @@ void CPlayer::Controll(void)
 	// RayCastで接地チェック
 	m_bOnGround = OnGround(CManager::GetPhysicsWorld(), m_pRigidBody, 65.0f);
 
-	CParticle* pParticle = NULL;
-
 	if (m_bIsMoving && !m_isJumping && m_bOnGround && !m_bIsSideMoving)
 	{
 		m_particleTimer++;
