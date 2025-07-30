@@ -37,6 +37,7 @@ public:
 		SOUND_LABEL_INSPIRATION,
 		SOUND_LABEL_TIMER,
 		SOUND_LABEL_TREASURE,
+		SOUND_LABEL_SWING,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -101,6 +102,7 @@ private:
 		{"data/SE/Inspiration.wav", 0},			// ひらめきSE
 		{"data/SE/timer.wav", 0},				// タイマーSE
 		{"data/SE/treasure.wav", -1},			// 秘宝SE(ループ)
+		{"data/SE/swing.wav", 0},				// 斧SE
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

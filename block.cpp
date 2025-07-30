@@ -185,6 +185,7 @@ void CBlock::Uninit(void)
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_INSPIRATION);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TIMER);
 	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TREASURE);
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWING);
 
 	ReleasePhysics();
 
@@ -1694,6 +1695,9 @@ CAxeBlock::CAxeBlock()
 	m_nSwingCounter = 0;					// フレームカウンター
 	m_swingAmplitude = D3DXToRadian(75.0f);	// ±振れ角
 	m_swingPeriod = 300.0f;					// 周期フレーム
+	m_prevSwingAngle = 0.0f;				// 前回のスイング角度
+	m_wasPositive = true;					// 前回の角度が正かどうか
+	m_playedSoundID = -1;					// 再生中の音ID
 }
 //=============================================================================
 // 斧ブロックのデストラクタ
@@ -1723,7 +1727,7 @@ void CAxeBlock::Swing(void)
 
 	float distance = D3DXVec3Length(&disPos);
 
-	const float kTriggerDistance = 1150.0f; // 反応距離
+	const float kTriggerDistance = 1350.0f; // 反応距離
 
 	if (distance > kTriggerDistance)
 	{
@@ -1737,6 +1741,51 @@ void CAxeBlock::Swing(void)
 	SetRot(D3DXVECTOR3(0.0f, 0.0f, angle)); // Z軸スイング
 
 	UpdateCollider();
+
+	// オフセット
+	D3DXVECTOR3 localOffset(0.0f, -100.0f, 0.0f);
+	D3DXVECTOR3 worldOffset;
+
+	// ブロックのワールドマトリックスを取得
+	D3DXMATRIX worldMtx = GetWorldMatrix();
+
+	D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+	const float soundDistance = 1350.0f; // 反応距離
+	
+	if (distance < soundDistance)
+	{
+		// 極値通過検出：正→負 or 負→正 でスイングSEを鳴らす
+		bool isNowPositive = (angle >= 0.0f);
+
+		if (m_wasPositive != isNowPositive) // 再生していなければ再生開始
+		{
+			// 前の音を止める（念のため）
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWING);
+
+			// 3Dサウンド再生してIDを保持
+			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_SWING, GetPos(), 150.0f, kTriggerDistance);
+		}
+
+		m_wasPositive = isNowPositive;
+	}
+	else
+	{
+		// 離れたら音停止してIDリセット
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->Stop(m_playedSoundID);
+			m_playedSoundID = -1;
+		}
+	}
+
+	m_prevSwingAngle = angle;
+
+	// 音源の位置更新（再生中のみ）
+	if (m_playedSoundID != -1)
+	{
+		CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, worldOffset);
+	}
 }
 //=============================================================================
 // プレイヤーとの接触判定処理
@@ -1884,6 +1933,31 @@ void CRockBlock::AddPathPoint(const D3DXVECTOR3& point)
 //=============================================================================
 void CRockBlock::MoveToTarget(void)
 {
+	bool allTargetHit = true;
+
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block->GetType() != TYPE_TARGET)
+		{
+			continue;
+		}
+
+		CTargetBlock* pTarget = dynamic_cast<CTargetBlock*>(block);
+
+		if (pTarget && !pTarget->IsHit())
+		{
+			allTargetHit = false;
+			break;
+		}
+	}
+
+	// ターゲットをすべて達成したら音を止める
+	if (allTargetHit && m_playedRollSoundID != -1)
+	{
+		CManager::GetSound()->Stop(m_playedRollSoundID);
+		m_playedRollSoundID = -1;
+	}
+
 	if (m_pathPoints.empty() || m_currentTargetIndex >= (int)m_pathPoints.size())
 	{
 		return;
@@ -1961,7 +2035,8 @@ void CRockBlock::MoveToTarget(void)
 		// 減速させる
 		force = btVector3(dir.x * (m_speed * fSpeedDown), 0.0f, dir.z * (m_speed * fSpeedDown));
 
-		if (m_currentTargetIndex >= 8 && m_playedRollSoundID != -1)
+		// スイッチがまだ押されていないときだけ止める
+		if (!m_isBridgeSwitchOn && m_currentTargetIndex >= 8 && m_playedRollSoundID != -1)
 		{
 			// 転がる音の停止
 			CManager::GetSound()->Stop(m_playedRollSoundID);
@@ -1972,13 +2047,6 @@ void CRockBlock::MoveToTarget(void)
 	{// 通常
 		// Z軸中心で転がす
 		force = btVector3(dir.x * m_speed, 0.0f, dir.z * m_speed);
-
-		if (m_currentTargetIndex >= 8 && m_playedRollSoundID != -1)
-		{
-			// 転がる音の停止
-			CManager::GetSound()->Stop(m_playedRollSoundID);
-			m_playedRollSoundID = -1;
-		}
 	}
 
 	// 音源の位置更新（再生中のみ）
@@ -2205,12 +2273,19 @@ void CTargetBlock::Update(void)
 
 		if (isOverlap)
 		{
+			if (!m_isPrevHit)
+			{
+				CManager::GetSound()->Play(CSound::SOUND_LABEL_ROCKHIT);
+			}
+
 			m_isHit = true;
-
-			// 岩の転がる音を止める
+			m_isPrevHit = true;
 			CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
-
 			break;
+		}
+		else
+		{
+			m_isPrevHit = false;
 		}
 	}
 }
@@ -2247,19 +2322,19 @@ void CTorchBlock::Update(void)
 
 		float distance = D3DXVec3Length(&disPos);
 
+		// オフセット
+		D3DXVECTOR3 localOffset(0.0f, 30.0f, -8.0f); // 松明の先端（ローカル）
+		D3DXVECTOR3 worldOffset;
+
+		// ブロックのワールドマトリックスを取得
+		D3DXMATRIX worldMtx = GetWorldMatrix();
+
+		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
 		const float kTriggerDistance = 780.0f; // 反応距離
 
 		if (distance < kTriggerDistance)
 		{
-			// オフセット
-			D3DXVECTOR3 localOffset(0.0f, 30.0f, -8.0f); // 松明の先端（ローカル）
-			D3DXVECTOR3 worldOffset;
-
-			// ブロックのワールドマトリックスを取得
-			D3DXMATRIX worldMtx = GetWorldMatrix();
-
-			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
-
 			// パーティクル生成
 			CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
 			CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
@@ -2287,7 +2362,7 @@ void CTorchBlock::Update(void)
 		// 音源の位置更新はIDを使う
 		if (m_playedFireSoundID != -1)
 		{
-			CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
+			CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, worldOffset);
 		}
 	}
 
@@ -2344,19 +2419,19 @@ void CTorch2Block::Update(void)
 
 	float distance = D3DXVec3Length(&disPos);
 
+	// オフセット
+	D3DXVECTOR3 localOffset(0.0f, 30.0f, 0.0f); // 松明の先端（ローカル）
+	D3DXVECTOR3 worldOffset;
+
+	// ブロックのワールドマトリックスを取得
+	D3DXMATRIX worldMtx = GetWorldMatrix();
+
+	D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
 	const float kTriggerDistance = 1080.0f; // 反応距離
 
 	if (distance < kTriggerDistance)
 	{
-		// オフセット
-		D3DXVECTOR3 localOffset(0.0f, 30.0f, 0.0f); // 松明の先端（ローカル）
-		D3DXVECTOR3 worldOffset;
-
-		// ブロックのワールドマトリックスを取得
-		D3DXMATRIX worldMtx = GetWorldMatrix();
-
-		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
-
 		// パーティクル生成
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
 		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
@@ -2384,7 +2459,7 @@ void CTorch2Block::Update(void)
 	// 音源の位置更新はIDを使う
 	if (m_playedFireSoundID != -1)
 	{
-		CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, GetPos());
+		CManager::GetSound()->UpdateSoundPosition(m_playedFireSoundID, worldOffset);
 	}
 }
 

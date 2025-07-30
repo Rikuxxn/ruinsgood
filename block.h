@@ -265,6 +265,9 @@ private:
 	float m_swingAmplitude;		// ±振れ角
 	float m_swingPeriod;		// 周期フレーム
 	bool m_isPrevHit;
+	float m_prevSwingAngle;		// 前回のスイング角度
+	bool m_wasPositive;			// 前回の角度が正かどうか
+	int m_playedSoundID;		// 再生中の音ID
 };
 
 //*****************************************************************************
@@ -325,8 +328,8 @@ public:
 	bool IsHit(void) { return m_isHit; }
 
 private:
-	bool m_isHit;// 岩が当たったかどうか
-	bool m_isPrevHit;// 直前に当たったか
+	bool m_isHit;		// 岩が当たったかどうか
+	bool m_isPrevHit;	// 直前に当たったか
 };
 
 //*****************************************************************************
