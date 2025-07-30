@@ -87,7 +87,7 @@ private:
 	// サウンドの情報
 	SOUNDINFO m_aSoundInfo[SOUND_LABEL_MAX] =
 	{
-		{"data/BGM/titleBGM.wav", -1},			// ゲームBGM
+		{"data/BGM/gameBGM.wav", -1},			// ゲームBGM
 		{"data/SE/water.wav", 0},				// 入水SE
 		{"data/SE/waterrise.wav", 0},			// 水位上昇SE
 		{"data/SE/hit.wav", 0},					// プレイヤーヒットSE
