@@ -158,6 +158,14 @@ void CResult::Update(void)
 		// ゲーム画面に移行
 		pFade->SetFade(MODE_TITLE);
 	}
+
+#ifdef _DEBUG
+	if (pFade->GetFade() == CFade::FADE_NONE && CManager::GetInputKeyboard()->GetTrigger(DIK_RETURN))
+	{
+		// ゲーム画面に移行
+		pFade->SetFade(MODE_TITLE);
+	}
+#endif
 }
 //=============================================================================
 // 描画処理

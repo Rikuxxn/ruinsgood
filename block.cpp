@@ -1359,8 +1359,8 @@ void CSwitchBlock::Update(void)
 
 	if (n && !m_prevSwitchOn)
 	{
-		// スイッチSE
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+		//// スイッチSE
+		//CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
 		// ひらめきSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
@@ -1502,8 +1502,8 @@ void CBridgeSwitchBlock::Update(void)
 
 	if (n && !m_prevSwitchOn) // 一回だけ実行
 	{
-		// スイッチSE
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+		//// スイッチSE
+		//CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
 		// ひらめきSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
@@ -1621,7 +1621,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(26);
+				SetTimer(32);
 
 				CManager::GetCamera()->IsDirection(true);
 			}
@@ -1674,9 +1674,9 @@ void CBarSwitchBlock::Update(void)
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
 
 		// 演出カメラにする
-		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(2466.5f, 230.0f, -154.5f),
-			D3DXVECTOR3(3035.5f, 39.5f, -505.0f),
-			D3DXVECTOR3(0.28f, -1.02f, 0.0f));
+		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(2855.5f, 250.0f, 49.5f),
+			D3DXVECTOR3(3059.0f, -225.5f, -560.5f),
+			D3DXVECTOR3(0.64f, -0.32f, 0.0f));
 	}
 
 	// フラグを更新して次のフレームに備える
