@@ -52,6 +52,7 @@ public:
 	void StartSlideOut(bool flag) { m_isSlidingOut = flag; }
 	bool IsSlideIn(void) { return m_isSlidingIn; }
 	bool IsSlideOut(void) { return m_isSlidingOut; }
+	bool IsSlideInFinished(void) { return m_isSlideInFinished; }
 	bool IsSlideOutFinished(void) { return m_isSlideOutFinished; }
 	void SlideIn(void);
 	void SlideOut(void);
@@ -69,6 +70,7 @@ private:
 	D3DXVECTOR3 m_targetPos;				// スライドイン完了位置（目的位置）
 	bool m_isSlidingIn ;					// スライド中フラグ
 	bool m_isSlidingOut;					// スライドアウトフラグ
+	bool m_isSlideInFinished;
 	bool m_isSlideOutFinished;
 };
 

@@ -167,7 +167,7 @@ void CStageSelect::Update(void)
 
         for (auto& stage : m_Stage)
         {
-            if (!stage->IsSlideIn())
+            if (!stage->IsSlideInFinished())
             {
                 allDone = false;
                 break;
@@ -248,6 +248,8 @@ void CStageSelect::SetVisible(bool isVisible)
 
     if (isVisible)
     {
+        m_isInputAllowed = false;
+        m_SelectedIndex = 0;
         StartSlideIn();
     }
 }
@@ -285,6 +287,20 @@ void CStageSelect::StartSlideOut(void)
     {
         stage->StartSlideOut(true); // 各項目が移動開始
     }
+}
+//=============================================================================
+// スライドイン終了判定処理
+//=============================================================================
+bool CStageSelect::IsSlideInFinished() const
+{
+    for (const auto& stage : m_Stage)
+    {
+        if (!stage->IsSlideInFinished())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 //=============================================================================
 // スライドアウト終了判定処理

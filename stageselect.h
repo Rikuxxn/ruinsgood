@@ -28,6 +28,7 @@ public:
     static int GetSelectedStage(void) { return m_SelectedIndex; }
     void StartSlideIn(void);
     void StartSlideOut(void);
+    bool IsSlideInFinished(void) const;
     bool IsSlideOutFinished(void) const;
     void SetReturn(bool flag) { m_isReturning = flag; }
     bool ReturnToTitle(void) { return m_isReturning; }

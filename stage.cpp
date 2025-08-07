@@ -31,6 +31,7 @@ CStage::CStage(int nPriority) : CObject(nPriority)
 	m_isSlidingIn = false;	// スライド中フラグ
 	m_isSlidingOut = false;	// スライドアウトフラグ
 	m_isSlideOutFinished = false;
+	m_isSlideInFinished = false;
 }
 //=============================================================================
 // デストラクタ
@@ -278,6 +279,7 @@ void CStage::SlideIn(void)
 				m_pos.x = m_targetPos.x;
 				m_isSlidingIn = false; // スライド完了
 				m_isSlideOutFinished = false;
+				m_isSlideInFinished = true;
 			}
 		}
 	}
@@ -301,6 +303,7 @@ void CStage::SlideOut(void)
 				m_pos.x = m_startPos.x;
 				m_isSlidingOut = false; // スライド完了
 				m_isSlideOutFinished = true;
+				m_isSlideInFinished = false;
 			}
 		}
 	}

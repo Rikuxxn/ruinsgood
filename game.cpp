@@ -84,6 +84,8 @@ HRESULT CGame::Init(void)
 		m_pBlockManager->LoadFromJson("data/stage_03.json");
 
 		break;
+	case CStage::STAGE_ID_NONE:
+		break;
 	}
 
 	float fTimePosX = 760.0f;
