@@ -24,6 +24,7 @@ CTitle::CTitle() : CScene(CScene::MODE_TITLE)
 	m_alphaPress = 0.0f;          // 現在のα値（0.0f ～ 1.0f）
 	m_isAlphaDown = false;         // 点滅用フラグ（上げる/下げる）
 	m_isEnterPressed = false;      // エンターキー押された
+	m_state = WAIT_PRESS;
 
 	for (int nCnt = 0; nCnt < TYPE_MAX; nCnt++)
 	{
@@ -50,6 +51,12 @@ HRESULT CTitle::Init(void)
 
 	// ブロックマネージャーの初期化
 	m_pBlockManager->Init();
+
+	// ステージセレクトの生成
+	m_pStageSelect = new CStageSelect;
+
+	// ステージセレクトの初期化
+	m_pStageSelect->Init();
 
 	// JSONの読み込み
 	m_pBlockManager->LoadFromJson("data/block_title.json");
@@ -79,7 +86,7 @@ HRESULT CTitle::Init(void)
 
 	ImageInfo images[2] =
 	{
-		   { D3DXVECTOR3(450.0f, 250.0f, 0.0f), 350.0f, 240.0f },	// タイトルロゴ
+		   { D3DXVECTOR3(450.0f, 250.0f, 0.0f), 320.0f, 220.0f },	// タイトルロゴ
 		   { D3DXVECTOR3(880.0f, 770.0f, 0.0f), 320.0f, 55.0f }		// PRESS
 	};
 
@@ -135,6 +142,15 @@ void CTitle::Uninit(void)
 		m_pBlockManager = NULL;
 	}
 
+	// ステージセレクトの破棄
+	if (m_pStageSelect != NULL)
+	{
+		m_pStageSelect->Uninit();
+
+		delete m_pStageSelect;
+		m_pStageSelect = NULL;
+	}
+
 	// 頂点バッファの破棄
 	if (m_pVtxBuff != NULL)
 	{
@@ -147,71 +163,92 @@ void CTitle::Uninit(void)
 //=============================================================================
 void CTitle::Update(void)
 {
-	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
-	CInputMouse* pInputMouse = CManager::GetInputMouse();
-	CInputJoypad* pJoypad = CManager::GetInputJoypad();
-	CFade* pFade = CManager::GetFade();
-
-	if (pFade->GetFade() == CFade::FADE_NONE && 
-		(pInputKeyboard->GetAnyKeyTrigger() || pInputMouse->GetTrigger(0) || pJoypad->GetAnyTrigger()))
+	switch (m_state)
 	{
-		m_isEnterPressed = true;
+	case WAIT_PRESS:
+		PressAny();
+		break;
 
-		// ゲーム画面に移行
-		pFade->SetFade(MODE_GAME);
+	case TO_STAGE_SELECT:
+		FadeOut();
+		break;
+
+	case STAGE_SELECT:
+		m_pStageSelect->Update();
+
+		if (m_pStageSelect->ReturnToTitle())
+		{
+			m_state = BACK_TO_TITLE;
+			m_pStageSelect->StartSlideOut();
+		}
+
+		break;
+
+	case BACK_TO_TITLE:
+
+		BackToTitle();
+
+		if (m_pStageSelect->IsSlideOutFinished())
+		{
+			m_pStageSelect->SetVisible(false);
+			m_pStageSelect->SetReturn(false);
+			m_state = WAIT_PRESS;
+			m_alphaPress = 1.0f;
+			m_isAlphaDown = false;
+			m_isEnterPressed = false;
+		}
+
+		break;
 	}
 
-	if (!m_isEnterPressed)
+	// アルファ値を頂点に適用
+	int starts[] = 
 	{
-		// 点滅ロジック
-		float speed = 0.01f;
-
-		if (m_isAlphaDown)
-		{
-			m_alphaPress -= speed;
-
-			if (m_alphaPress < 0.1f) // 最小値
-			{
-				m_alphaPress = 0.1f;
-				m_isAlphaDown = false;
-			}
-		}
-		else
-		{
-			m_alphaPress += speed;
-
-			if (m_alphaPress > 1.0f) // 最大値
-			{
-				m_alphaPress = 1.0f;
-				m_isAlphaDown = true;
-			}
-		}
-	}
-	else
+		m_vertexRanges[TYPE_FIRST].start,
+		m_vertexRanges[TYPE_SECOND].start
+	};
+	int ends[] =
 	{
-		// フェードアウト
-		float fadeSpeed = 0.03f;
-
-		m_alphaPress -= fadeSpeed;
-
-		if (m_alphaPress < 0.0f)
-		{
-			m_alphaPress = 0.0f;
-		}
-	}
-
-	// アルファ値をタイトルのPRESS用頂点に適用
-	int start = m_vertexRanges[TYPE_SECOND].start;
-	int end = m_vertexRanges[TYPE_SECOND].end;
+		m_vertexRanges[TYPE_FIRST].end,
+		m_vertexRanges[TYPE_SECOND].end
+	};
 
 	VERTEX_2D* pVtx;// 頂点情報へのポインタ
 
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int nCnt = start; nCnt <= end; nCnt++)
+	// TYPE_SECONDには常にアルファ適用
 	{
-		pVtx[nCnt].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, m_alphaPress);
+		int start = m_vertexRanges[TYPE_SECOND].start;
+		int end = m_vertexRanges[TYPE_SECOND].end;
+
+		for (int n = start; n <= end; n++)
+		{
+			pVtx[n].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, m_alphaPress);
+		}
+	}
+
+	// TYPE_FIRSTはm_isEnterPressedがtrueになった時だけ
+	if (m_isEnterPressed)
+	{
+		int start = m_vertexRanges[TYPE_FIRST].start;
+		int end = m_vertexRanges[TYPE_FIRST].end;
+
+		for (int n = start; n <= end; n++)
+		{
+			pVtx[n].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, m_alphaPress);
+		}
+	}
+	else
+	{
+		int start = m_vertexRanges[TYPE_FIRST].start;
+		int end = m_vertexRanges[TYPE_FIRST].end;
+
+		for (int n = start; n <= end; n++)
+		{
+			pVtx[n].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		}
 	}
 
 	// 頂点バッファをアンロックする
@@ -246,4 +283,72 @@ void CTitle::Draw(void)
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, m_vertexRanges[nCnt].start, 2);
 	}
+}
+//=============================================================================
+// 入力処理
+//=============================================================================
+void CTitle::PressAny(void)
+{
+	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
+	CInputMouse* pMouse = CManager::GetInputMouse();
+	CInputJoypad* pJoypad = CManager::GetInputJoypad();
+	CFade* pFade = CManager::GetFade();
+
+	if (pFade->GetFade() == CFade::FADE_NONE &&
+		(pInputKeyboard->GetAnyKeyTrigger() || pMouse->GetPress(0) || pJoypad->GetAnyTrigger()))
+	{
+		m_state = TO_STAGE_SELECT;
+		m_isEnterPressed = true;
+		m_pStageSelect->SetVisible(true);
+	}
+	else
+	{
+		// 点滅ロジック
+		float speed = 0.01f;
+
+		if (m_isAlphaDown)
+		{
+			m_alphaPress -= speed;
+
+			if (m_alphaPress < 0.1f) // 最小値
+			{
+				m_alphaPress = 0.1f;
+				m_isAlphaDown = false;
+			}
+		}
+		else
+		{
+			m_alphaPress += speed;
+
+			if (m_alphaPress > 1.0f) // 最大値
+			{
+				m_alphaPress = 1.0f;
+				m_isAlphaDown = true;
+			}
+		}
+	}
+}
+//=============================================================================
+// フェードアウト処理
+//=============================================================================
+void CTitle::FadeOut(void)
+{
+	// フェードアウト
+	float fadeSpeed = 0.03f;
+
+	m_alphaPress -= fadeSpeed;
+
+	if (m_alphaPress < 0.0f)
+	{
+		m_alphaPress = 0.0f;
+		m_state = STAGE_SELECT;
+	}
+}
+//=============================================================================
+// 表示状態に戻す処理
+//=============================================================================
+void CTitle::BackToTitle(void)
+{
+	// ステージ選択がスライドアウトしてる間ここで待つ
+	m_pStageSelect->Update();
 }

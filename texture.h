@@ -89,9 +89,9 @@ private:
 		"data/TEXTURE/continue.png",
 		"data/TEXTURE/retry.png",
 		"data/TEXTURE/quit.png",
-		"data/TEXTURE/move.png",
-		"data/TEXTURE/jump.png",
-		"data/TEXTURE/pick.png",
+		"data/TEXTURE/ui_move.png",
+		"data/TEXTURE/ui_jump.png",
+		"data/TEXTURE/ui_pick.png",
 		"data/TEXTURE/ui_pause.png",
 		"data/TEXTURE/ui_mask.png",
 		"data/TEXTURE/ui_result001.png",
@@ -105,6 +105,9 @@ private:
 		"data/TEXTURE/switch3.png",
 		"data/TEXTURE/bridge3.png",
 		"data/TEXTURE/bar.png",
+		"data/TEXTURE/stage_01.png",
+		"data/TEXTURE/stage_none.png",
+		"data/TEXTURE/back.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

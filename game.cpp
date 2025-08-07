@@ -11,6 +11,7 @@
 #include "game.h"
 #include "manager.h"
 #include "result.h"
+#include "stageselect.h"
 
 //*****************************************************************************
 // 静的メンバ変数宣言
@@ -49,17 +50,41 @@ HRESULT CGame::Init(void)
 	// ブロックマネージャーの初期化
 	m_pBlockManager->Init();
 
-	// ビルボードの生成
-	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 20.0f);
-	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 20.0f);
-	m_pBillboard = CObjectBillboard::Create("data/TEXTURE/pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 20.0f);
+	int stageId = CStageSelect::GetSelectedStage();
 
-	// プレイヤーの生成
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	switch (stageId)
+	{
+	case CStage::STAGE_ID_1:
+		// ビルボードの生成
+		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 20.0f);
+		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 20.0f);
+		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 20.0f);
 
-	// JSONの読み込み
-	m_pBlockManager->LoadFromJson("data/block_info.json");
+		// プレイヤーの生成
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+		// JSONの読み込み
+		m_pBlockManager->LoadFromJson("data/stage_01.json");
+
+		break;
+	case CStage::STAGE_ID_2:
+		// プレイヤーの生成
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+		// JSONの読み込み
+		m_pBlockManager->LoadFromJson("data/stage_02.json");
+
+		break;
+	case CStage::STAGE_ID_3:
+		// プレイヤーの生成
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+		// JSONの読み込み
+		m_pBlockManager->LoadFromJson("data/stage_03.json");
+
+		break;
+	}
 
 	float fTimePosX = 760.0f;
 	float fTimeWidth = 42.0f;
@@ -129,7 +154,7 @@ void CGame::Update(void)
 		}
 	}
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 
 	if (pFade->GetFade() == CFade::FADE_NONE && pInputKeyboard->GetTrigger(DIK_RETURN))
@@ -140,7 +165,7 @@ void CGame::Update(void)
 		// リザルト画面に移行
 		pFade->SetFade(MODE_RESULT);
 	}
-#endif
+//#endif
 }
 //=============================================================================
 // 描画処理

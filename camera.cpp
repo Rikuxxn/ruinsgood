@@ -76,6 +76,7 @@ HRESULT CCamera::Init(void)
 //=============================================================================
 void CCamera::Uninit(void)
 {
+	CManager::GetSound()->Stop(CSound::SOUND_LABEL_INSPIRATION);
 
 
 }
@@ -598,6 +599,9 @@ void CCamera::DirectionCamera(int nTimer)
 		m_nDirectionCamTimer = 0;
 
 		m_fDistance = 220.0f;
+
+		// ‚Ð‚ç‚ß‚«SE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
 
 		// ƒQ[ƒ€ƒJƒƒ‰‚É–ß‚·
 		m_Mode = MODE_GAME;

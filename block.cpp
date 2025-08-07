@@ -1149,7 +1149,7 @@ CDoorBlock::~CDoorBlock()
 //=============================================================================
 void CDoorBlock::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
+	if (CManager::GetMode() != MODE_GAME || !CGame::GetPlayer())
 	{
 		return;
 	}
@@ -1359,11 +1359,8 @@ void CSwitchBlock::Update(void)
 
 	if (n && !m_prevSwitchOn)
 	{
-		//// スイッチSE
-		//CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
-
-		// ひらめきSE
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
+		// スイッチSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
 		// 水位上昇SE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_WATERRISE);
@@ -1502,11 +1499,8 @@ void CBridgeSwitchBlock::Update(void)
 
 	if (n && !m_prevSwitchOn) // 一回だけ実行
 	{
-		//// スイッチSE
-		//CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
-
-		// ひらめきSE
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
+		// スイッチSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
 		// 演出カメラにする
 		CManager::GetCamera()->SetCamMode(9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
@@ -1621,7 +1615,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(32);
+				SetTimer(26);
 
 				CManager::GetCamera()->IsDirection(true);
 			}
@@ -1670,13 +1664,10 @@ void CBarSwitchBlock::Update(void)
 		// スイッチSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
-		// ひらめきSE
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
-
 		// 演出カメラにする
-		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(2855.5f, 250.0f, 49.5f),
-			D3DXVECTOR3(3059.0f, -225.5f, -560.5f),
-			D3DXVECTOR3(0.64f, -0.32f, 0.0f));
+		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(2572.5f, 218.7f, -76.0f),
+			D3DXVECTOR3(3158.0f, -29.0f, -562.0f),
+			D3DXVECTOR3(0.32f, -0.90f, 0.0f));
 	}
 
 	// フラグを更新して次のフレームに備える
@@ -2315,7 +2306,7 @@ void CTorchBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	if (CManager::GetMode() == MODE_GAME)
+	if (CManager::GetMode() == MODE_GAME && CGame::GetPlayer())
 	{
 		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 		D3DXVECTOR3 disPos = playerPos - GetPos();

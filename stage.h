@@ -1,11 +1,11 @@
 //=============================================================================
 //
-// ポーズ処理 [pause.h]
+// ステージ処理 [stage.h]
 // Author : RIKU TANEKAWA
 //
 //=============================================================================
-#ifndef _PAUSE_H_// このマクロ定義がされていなかったら
-#define _PAUSE_H_// 2重インクルード防止のマクロ定義
+#ifndef _STAGE_H_// このマクロ定義がされていなかったら
+#define _STAGE_H_// 2重インクルード防止のマクロ定義
 
 //*****************************************************************************
 // インクルードファイル
@@ -14,24 +14,25 @@
 
 
 //*****************************************************************************
-// ポーズクラス
+// ステージクラス
 //*****************************************************************************
-class CPause : public CObject
+class CStage : public CObject
 {
 public:
-	CPause(int nPriority = 7);
-	~CPause();
+	CStage(int nPriority = 7);
+	~CStage();
 
 	// 選択項目の種類
 	typedef enum
 	{
-		MENU_CONTINUE = 0,		// ゲームに戻る
-		MENU_RETRY,				// ゲームをやり直す
-		MENU_QUIT,				// タイトル画面に戻る
-		MENU_MAX
-	}MENU;
+		STAGE_ID_1 = 0,		
+		STAGE_ID_2,
+		STAGE_ID_3,
+		STAGE_ID_NONE,
+		STAGE_MAX
+	}STAGE;
 
-	static CPause* Create(MENU type, D3DXVECTOR3 pos,float fWidth,float fHeight);
+	static CStage* Create(STAGE type, D3DXVECTOR3 pos, float fWidth, float fHeight);
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
@@ -46,6 +47,15 @@ public:
 	// 選択状態設定・取得
 	void SetSelected(bool selected) { m_isSelected = selected; }
 	bool IsSelected(void) const { return m_isSelected; }
+	void SetTargetPos(const D3DXVECTOR3& targetPos) { m_targetPos = targetPos; }
+	void StartSlideIn(bool flag) { m_isSlidingIn = flag; }
+	void StartSlideOut(bool flag) { m_isSlidingOut = flag; }
+	bool IsSlideIn(void) { return m_isSlidingIn; }
+	bool IsSlideOut(void) { return m_isSlidingOut; }
+	bool IsSlideOutFinished(void) { return m_isSlideOutFinished; }
+	void SlideIn(void);
+	void SlideOut(void);
+	STAGE GetStageId(void) const;
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
@@ -54,17 +64,22 @@ private:
 	float m_fWidth, m_fHeight;				// サイズ
 	int m_nIdxTexture;						// テクスチャインデックス
 	char m_szPath[MAX_PATH];				// ファイルパス
-	bool m_isSelected;
+	bool m_isSelected;						// 選択したか
+	D3DXVECTOR3 m_startPos;					// スライドイン開始位置（画面右外）
+	D3DXVECTOR3 m_targetPos;				// スライドイン完了位置（目的位置）
+	bool m_isSlidingIn ;					// スライド中フラグ
+	bool m_isSlidingOut;					// スライドアウトフラグ
+	bool m_isSlideOutFinished;
 };
 
 //*****************************************************************************
-// コンティニュー項目クラス
+// ステージ1クラス
 //*****************************************************************************
-class CContinue : public CPause
+class CStage1 : public CStage
 {
 public:
-	CContinue();
-	~CContinue();
+	CStage1();
+	~CStage1();
 
 	void Execute(void) override;
 
@@ -73,13 +88,13 @@ private:
 };
 
 //*****************************************************************************
-// リトライ項目クラス
+// ステージ2クラス
 //*****************************************************************************
-class CRetry : public CPause
+class CStage2 : public CStage
 {
 public:
-	CRetry();
-	~CRetry();
+	CStage2();
+	~CStage2();
 
 	void Execute(void) override;
 
@@ -88,13 +103,28 @@ private:
 };
 
 //*****************************************************************************
-// 終了項目クラス
+// ステージ3クラス
 //*****************************************************************************
-class CQuit : public CPause
+class CStage3 : public CStage
 {
 public:
-	CQuit();
-	~CQuit();
+	CStage3();
+	~CStage3();
+
+	void Execute(void) override;
+
+private:
+
+};
+
+//*****************************************************************************
+// 戻る項目クラス
+//*****************************************************************************
+class CBack : public CStage
+{
+public:
+	CBack();
+	~CBack();
 
 	void Execute(void) override;
 

@@ -12,6 +12,7 @@
 //*****************************************************************************
 #include "scene.h"
 #include "blockmanager.h"
+#include "stageselect.h"
 
 //*****************************************************************************
 // タイトルクラス
@@ -27,6 +28,16 @@ public:
 		TYPE_MAX
 	}TYPE;
 
+	// タイトルの状態
+	typedef enum
+	{
+		WAIT_PRESS = 0,
+		TO_STAGE_SELECT,
+		STAGE_SELECT,
+		BACK_TO_TITLE,
+		STATE_MAX
+	}State;
+
 	CTitle();
 	~CTitle();
 
@@ -34,6 +45,9 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	void PressAny(void);
+	void FadeOut(void);
+	void BackToTitle(void);
 
 private:
 
@@ -62,7 +76,8 @@ private:
 	bool  m_isAlphaDown;					// 点滅用フラグ（上げる/下げる）
 	bool  m_isEnterPressed;					// エンターキー押された
 	CBlockManager* m_pBlockManager;			// ブロックマネージャーへのポインタ
-
+	CStageSelect* m_pStageSelect;
+	State m_state;
 };
 
 #endif
