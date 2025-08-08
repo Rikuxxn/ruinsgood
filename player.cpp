@@ -541,7 +541,7 @@ void CPlayer::HoldBlock(void)
 			if (target)
 			{
 				// ブロックの質量を取得
-				float blockMass = target->GetMassByType(target->GetType());
+				float blockMass = target->GetMass();
 
 				// ブロックのサイズ(拡大率)を取得
 				D3DXVECTOR3 blocksize = target->GetSize();// 拡大率

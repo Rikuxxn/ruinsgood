@@ -12,6 +12,12 @@
 //*****************************************************************************
 #include "objectX.h"
 #include "debugproc3D.h"
+#include <unordered_map>
+#include <functional>
+
+class CBlock;
+
+using CreateFunc = std::function<CBlock* (const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size)>;
 
 struct ColliderPart
 {
@@ -26,7 +32,7 @@ class CBlock : public CObjectX
 {
 public:
 	CBlock(int nPriority = 3);
-	~CBlock();
+	virtual ~CBlock() = default;
 
 	//*****************************************************************************
 	// ブロックの種類
@@ -73,6 +79,7 @@ public:
 	static CBlock* Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 size, TYPE type);	// ブロックの生成
 	void CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size);										// コライダーの生成
 	void CreatePhysicsFromScale(const D3DXVECTOR3& scale);														// ブロックスケールによるコライダーの生成
+	static void InitBlockFactory(void);
 	virtual HRESULT Init(void);
 	void Uninit(void);
 	virtual void Update(void);
@@ -114,7 +121,7 @@ public:
 	const ColliderPart& GetColliderHandle(void) const { return m_colliderHandle; }
 	const ColliderPart& GetColliderBlade(void) const { return m_colliderBlade; }
 	bool IsEditMode(void) const { return m_isEditMode; }
-	btScalar GetMassByType(TYPE type);
+	virtual btScalar GetMass(void) const { return 2.0f; }  // デフォルト質量
 	D3DXMATRIX GetWorldMatrix(void);
 
 
@@ -135,6 +142,45 @@ private:
 	ColliderPart m_colliderHandle;  // 棒の部分
 	ColliderPart m_colliderBlade;   // 刃の部分
 	std::vector<btCollisionShape*> m_childShapes;
+	static std::unordered_map<TYPE, CreateFunc> m_BlockFactoryMap;
+	static const std::unordered_map<TYPE, const char*> s_TexturePathMap;
+};
+
+
+//*****************************************************************************
+// 木箱ブロッククラス
+//*****************************************************************************
+class CWoodBoxBlock : public CBlock
+{
+public:
+	btScalar GetMass(void) const override { return 4.0f; }
+};
+
+//*****************************************************************************
+// 柱ブロッククラス
+//*****************************************************************************
+class CPillarBlock : public CBlock
+{
+public:
+	btScalar GetMass(void) const override { return 55.0f; }
+};
+
+//*****************************************************************************
+// 木の橋ブロッククラス
+//*****************************************************************************
+class CWoodBridgeBlock : public CBlock
+{
+public:
+	btScalar GetMass(void) const override { return 8.0f; }
+};
+
+//*****************************************************************************
+// 筏ブロッククラス
+//*****************************************************************************
+class CRaftBlock : public CBlock
+{
+public:
+	btScalar GetMass(void) const override { return 5.0f; }
 };
 
 //*****************************************************************************
@@ -259,6 +305,7 @@ public:
 	void Update(void) override;
 	void Swing(void);
 	void IsPlayerHit(void);
+	btScalar GetMass(void) const override { return 80.0f; }
 
 private:
 	int m_nSwingCounter;		// フレームカウンター
@@ -285,6 +332,7 @@ public:
 	void MoveToTarget(void);					// 転がし処理
 	void IsPlayerHit(void);						// プレイヤーとの接触判定
 	void UseBridgeSwitch(bool enable) { m_isBridgeSwitchOn = enable; }
+	btScalar GetMass(void) const override { return 100.0f; }
 
 private:
 	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列 (代入用)
@@ -357,6 +405,7 @@ public:
 	~CTorch2Block();
 
 	void Update(void) override;
+	btScalar GetMass(void) const override { return 6.0f; }
 
 private:
 	int m_playedFireSoundID;// 再生中の音ID
@@ -426,16 +475,5 @@ public:
 private:
 	bool m_isMove;
 };
-
-//=============================================================================
-// クランプ関数
-//=============================================================================
-template <typename T>
-T Clamp(const T& value, const T& minVal, const T& maxVal)
-{
-	if (value < minVal) return minVal;
-	if (value > maxVal) return maxVal;
-	return value;
-}
 
 #endif

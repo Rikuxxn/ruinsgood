@@ -117,7 +117,7 @@ void CStageSelect::Update(void)
     int mouseOver = GetMouseOverIndex();
 
     // マウスオーバー時の選択変更＆SE
-    if (mouseOver != -1 && mouseOver != m_SelectedIndex)
+    if (mouseOver != -1 && mouseOver != m_SelectedIndex && CManager::GetFade()->GetFade() == CFade::FADE_NONE)
     {
         m_SelectedIndex = mouseOver;
 
@@ -129,7 +129,7 @@ void CStageSelect::Update(void)
     bool up = CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_UP);
     bool down = CManager::GetInputJoypad()->GetTrigger(CInputJoypad::JOYKEY_DOWN);
 
-    if ((up || down) && !m_inputLock)
+    if ((up || down) && !m_inputLock && CManager::GetFade()->GetFade() == CFade::FADE_NONE)
     {
         // 選択SE
         CManager::GetSound()->Play(CSound::SOUND_LABEL_SELECT);
@@ -181,7 +181,7 @@ void CStageSelect::Update(void)
     }
 
     // クリックまたはゲームパッドボタンで実行
-    if (m_isInputAllowed && CManager::GetFade()->GetFade() == CFade::FADE_NONE)
+    if (m_isInputAllowed)
     {
         bool confirm = false;
 

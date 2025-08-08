@@ -15,6 +15,12 @@
 #include "game.h"
 #include "result.h"
 
+//*****************************************************************************
+// 静的メンバ変数宣言
+//*****************************************************************************
+std::unordered_map<CBlock::TYPE, CreateFunc> CBlock::m_BlockFactoryMap = {};
+std::unordered_map<CBlock::TYPE, const char*> s_TexturePathMap = {};
+
 using namespace std;
 
 //=============================================================================
@@ -39,91 +45,26 @@ CBlock::CBlock(int nPriority) : CObjectX(nPriority)
 	m_isEditMode	 = false;					// 編集中かどうか
 }
 //=============================================================================
-// デストラクタ
-//=============================================================================
-CBlock::~CBlock()
-{
-	// なし
-}
-//=============================================================================
 // 生成処理
 //=============================================================================
 CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size, TYPE type)
 {
-	CBlock* pBlock = NULL;
-	CRockBlock* pRock = NULL;
-
-	// タイプごとに派生クラスへ分岐
-	switch (type)
+	if (m_BlockFactoryMap.empty())
 	{
-	case TYPE_WATER:
-		pBlock = new CWaterBlock();
-		break;
-	case TYPE_DOOR:
-		pBlock = new CDoorBlock();
-		break;
-	case TYPE_DOOR2:
-		pBlock = new CBigDoorBlock();
-		break;
-	case TYPE_SWITCH:
-		pBlock = new CSwitchBlock();
-		break;
-	case TYPE_SWITCH2:
-		pBlock = new CBridgeSwitchBlock();
-		break;
-	case TYPE_AXE:
-		pBlock = new CAxeBlock();
-		break;
-	case TYPE_BRIDGE2:
-		pBlock = new CBridgeBlock();
-		break;
-	case TYPE_TARGET:
-		pBlock = new CTargetBlock();
-		break;
-	case TYPE_TORCH:
-		pBlock = new CTorchBlock();
-		break;
-	case TYPE_TORCH2:
-		pBlock = new CTorch2Block();
-		break;
-	case TYPE_MASK:
-		pBlock = new CMaskBlock();
-		break;
-	case TYPE_SWORD:
-		pBlock = new CSwordBlock();
-		break;
-	case TYPE_SWITCH3:
-		pBlock = new CBarSwitchBlock();
-		break;
-	case TYPE_BAR:
-		pBlock = new CBarBlock();
-		break;
-	case TYPE_BRIDGE3:
-		pBlock = new CFootingBlock();
-		break;
-	case TYPE_ROCK:
-		pBlock = new CRockBlock();
+		// ファクトリー
+		InitBlockFactory();
+	}
 
-		// チェックポイントを設定
-		pRock = dynamic_cast<CRockBlock*>(pBlock);
-		if (pRock)
-		{
-			// 通常ルート
-			pRock->AddPathPoint(D3DXVECTOR3(2812.5f, 217.0f, -1989.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
-			pRock->AddPathPoint(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(1958.5f, 217.0f, -3815.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(-1230.5f, 217.0f, -3898.0f));
-			pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
-		}
+	CBlock* pBlock = nullptr;
 
-		break;
-	default:
-		pBlock = new CBlock();
-		break;
+	auto it = m_BlockFactoryMap.find(type);
+	if (it != m_BlockFactoryMap.end())
+	{
+		pBlock = it->second(pFilepath, pos, rot, size);
+	}
+	else
+	{
+		pBlock = new CBlock(); // デフォルト基底クラス
 	}
 
 	if (!pBlock)
@@ -141,6 +82,49 @@ CBlock* CBlock::Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
 	pBlock->CreatePhysicsFromScale(size);
 
 	return pBlock;
+}
+//=============================================================================
+// ファクトリー
+//=============================================================================
+void CBlock::InitBlockFactory(void)
+{
+	m_BlockFactoryMap.clear();
+
+	m_BlockFactoryMap[CBlock::TYPE_WOODBOX] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CWoodBoxBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_PILLAR] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CPillarBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_BRIDGE] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CWoodBridgeBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_RAFT] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CRaftBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_WATER] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CWaterBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_DOOR] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CDoorBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_DOOR2] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBigDoorBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_SWITCH] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CSwitchBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_SWITCH2] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBridgeSwitchBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_AXE] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CAxeBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_BRIDGE2] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBridgeBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_TARGET] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CTargetBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_TORCH] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CTorchBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_TORCH2] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CTorch2Block(); };
+	m_BlockFactoryMap[CBlock::TYPE_MASK] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CMaskBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_SWORD] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CSwordBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_SWITCH3] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBarSwitchBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_BAR] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBarBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_BRIDGE3] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CFootingBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_ROCK] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock*
+	{
+		CRockBlock* pRock = new CRockBlock();
+
+		// チェックポイント追加
+		pRock->AddPathPoint(D3DXVECTOR3(2812.5f, 217.0f, -1989.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(2810.0f, 217.0f, -2821.5f));
+		pRock->AddPathPoint(D3DXVECTOR3(2718.0f, 217.0f, -3045.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(1958.5f, 217.0f, -3815.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(1746.0f, 217.0f, -3898.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(343.0f, 217.0f, -3898.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(-660.0f, 217.0f, -3898.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(-1230.5f, 217.0f, -3898.0f));
+		pRock->AddPathPoint(D3DXVECTOR3(-1430.5f, 217.0f, -3898.0f));
+		return pRock;
+	};
 }
 //=============================================================================
 // 初期化処理
@@ -174,18 +158,7 @@ HRESULT CBlock::Init(void)
 void CBlock::Uninit(void)
 {
 	// 指定したラベルのサウンドを停止
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_WATER);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_WATERRISE);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_HIT);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROCKHIT);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWITCH);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_ROLL);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_INSPIRATION);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TIMER);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_TREASURE);
-	CManager::GetSound()->Stop(CSound::SOUND_LABEL_SWING);
+	CManager::GetSound()->Stop();
 
 	ReleasePhysics();
 
@@ -363,114 +336,54 @@ D3DXCOLOR CBlock::GetCol(void) const
 //=============================================================================
 const char* CBlock::GetTexPathFromType(TYPE type)
 {
-	switch (type)
+	auto it = s_TexturePathMap.find(type);
+	if (it != s_TexturePathMap.end())
 	{
-	case TYPE_WOODBOX: 
-		return "data/TEXTURE/woodbox.png";
-
-	case TYPE_WALL: 
-		return "data/TEXTURE/wall1.png";
-
-	case TYPE_WALL2:
-		return "data/TEXTURE/wall2.png";
-
-	case TYPE_WALL3:
-		return "data/TEXTURE/wall3.png";
-
-	case TYPE_WALL4:
-		return "data/TEXTURE/wall4.png";
-
-	case TYPE_AXE: 
-		return "data/TEXTURE/Axe.png";
-
-	case TYPE_RAFT: 
-		return "data/TEXTURE/ikada.png";
-
-	case TYPE_ROCK:
-		return "data/TEXTURE/rock.png";
-
-	case TYPE_TORCH:
-		return "data/TEXTURE/torch1.png";
-
-	case TYPE_TORCH2:
-		return "data/TEXTURE/torch2.png";
-
-	case TYPE_FLOOR:
-		return "data/TEXTURE/floor1.png";
-
-	case TYPE_FLOOR2:
-		return "data/TEXTURE/floor2.png";
-
-	case TYPE_DOOR:
-		return "data/TEXTURE/door1.png";
-
-	case TYPE_CEILING:
-		return "data/TEXTURE/ceiling1.png";
-
-	case TYPE_CEILING2:
-		return "data/TEXTURE/ceiling2.png";
-
-	case TYPE_WATER:
-		return "data/TEXTURE/water.png";
-
-	case TYPE_SWITCH:
-		return "data/TEXTURE/switch.png";
-
-	case TYPE_SWITCH_BODY:
-		return "data/TEXTURE/switch_body.png";
-
-	case TYPE_BRIDGE:
-		return "data/TEXTURE/bridge.png";
-
-	case TYPE_DOOR_TOP:
-		return "data/TEXTURE/door_top.png";
-
-	case TYPE_DOOR_SIDE:
-		return "data/TEXTURE/door_left.png";
-
-	case TYPE_PILLAR:
-		return "data/TEXTURE/pillar.png";
-
-	case TYPE_BLOCK:
-		return "data/TEXTURE/block.png";
-
-	case TYPE_FENCE:
-		return "data/TEXTURE/fence.png";
-
-	case TYPE_FENCE_PART:
-		return "data/TEXTURE/fence_part.png";
-
-	case TYPE_BRIDGE2:
-		return "data/TEXTURE/bridge2.png";
-
-	case TYPE_TARGET:
-		return "data/TEXTURE/target.png";
-
-	case TYPE_SWITCH2:
-		return "data/TEXTURE/controlswitch.png";
-
-	case TYPE_DOOR2:
-		return "data/TEXTURE/door2.png";
-
-	case TYPE_MASK:
-		return "data/TEXTURE/mask.png";
-
-	case TYPE_SWORD:
-		return "data/TEXTURE/sword.png";
-
-	case TYPE_SWITCH3:
-		return "data/TEXTURE/controlswitch2.png";
-
-	case TYPE_BAR:
-		return "data/TEXTURE/bar.png";
-
-	case TYPE_BRIDGE3:
-		return "data/TEXTURE/bridge3.png";
-
-	default: 
-		return "";
+		return it->second;
 	}
+
+	return "";
 }
+//=============================================================================
+// 画像表示用テクスチャパス
+//=============================================================================
+const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap = 
+{
+	{ TYPE_WOODBOX, "data/TEXTURE/woodbox.png" },
+	{ TYPE_WALL, "data/TEXTURE/wall1.png" },
+	{ TYPE_WALL2, "data/TEXTURE/wall2.png" },
+	{ TYPE_WALL3, "data/TEXTURE/wall3.png" },
+	{ TYPE_WALL4, "data/TEXTURE/wall4.png" },
+	{ TYPE_AXE, "data/TEXTURE/Axe.png" },
+	{ TYPE_RAFT, "data/TEXTURE/ikada.png" },
+	{ TYPE_ROCK, "data/TEXTURE/rock.png" },
+	{ TYPE_TORCH, "data/TEXTURE/torch1.png" },
+	{ TYPE_TORCH2, "data/TEXTURE/torch2.png" },
+	{ TYPE_FLOOR, "data/TEXTURE/floor1.png" },
+	{ TYPE_FLOOR2, "data/TEXTURE/floor2.png" },
+	{ TYPE_DOOR, "data/TEXTURE/door1.png" },
+	{ TYPE_CEILING, "data/TEXTURE/ceiling1.png" },
+	{ TYPE_CEILING2, "data/TEXTURE/ceiling2.png" },
+	{ TYPE_WATER, "data/TEXTURE/water.png" },
+	{ TYPE_SWITCH, "data/TEXTURE/switch.png" },
+	{ TYPE_SWITCH_BODY, "data/TEXTURE/switch_body.png" },
+	{ TYPE_BRIDGE, "data/TEXTURE/bridge.png" },
+	{ TYPE_DOOR_TOP, "data/TEXTURE/door_top.png" },
+	{ TYPE_DOOR_SIDE, "data/TEXTURE/door_left.png" },
+	{ TYPE_PILLAR, "data/TEXTURE/pillar.png" },
+	{ TYPE_BLOCK, "data/TEXTURE/block.png" },
+	{ TYPE_FENCE, "data/TEXTURE/fence.png" },
+	{ TYPE_FENCE_PART, "data/TEXTURE/fence_part.png" },
+	{ TYPE_BRIDGE2, "data/TEXTURE/bridge2.png" },
+	{ TYPE_TARGET, "data/TEXTURE/target.png" },
+	{ TYPE_SWITCH2, "data/TEXTURE/controlswitch.png" },
+	{ TYPE_DOOR2, "data/TEXTURE/door2.png" },
+	{ TYPE_MASK, "data/TEXTURE/mask.png" },
+	{ TYPE_SWORD, "data/TEXTURE/sword.png" },
+	{ TYPE_SWITCH3, "data/TEXTURE/controlswitch2.png" },
+	{ TYPE_BAR, "data/TEXTURE/bar.png" },
+	{ TYPE_BRIDGE3, "data/TEXTURE/bridge3.png" },
+};
 //=============================================================================
 // 当たり判定の生成処理
 //=============================================================================
@@ -548,7 +461,7 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 	transform.setRotation(quat);
 
 	// 編集中は強制的に動的（キネマティック用）
-	btScalar mass = m_isEditMode ? GetMassByType(m_Type) : (IsStaticBlock() ? 0.0f : GetMassByType(m_Type));
+	btScalar mass = m_isEditMode ? GetMass() : (IsStaticBlock() ? 0.0f : GetMass());
 	btVector3 inertia(0, 0, 0);
 
 	if (mass != 0.0f)
@@ -823,23 +736,6 @@ void CBlock::SetEditMode(bool enable)
 	{
 		m_pRigidBody->setCollisionFlags(m_pRigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
 		m_pRigidBody->setActivationState(ACTIVE_TAG);
-	}
-}
-//=============================================================================
-// ブロックタイプごとの質量を返す
-//=============================================================================
-btScalar CBlock::GetMassByType(TYPE type)
-{
-	switch (type)
-	{
-	case TYPE_WOODBOX:	return 4.0f;	// 木箱
-	case TYPE_TORCH2:	return 6.0f;	// 置き型トーチ
-	case TYPE_PILLAR:	return 55.0f;	// 柱
-	case TYPE_ROCK:		return 100.0f;	// 岩
-	case TYPE_BRIDGE:	return 8.0f;	// 橋
-	case TYPE_RAFT:		return 5.0f;	// イカダ
-	case TYPE_AXE:		return 80.0f;	// 斧
-	default:			return 2.0f;	// デフォルト質量
 	}
 }
 //=============================================================================
@@ -1541,7 +1437,7 @@ CBarSwitchBlock::CBarSwitchBlock()
 	m_isSwitchOn = false;
 	m_prevSwitchOn = false;
 	m_timerCnt = 0;
-	m_Timer = 0;
+	m_Timer = 26;
 }
 //=============================================================================
 // 格子制御ブロックのデストラクタ
@@ -1556,8 +1452,6 @@ CBarSwitchBlock::~CBarSwitchBlock()
 void CBarSwitchBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
-
-	m_closedPos = GetPos();
 
 	// スイッチの AABB を取得
 	D3DXVECTOR3 swPos = GetPos();
@@ -1574,6 +1468,7 @@ void CBarSwitchBlock::Update(void)
 	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
 	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
 
+	// --- スイッチ押下判定（プレイヤー接触時） ---
 	CPlayer* pPlayer = CGame::GetPlayer();
 
 	if (pPlayer)
@@ -1615,7 +1510,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(26);
+				SetTimer(m_Timer);
 
 				CManager::GetCamera()->IsDirection(true);
 			}
@@ -1637,23 +1532,10 @@ void CBarSwitchBlock::Update(void)
 
 		m_timerCnt++;
 
-		D3DXVECTOR3 pos = swPos;
-
-		//// 押されている（下に少し沈む）
-		//pos.y -= 1.0f; // 下に沈める
-
-		//if (pos.y > 12.0f)// TODO : いずれ下がる範囲を決めて判定するようにする
-		//{
-		//	SetPos(pos);
-		//}
-
 		if (m_timerCnt >= m_Timer)
 		{// 指定時間を経過したら
-			// スイッチを戻す
 			m_isSwitchOn = false;
 			m_timerCnt = 0;
-
-
 		}
 	}
 

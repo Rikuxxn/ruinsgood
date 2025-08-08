@@ -137,6 +137,8 @@ HRESULT CResult::Init(void)
 //=============================================================================
 void CResult::Uninit(void)
 {
+	SetGet(false);
+
 	// 頂点バッファの破棄
 	if (m_pVtxBuff != NULL)
 	{
