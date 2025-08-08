@@ -566,7 +566,7 @@ void CPlayer::HoldBlock(void)
 		{
 			btRigidBody* pRigid = m_pCarryingBlock->GetRigidBody();
 
-			if (pRigid && !m_pCarryingBlock->IsStaticBlock())
+			if (pRigid && m_pCarryingBlock->IsDynamicBlock())
 			{
 				// 現在の位置
 				D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
@@ -699,7 +699,7 @@ CBlock* CPlayer::FindFrontBlockByRaycast(float rayLength)
 		{
 			CBlock* pBlock = static_cast<CBlock*>(userPtr);
 
-			if (!pBlock->IsStaticBlock())
+			if (pBlock->IsDynamicBlock())
 			{
 				return pBlock; // 動的なブロックが前方にあった
 			}

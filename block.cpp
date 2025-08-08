@@ -109,6 +109,7 @@ void CBlock::InitBlockFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_SWITCH3] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBarSwitchBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_BAR] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CBarBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_BRIDGE3] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CFootingBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_FIRE_STATUE] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock* { return new CFireStatueBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK] = [](const char* p, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size) -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -171,7 +172,7 @@ void CBlock::Uninit(void)
 void CBlock::Update(void)
 {
 	// 静的ブロックは Transform を手動で更新
-	if (IsStaticBlock() || IsEditMode())
+	if (!IsDynamicBlock() || IsEditMode())
 	{
 		D3DXVECTOR3 Pos = GetPos() + m_colliderOffset;
 		D3DXVECTOR3 Rot = GetRot();
@@ -349,40 +350,41 @@ const char* CBlock::GetTexPathFromType(TYPE type)
 //=============================================================================
 const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap = 
 {
-	{ TYPE_WOODBOX, "data/TEXTURE/woodbox.png" },
-	{ TYPE_WALL, "data/TEXTURE/wall1.png" },
-	{ TYPE_WALL2, "data/TEXTURE/wall2.png" },
-	{ TYPE_WALL3, "data/TEXTURE/wall3.png" },
-	{ TYPE_WALL4, "data/TEXTURE/wall4.png" },
-	{ TYPE_AXE, "data/TEXTURE/Axe.png" },
-	{ TYPE_RAFT, "data/TEXTURE/ikada.png" },
-	{ TYPE_ROCK, "data/TEXTURE/rock.png" },
-	{ TYPE_TORCH, "data/TEXTURE/torch1.png" },
-	{ TYPE_TORCH2, "data/TEXTURE/torch2.png" },
-	{ TYPE_FLOOR, "data/TEXTURE/floor1.png" },
-	{ TYPE_FLOOR2, "data/TEXTURE/floor2.png" },
-	{ TYPE_DOOR, "data/TEXTURE/door1.png" },
-	{ TYPE_CEILING, "data/TEXTURE/ceiling1.png" },
-	{ TYPE_CEILING2, "data/TEXTURE/ceiling2.png" },
-	{ TYPE_WATER, "data/TEXTURE/water.png" },
-	{ TYPE_SWITCH, "data/TEXTURE/switch.png" },
+	{ TYPE_WOODBOX,		"data/TEXTURE/woodbox.png" },
+	{ TYPE_WALL,		"data/TEXTURE/wall1.png" },
+	{ TYPE_WALL2,		"data/TEXTURE/wall2.png" },
+	{ TYPE_WALL3,		"data/TEXTURE/wall3.png" },
+	{ TYPE_WALL4,		"data/TEXTURE/wall4.png" },
+	{ TYPE_AXE,			"data/TEXTURE/Axe.png" },
+	{ TYPE_RAFT,		"data/TEXTURE/ikada.png" },
+	{ TYPE_ROCK,		"data/TEXTURE/rock.png" },
+	{ TYPE_TORCH,		"data/TEXTURE/torch1.png" },
+	{ TYPE_TORCH2,		"data/TEXTURE/torch2.png" },
+	{ TYPE_FLOOR,		"data/TEXTURE/floor1.png" },
+	{ TYPE_FLOOR2,		"data/TEXTURE/floor2.png" },
+	{ TYPE_DOOR,		"data/TEXTURE/door1.png" },
+	{ TYPE_CEILING,		"data/TEXTURE/ceiling1.png" },
+	{ TYPE_CEILING2,	"data/TEXTURE/ceiling2.png" },
+	{ TYPE_WATER,		"data/TEXTURE/water.png" },
+	{ TYPE_SWITCH,		"data/TEXTURE/switch.png" },
 	{ TYPE_SWITCH_BODY, "data/TEXTURE/switch_body.png" },
-	{ TYPE_BRIDGE, "data/TEXTURE/bridge.png" },
-	{ TYPE_DOOR_TOP, "data/TEXTURE/door_top.png" },
-	{ TYPE_DOOR_SIDE, "data/TEXTURE/door_left.png" },
-	{ TYPE_PILLAR, "data/TEXTURE/pillar.png" },
-	{ TYPE_BLOCK, "data/TEXTURE/block.png" },
-	{ TYPE_FENCE, "data/TEXTURE/fence.png" },
-	{ TYPE_FENCE_PART, "data/TEXTURE/fence_part.png" },
-	{ TYPE_BRIDGE2, "data/TEXTURE/bridge2.png" },
-	{ TYPE_TARGET, "data/TEXTURE/target.png" },
-	{ TYPE_SWITCH2, "data/TEXTURE/controlswitch.png" },
-	{ TYPE_DOOR2, "data/TEXTURE/door2.png" },
-	{ TYPE_MASK, "data/TEXTURE/mask.png" },
-	{ TYPE_SWORD, "data/TEXTURE/sword.png" },
-	{ TYPE_SWITCH3, "data/TEXTURE/controlswitch2.png" },
-	{ TYPE_BAR, "data/TEXTURE/bar.png" },
-	{ TYPE_BRIDGE3, "data/TEXTURE/bridge3.png" },
+	{ TYPE_BRIDGE,		"data/TEXTURE/bridge.png" },
+	{ TYPE_DOOR_TOP,	"data/TEXTURE/door_top.png" },
+	{ TYPE_DOOR_SIDE,	"data/TEXTURE/door_left.png" },
+	{ TYPE_PILLAR,		"data/TEXTURE/pillar.png" },
+	{ TYPE_BLOCK,		"data/TEXTURE/block.png" },
+	{ TYPE_FENCE,		"data/TEXTURE/fence.png" },
+	{ TYPE_FENCE_PART,	"data/TEXTURE/fence_part.png" },
+	{ TYPE_BRIDGE2,		"data/TEXTURE/bridge2.png" },
+	{ TYPE_TARGET,		"data/TEXTURE/target.png" },
+	{ TYPE_SWITCH2,		"data/TEXTURE/controlswitch.png" },
+	{ TYPE_DOOR2,		"data/TEXTURE/door2.png" },
+	{ TYPE_MASK,		"data/TEXTURE/mask.png" },
+	{ TYPE_SWORD,		"data/TEXTURE/sword.png" },
+	{ TYPE_SWITCH3,		"data/TEXTURE/controlswitch2.png" },
+	{ TYPE_BAR,			"data/TEXTURE/bar.png" },
+	{ TYPE_BRIDGE3,		"data/TEXTURE/bridge3.png" },
+	{ TYPE_FIRE_STATUE,	"data/TEXTURE/fire_statue.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -461,7 +463,7 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 	transform.setRotation(quat);
 
 	// 編集中は強制的に動的（キネマティック用）
-	btScalar mass = m_isEditMode ? GetMass() : (IsStaticBlock() ? 0.0f : GetMass());
+	btScalar mass = m_isEditMode ? GetMass() : (!IsDynamicBlock() ? 0.0f : GetMass());
 	btVector3 inertia(0, 0, 0);
 
 	if (mass != 0.0f)
@@ -484,17 +486,10 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 		m_pRigidBody->setCollisionFlags(flags);
 	}
 
-	if (m_Type == TYPE_PILLAR)
-	{
-		m_pRigidBody->setAngularFactor(btVector3(0.0f, 0.0f, 1.0f));
-	}
-	else
-	{
-		m_pRigidBody->setFriction(1.0f);		// 摩擦
-		m_pRigidBody->setRollingFriction(0.7f);	// 転がり摩擦
-		m_pRigidBody->setDamping(0.1f, 0.5f);	// (linearDamping, angularDamping)
-	}
-
+	m_pRigidBody->setAngularFactor(GetAngularFactor());
+	m_pRigidBody->setFriction(1.0f);		// 摩擦
+	m_pRigidBody->setRollingFriction(0.7f);	// 転がり摩擦
+	m_pRigidBody->setDamping(0.1f, 0.5f);	// linearDamping, angularDamping
 
 	btDiscreteDynamicsWorld* pWorld = CManager::GetPhysicsWorld();
 
@@ -557,7 +552,7 @@ void CBlock::CreatePhysicsFromParts(void)
 		GetPos().y + m_colliderOffset.y,
 		GetPos().z + m_colliderOffset.z));
 
-	btScalar mass = IsStaticBlock() ? 0.0f : 3.0f;
+	btScalar mass = !IsDynamicBlock() ? 0.0f : 3.0f;
 	btVector3 inertia(0, 0, 0);
 
 	if (mass != 0.0f)
@@ -649,47 +644,6 @@ void CBlock::ReleasePhysics(void)
 	}
 }
 //=============================================================================
-// 静的なブロックか判定する処理
-//=============================================================================
-bool CBlock::IsStaticBlock(void) const
-{
-	switch (m_Type)
-	{
-	case TYPE_WALL:
-	case TYPE_WALL2:
-	case TYPE_WALL3:
-	case TYPE_WALL4:
-	case TYPE_TORCH:
-	case TYPE_FLOOR:
-	case TYPE_FLOOR2:
-	case TYPE_CEILING:
-	case TYPE_CEILING2:
-	case TYPE_DOOR:
-	case TYPE_SWITCH_BODY:
-	case TYPE_DOOR_TOP:
-	case TYPE_DOOR_SIDE:
-	case TYPE_WATER:
-	case TYPE_AXE:
-	case TYPE_SWITCH:
-	case TYPE_BLOCK:
-	case TYPE_FENCE:
-	case TYPE_FENCE_PART:
-	case TYPE_BRIDGE2:
-	case TYPE_TARGET:
-	case TYPE_SWITCH2:
-	case TYPE_DOOR2:
-	case TYPE_MASK:
-	case TYPE_SWORD:
-	case TYPE_SWITCH3:
-	case TYPE_BAR:
-	case TYPE_BRIDGE3:
-		return true; // 静的（動かない）
-
-	default:
-		return false; // 動く可能性あり
-	}
-}
-//=============================================================================
 // コライダーサイズの設定処理
 //=============================================================================
 void CBlock::SetColliderSize(const D3DXVECTOR3& size)
@@ -769,8 +723,6 @@ D3DXMATRIX CBlock::GetWorldMatrix(void)
 //=============================================================================
 CWaterBlock::CWaterBlock()
 {
-	SetType(TYPE_WATER);
-
 	// 値のクリア
 	m_waterStayTime = 0;				// 水中滞在時間（秒）
 	m_isInWater = false;				// 今水中にいるか
@@ -821,7 +773,7 @@ void CWaterBlock::ApplyToBlocks(void)
 	// ------------------------
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block == this || block->IsStaticBlock())
+		if (block == this || !block->IsDynamicBlock())
 		{
 			continue; // 自分 or 静的ブロックは無視
 		}
@@ -845,7 +797,7 @@ void CWaterBlock::ApplyToBlocks(void)
 
 		btRigidBody* pRigid = block->GetRigidBody();
 
-		if (pRigid && !block->IsStaticBlock())
+		if (pRigid && block->IsDynamicBlock())
 		{
 			btVector3 velocity = pRigid->getLinearVelocity();
 
@@ -1028,8 +980,6 @@ void CWaterBlock::ResetWaterStayTime(void)
 //=============================================================================
 CDoorBlock::CDoorBlock()
 {
-	SetType(TYPE_DOOR);
-
 	// 値のクリア
 	m_isDoorOpened	= false;
 }
@@ -1098,8 +1048,6 @@ void CDoorBlock::Update(void)
 //=============================================================================
 CBigDoorBlock::CBigDoorBlock()
 {
-	SetType(TYPE_DOOR2);
-
 	// 値のクリア
 	m_isDoorOpened = false;
 }
@@ -1158,8 +1106,6 @@ void CBigDoorBlock::Update(void)
 //=============================================================================
 CSwitchBlock::CSwitchBlock()
 {
-	SetType(TYPE_SWITCH);
-
 	// 値のクリア
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
@@ -1200,7 +1146,7 @@ void CSwitchBlock::Update(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block == this || block->IsStaticBlock() || block->GetType() == TYPE_ROCK)
+		if (block == this || !block->IsDynamicBlock() || block->GetType() == TYPE_ROCK)
 		{
 			continue; // 自分 or 静的ブロックは無視
 		}
@@ -1300,8 +1246,6 @@ void CSwitchBlock::Update(void)
 //=============================================================================
 CBridgeSwitchBlock::CBridgeSwitchBlock()
 {
-	SetType(TYPE_SWITCH2);
-
 	// 値のクリア
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
@@ -1342,7 +1286,7 @@ void CBridgeSwitchBlock::Update(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block == this || block->IsStaticBlock() || block->GetType() == TYPE_ROCK)
+		if (block == this || !block->IsDynamicBlock() || block->GetType() == TYPE_ROCK)
 		{
 			continue; // 自分 or 静的ブロックは無視
 		}
@@ -1430,14 +1374,12 @@ void CBridgeSwitchBlock::Update(void)
 //=============================================================================
 CBarSwitchBlock::CBarSwitchBlock()
 {
-	SetType(TYPE_SWITCH3);
-
 	// 値のクリア
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
 	m_prevSwitchOn = false;
 	m_timerCnt = 0;
-	m_Timer = 26;
+	m_Timer = 0;
 }
 //=============================================================================
 // 格子制御ブロックのデストラクタ
@@ -1510,7 +1452,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(m_Timer);
+				SetTimer(26);
 
 				CManager::GetCamera()->IsDirection(true);
 			}
@@ -1562,8 +1504,6 @@ void CBarSwitchBlock::Update(void)
 //=============================================================================
 CAxeBlock::CAxeBlock()
 {
-	SetType(TYPE_AXE);
-
 	// 値のクリア
 	m_nSwingCounter = 0;					// フレームカウンター
 	m_swingAmplitude = D3DXToRadian(75.0f);	// ±振れ角
@@ -1586,7 +1526,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	Swing();	// スイング処理
+	//Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1722,8 +1662,6 @@ void CAxeBlock::IsPlayerHit(void)
 //=============================================================================
 CRockBlock::CRockBlock()
 {
-	SetType(TYPE_ROCK);
-
 	// 値のクリア
 	m_pathPoints = {};
 	m_currentTargetIndex = 0;
@@ -1757,7 +1695,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -1992,8 +1930,6 @@ void CRockBlock::IsPlayerHit(void)
 //=============================================================================
 CBridgeBlock::CBridgeBlock()
 {
-	SetType(TYPE_BRIDGE2);
-
 	// 値のクリア
 }
 //=============================================================================
@@ -2069,8 +2005,6 @@ void CBridgeBlock::Move(void)
 //=============================================================================
 CTargetBlock::CTargetBlock()
 {
-	SetType(TYPE_TARGET);
-
 	// 値のクリア
 	m_isHit = false;
 	m_isPrevHit = false;
@@ -2169,8 +2103,6 @@ void CTargetBlock::Update(void)
 //=============================================================================
 CTorchBlock::CTorchBlock()
 {
-	SetType(TYPE_TORCH);
-
 	// 値のクリア
 	m_playedFireSoundID = -1;
 }
@@ -2262,8 +2194,6 @@ void CTorchBlock::Update(void)
 //=============================================================================
 CTorch2Block::CTorch2Block()
 {
-	SetType(TYPE_TORCH2);
-
 	// 値のクリア
 	m_playedFireSoundID = -1;
 }
@@ -2342,8 +2272,6 @@ void CTorch2Block::Update(void)
 //=============================================================================
 CMaskBlock::CMaskBlock()
 {
-	SetType(TYPE_MASK);
-
 	// 値のクリア
 	m_isGet = false;
 	m_playedSoundID = -1;
@@ -2436,8 +2364,6 @@ void CMaskBlock::Update(void)
 //=============================================================================
 CSwordBlock::CSwordBlock()
 {
-	SetType(TYPE_SWORD);
-
 	// 値のクリア
 	m_isEnd = false;
 	m_playedSoundID = -1;
@@ -2536,8 +2462,6 @@ void CSwordBlock::Update(void)
 //=============================================================================
 CBarBlock::CBarBlock()
 {
-	SetType(TYPE_BAR);
-
 	// 値のクリア
 }
 //=============================================================================
@@ -2616,8 +2540,6 @@ void CBarBlock::Update(void)
 //=============================================================================
 CFootingBlock::CFootingBlock()
 {
-	SetType(TYPE_BRIDGE3);
-
 	// 値のクリア
 	m_isMove = false;
 }
@@ -2716,4 +2638,28 @@ void CFootingBlock::Update(void)
 		// コライダーの更新
 		UpdateCollider();
 	}
+}
+
+
+//=============================================================================
+// 火炎放射像ブロックのコンストラクタ
+//=============================================================================
+CFireStatueBlock::CFireStatueBlock()
+{
+	// 値のクリア
+}
+//=============================================================================
+// 火炎放射像ブロックのデストラクタ
+//=============================================================================
+CFireStatueBlock::~CFireStatueBlock()
+{
+	// なし
+}
+//=============================================================================
+// 火炎放射像ブロックの更新処理
+//=============================================================================
+void CFireStatueBlock::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
 }

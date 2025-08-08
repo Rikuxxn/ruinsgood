@@ -54,6 +54,8 @@ private:
     bool m_hasConsumedPayload ;             // ペイロード生成済みフラグ
     CDebugProc3D* m_pDebug3D;			    // 3Dデバッグ表示へのポインタ
     bool m_autoUpdateColliderSize;
+    static const std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap;
+
 };
 
 #endif

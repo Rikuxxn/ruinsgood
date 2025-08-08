@@ -26,6 +26,7 @@ public:
 	typedef enum
 	{
 		TYPE_FIRE = 0,
+		TYPE_FLAMETHROWER,
 		TYPE_WATER,
 		TYPE_AURA,
 		TYPE_AURA2,
@@ -57,6 +58,22 @@ class CFireParticle : public CParticle
 public:
 	CFireParticle();
 	~CFireParticle();
+
+	HRESULT Init(void);
+	void Update(void);
+
+private:
+
+};
+
+//*****************************************************************************
+// 火炎放射パーティクルクラス
+//*****************************************************************************
+class CFlamethrowerParticle : public CParticle
+{
+public:
+	CFlamethrowerParticle();
+	~CFlamethrowerParticle();
 
 	HRESULT Init(void);
 	void Update(void);

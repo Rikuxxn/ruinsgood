@@ -178,6 +178,80 @@ void CFireParticle::Update(void)
 
 
 //=============================================================================
+// 火炎放射パーティクルのコンストラクタ
+//=============================================================================
+CFlamethrowerParticle::CFlamethrowerParticle()
+{
+
+}
+//=============================================================================
+// 火炎放射パーティクルのデストラクタ
+//=============================================================================
+CFlamethrowerParticle::~CFlamethrowerParticle()
+{
+	// なし
+}
+//=============================================================================
+// 火炎放射パーティクルの初期化処理
+//=============================================================================
+HRESULT CFlamethrowerParticle::Init(void)
+{
+	SetPath("data/TEXTURE/smoke.jpg");
+
+	// パーティクルの初期化処理
+	CParticle::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// 火炎放射パーティクルの更新処理
+//=============================================================================
+void CFlamethrowerParticle::Update(void)
+{
+	D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DCOLOR col = D3DCOLOR_ARGB(255, 0, 0, 0);
+	float fRadius = 0.0f;
+	float fAngle = 0.0f;
+	float fLength = 0.0f;
+	const char* texPath = NULL;
+	int nMaxParticle = GetMaxParticle();
+	int nLife = GetLife();
+
+	// パーティクル生成
+	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
+	{
+		// テクスチャの指定
+		texPath = "data/TEXTURE/smoke.jpg";
+
+		// 位置の設定
+		pos = GetPos();
+
+		// 移動量の設定
+		fAngle = ((rand() % 360) / 180.0f) * D3DX_PI;//角度
+
+		fLength = (rand() % 10) / 30.0f + 0.2f;//移動量
+
+		move.x = cosf(fAngle) * fLength;
+		move.z = sinf(fAngle) * fLength;
+		move.y = 0.5f + (rand() % 300) / 100.0f;
+
+		// 色の設定
+		col = GetCol();
+
+		// 半径の設定
+		fRadius = 10.0f;
+
+		// エフェクトの設定
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+	}
+
+	// パーティクルの更新処理
+	CParticle::Update();
+}
+
+
+//=============================================================================
 // 水しぶきパーティクルのコンストラクタ
 //=============================================================================
 CWaterParticle::CWaterParticle()

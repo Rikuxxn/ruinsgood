@@ -25,6 +25,7 @@ std::vector<CBlock*> CBlockManager::m_blocks = {};	// ブロックの情報
 int CBlockManager::m_nNumAll = 0;				// ブロックの総数
 int CBlockManager::m_selectedIdx = 0;			// 選択中のインデックス
 CBlock* CBlockManager::m_draggingBlock = {};
+std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap = {};
 
 //=============================================================================
 // コンストラクタ
@@ -770,117 +771,53 @@ void CBlockManager::UpdateCollider(CBlock* selectedBlock)
 	}
 }
 //=============================================================================
-// タイプからファイルパスを取得
+// Xファイルパスの設定
+//=============================================================================
+const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap =
+{
+	{ CBlock::TYPE_WOODBOX,		"data/MODELS/woodbox_003.x" },
+	{ CBlock::TYPE_WALL,		"data/MODELS/wall_01.x" },
+	{ CBlock::TYPE_WALL2,		"data/MODELS/wall_02.x" },
+	{ CBlock::TYPE_WALL3,		"data/MODELS/wall_03.x" },
+	{ CBlock::TYPE_WALL4,		"data/MODELS/wall_04.x" },
+	{ CBlock::TYPE_AXE,			"data/MODELS/Axe_01.x" },
+	{ CBlock::TYPE_RAFT,		"data/MODELS/ikada.x" },
+	{ CBlock::TYPE_ROCK,		"data/MODELS/Rock_001.x" },
+	{ CBlock::TYPE_TORCH,		"data/MODELS/torch_01.x" },
+	{ CBlock::TYPE_TORCH2,		"data/MODELS/torch_02.x" },
+	{ CBlock::TYPE_FLOOR,		"data/MODELS/floor_01.x" },
+	{ CBlock::TYPE_FLOOR2,		"data/MODELS/floor_02.x" },
+	{ CBlock::TYPE_DOOR,		"data/MODELS/door_01.x" },
+	{ CBlock::TYPE_CEILING,		"data/MODELS/ceiling_01.x" },
+	{ CBlock::TYPE_CEILING2,	"data/MODELS/ceiling_02.x" },
+	{ CBlock::TYPE_WATER,		"data/MODELS/water.x" },
+	{ CBlock::TYPE_SWITCH,		"data/MODELS/switch.x" },
+	{ CBlock::TYPE_SWITCH_BODY, "data/MODELS/switch_body.x" },
+	{ CBlock::TYPE_BRIDGE,		"data/MODELS/bridge_01.x" },
+	{ CBlock::TYPE_DOOR_TOP,	"data/MODELS/wall_door_parttop.x" },
+	{ CBlock::TYPE_DOOR_SIDE,	"data/MODELS/wall_door_partleft.x" },
+	{ CBlock::TYPE_PILLAR,		"data/MODELS/pillar_001.x" },
+	{ CBlock::TYPE_BLOCK,		"data/MODELS/block.x" },
+	{ CBlock::TYPE_FENCE,		"data/MODELS/fence.x" },
+	{ CBlock::TYPE_FENCE_PART,	"data/MODELS/fence_part.x" },
+	{ CBlock::TYPE_BRIDGE2,		"data/MODELS/bridge_02.x" },
+	{ CBlock::TYPE_TARGET,		"data/MODELS/target.x" },
+	{ CBlock::TYPE_SWITCH2,		"data/MODELS/switch2.x" },
+	{ CBlock::TYPE_DOOR2,		"data/MODELS/door_02.x" },
+	{ CBlock::TYPE_MASK,		"data/MODELS/mask.x" },
+	{ CBlock::TYPE_SWORD,		"data/MODELS/sword.x" },
+	{ CBlock::TYPE_SWITCH3,		"data/MODELS/switch3.x" },
+	{ CBlock::TYPE_BAR,			"data/MODELS/bar.x" },
+	{ CBlock::TYPE_BRIDGE3,		"data/MODELS/bridge_03.x" },
+	{ CBlock::TYPE_FIRE_STATUE,	"data/MODELS/fire_statue.x" },
+};
+//=============================================================================
+// タイプからXファイルパスを取得
 //=============================================================================
 const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 {
-	switch (type)
-	{
-	case CBlock::TYPE_WOODBOX:
-		return "data/MODELS/woodbox_003.x";
-
-	case CBlock::TYPE_WALL:
-		return "data/MODELS/wall_01.x";
-
-	case CBlock::TYPE_WALL2:
-		return "data/MODELS/wall_02.x";
-
-	case CBlock::TYPE_WALL3:
-		return "data/MODELS/wall_03.x";
-
-	case CBlock::TYPE_WALL4:
-		return "data/MODELS/wall_04.x";
-
-	case CBlock::TYPE_AXE:
-		return "data/MODELS/Axe_01.x";
-
-	case CBlock::TYPE_RAFT:
-		return "data/MODELS/ikada.x";
-
-	case CBlock::TYPE_ROCK:
-		return "data/MODELS/Rock_001.x";
-
-	case CBlock::TYPE_TORCH:
-		return "data/MODELS/torch_01.x";
-
-	case CBlock::TYPE_TORCH2:
-		return "data/MODELS/torch_02.x";
-
-	case CBlock::TYPE_FLOOR:
-		return "data/MODELS/floor_01.x";
-
-	case CBlock::TYPE_FLOOR2:
-		return "data/MODELS/floor_02.x";
-
-	case CBlock::TYPE_DOOR:
-		return "data/MODELS/door_01.x";
-
-	case CBlock::TYPE_CEILING:
-		return "data/MODELS/ceiling_01.x";
-
-	case CBlock::TYPE_CEILING2:
-		return "data/MODELS/ceiling_02.x";
-
-	case CBlock::TYPE_WATER:
-		return "data/MODELS/water.x";
-
-	case CBlock::TYPE_SWITCH:
-		return "data/MODELS/switch.x";
-
-	case CBlock::TYPE_SWITCH_BODY:
-		return "data/MODELS/switch_body.x";
-
-	case CBlock::TYPE_BRIDGE:
-		return "data/MODELS/bridge_01.x";
-
-	case CBlock::TYPE_DOOR_TOP:
-		return "data/MODELS/wall_door_parttop.x";
-
-	case CBlock::TYPE_DOOR_SIDE:
-		return "data/MODELS/wall_door_partleft.x";
-
-	case CBlock::TYPE_PILLAR:
-		return "data/MODELS/pillar_001.x";
-
-	case CBlock::TYPE_BLOCK:
-		return "data/MODELS/block.x";
-
-	case CBlock::TYPE_FENCE:
-		return "data/MODELS/fence.x";
-
-	case CBlock::TYPE_FENCE_PART:
-		return "data/MODELS/fence_part.x";
-
-	case CBlock::TYPE_BRIDGE2:
-		return "data/MODELS/bridge_02.x";
-
-	case CBlock::TYPE_TARGET:
-		return "data/MODELS/target.x";
-
-	case CBlock::TYPE_SWITCH2:
-		return "data/MODELS/switch2.x";
-
-	case CBlock::TYPE_DOOR2:
-		return "data/MODELS/door_02.x";
-
-	case CBlock::TYPE_MASK:
-		return "data/MODELS/mask.x";
-
-	case CBlock::TYPE_SWORD:
-		return "data/MODELS/sword.x";
-
-	case CBlock::TYPE_SWITCH3:
-		return "data/MODELS/switch3.x";
-
-	case CBlock::TYPE_BAR:
-		return "data/MODELS/bar.x";
-
-	case CBlock::TYPE_BRIDGE3:
-		return "data/MODELS/bridge_03.x";
-
-	default: 
-		return "";
-	}
+	auto it = s_FilePathMap.find(type);
+	return (it != s_FilePathMap.end()) ? it->second : "";
 }
 //=============================================================================
 // ブロック情報の保存処理

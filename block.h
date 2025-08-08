@@ -73,6 +73,7 @@ public:
 		TYPE_SWITCH3,
 		TYPE_BAR,
 		TYPE_BRIDGE3,
+		TYPE_FIRE_STATUE,
 		TYPE_MAX
 	}TYPE;
 
@@ -91,9 +92,9 @@ public:
 	//*****************************************************************************
 	// flagment関数
 	//*****************************************************************************
-	bool IsStaticBlock(void) const;														// 静的ブロックの判別
 	bool IsSelected(void) const { return m_bSelected; }									// ブロックが選択中のフラグを返す
 	bool IsCompoundCollider(void) const;
+	virtual bool IsDynamicBlock(void) const { return false; }							// 動的ブロックの判別
 	virtual bool IsEnd(void) { return false; }
 	virtual bool IsGet(void) { return false; }
 
@@ -123,7 +124,7 @@ public:
 	bool IsEditMode(void) const { return m_isEditMode; }
 	virtual btScalar GetMass(void) const { return 2.0f; }  // デフォルト質量
 	D3DXMATRIX GetWorldMatrix(void);
-
+	virtual btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 
 private:
 	char m_szPath[MAX_PATH];		// ファイルパス
@@ -154,6 +155,8 @@ class CWoodBoxBlock : public CBlock
 {
 public:
 	btScalar GetMass(void) const override { return 4.0f; }
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 };
 
 //*****************************************************************************
@@ -163,6 +166,8 @@ class CPillarBlock : public CBlock
 {
 public:
 	btScalar GetMass(void) const override { return 55.0f; }
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 1.0f); }
 };
 
 //*****************************************************************************
@@ -172,6 +177,8 @@ class CWoodBridgeBlock : public CBlock
 {
 public:
 	btScalar GetMass(void) const override { return 8.0f; }
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 };
 
 //*****************************************************************************
@@ -181,6 +188,8 @@ class CRaftBlock : public CBlock
 {
 public:
 	btScalar GetMass(void) const override { return 5.0f; }
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 };
 
 //*****************************************************************************
@@ -333,6 +342,8 @@ public:
 	void IsPlayerHit(void);						// プレイヤーとの接触判定
 	void UseBridgeSwitch(bool enable) { m_isBridgeSwitchOn = enable; }
 	btScalar GetMass(void) const override { return 100.0f; }
+	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	bool IsDynamicBlock(void) const override { return true; }
 
 private:
 	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列 (代入用)
@@ -406,6 +417,8 @@ public:
 
 	void Update(void) override;
 	btScalar GetMass(void) const override { return 6.0f; }
+	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	bool IsDynamicBlock(void) const override { return true; }
 
 private:
 	int m_playedFireSoundID;// 再生中の音ID
@@ -474,6 +487,21 @@ public:
 
 private:
 	bool m_isMove;
+};
+
+//*****************************************************************************
+// 火炎放射像ブロッククラス
+//*****************************************************************************
+class CFireStatueBlock : public CBlock
+{
+public:
+	CFireStatueBlock();
+	~CFireStatueBlock();
+
+	void Update(void) override;
+
+private:
+
 };
 
 #endif

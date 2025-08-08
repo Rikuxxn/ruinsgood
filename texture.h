@@ -108,6 +108,7 @@ private:
 		"data/TEXTURE/stage_01.png",
 		"data/TEXTURE/stage_none.png",
 		"data/TEXTURE/back.png",
+		"data/TEXTURE/fire_statue.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

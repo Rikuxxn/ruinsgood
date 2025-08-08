@@ -367,8 +367,8 @@ CStage2::~CStage2()
 //=============================================================================
 void CStage2::Execute(void)
 {
-	//// ƒQ[ƒ€‰æ–Ê‚ÉˆÚs
-	//CManager::GetFade()->SetFade(CScene::MODE_GAME);
+	// ƒQ[ƒ€‰æ–Ê‚ÉˆÚs
+	CManager::GetFade()->SetFade(CScene::MODE_GAME);
 }
 
 
