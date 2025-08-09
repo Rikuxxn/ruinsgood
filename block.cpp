@@ -390,6 +390,9 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_WALL5,			"data/TEXTURE/wall5.png" },
 	{ TYPE_FLOOR3,			"data/TEXTURE/floor3.png" },
 	{ TYPE_TURN_FIRE_STATUE,"data/TEXTURE/turn_fire_statue.png" },
+	{ TYPE_BLOCK2,			"data/TEXTURE/block2.png" },
+	{ TYPE_STAIRS,			"data/TEXTURE/stairs.png" },
+	{ TYPE_PILLAR2,			"data/TEXTURE/pillar2.png" },
 };
 //=============================================================================
 // ìñÇΩÇËîªíËÇÃê∂ê¨èàóù

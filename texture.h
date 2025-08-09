@@ -114,6 +114,9 @@ private:
 		"data/TEXTURE/floor3.png",
 		"data/TEXTURE/ground.jpg",
 		"data/TEXTURE/turn_fire_statue.png",
+		"data/TEXTURE/block2.png",
+		"data/TEXTURE/block2_tex.png",
+		"data/TEXTURE/stairs.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

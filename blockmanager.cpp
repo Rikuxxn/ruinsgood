@@ -562,9 +562,9 @@ void CBlockManager::PickBlockFromMouseClick(void)
 		D3DXVECTOR3 scale = block->GetSize();
 
 		D3DXVECTOR3 halfSize;
-		halfSize.x = modelSize.x * scale.x * 0.5f;
-		halfSize.y = modelSize.y * scale.y * 0.5f;
-		halfSize.z = modelSize.z * scale.z * 0.5f;
+		halfSize.x = modelSize.x * 0.5f;
+		halfSize.y = modelSize.y * 0.5f;
+		halfSize.z = modelSize.z * 0.5f;
 
 		float dist = 0.0f;
 		if (CRayCast::IntersectOBB(rayOrigin, rayDir, world, halfSize, dist))
@@ -813,6 +813,9 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap
 	{ CBlock::TYPE_WALL5,			"data/MODELS/wall_05.x" },
 	{ CBlock::TYPE_FLOOR3,			"data/MODELS/floor_03.x" },
 	{ CBlock::TYPE_TURN_FIRE_STATUE,"data/MODELS/turn_fire_statue.x" },
+	{ CBlock::TYPE_BLOCK2,			"data/MODELS/block_01.x" },
+	{ CBlock::TYPE_STAIRS,			"data/MODELS/stairs.x" },
+	{ CBlock::TYPE_PILLAR2,			"data/MODELS/pillar_002.x" },
 };
 //=============================================================================
 // タイプからXファイルパスを取得
