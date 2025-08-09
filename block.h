@@ -17,7 +17,7 @@
 
 class CBlock;
 
-using CreateFunc = std::function<CBlock* (const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size)>;
+using BlockCreateFunc = std::function<CBlock* ()>;
 
 struct ColliderPart
 {
@@ -74,13 +74,16 @@ public:
 		TYPE_BAR,
 		TYPE_BRIDGE3,
 		TYPE_FIRE_STATUE,
+		TYPE_WALL5,
+		TYPE_FLOOR3,
+		TYPE_TURN_FIRE_STATUE,
 		TYPE_MAX
 	}TYPE;
 
 	static CBlock* Create(const char* pFilepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot,D3DXVECTOR3 size, TYPE type);	// ブロックの生成
 	void CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size);										// コライダーの生成
 	void CreatePhysicsFromScale(const D3DXVECTOR3& scale);														// ブロックスケールによるコライダーの生成
-	static void InitBlockFactory(void);
+	static void InitFactory(void);
 	virtual HRESULT Init(void);
 	void Uninit(void);
 	virtual void Update(void);
@@ -143,7 +146,7 @@ private:
 	ColliderPart m_colliderHandle;  // 棒の部分
 	ColliderPart m_colliderBlade;   // 刃の部分
 	std::vector<btCollisionShape*> m_childShapes;
-	static std::unordered_map<TYPE, CreateFunc> m_BlockFactoryMap;
+	static std::unordered_map<TYPE, BlockCreateFunc> m_BlockFactoryMap;
 	static const std::unordered_map<TYPE, const char*> s_TexturePathMap;
 };
 
@@ -224,10 +227,12 @@ public:
 	CDoorBlock();
 	~CDoorBlock();
 
+	HRESULT Init(void) override;
 	void Update(void) override;
 
 private:
 	bool m_isDoorOpened;			// 開いたかどうか
+	D3DXVECTOR3 m_initialPos;		// 初期位置
 };
 
 //*****************************************************************************
@@ -255,6 +260,7 @@ public:
 	CSwitchBlock();
 	~CSwitchBlock();
 
+	HRESULT Init(void) override;
 	void Update(void) override;
 
 private:
@@ -272,6 +278,7 @@ public:
 	CBridgeSwitchBlock();
 	~CBridgeSwitchBlock();
 
+	HRESULT Init(void) override;
 	void Update(void) override;
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
 
@@ -290,6 +297,7 @@ public:
 	CBarSwitchBlock();
 	~CBarSwitchBlock();
 
+	HRESULT Init(void) override;
 	void Update(void) override;
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
 	void SetTimer(int nTimer) { m_Timer = nTimer * 60; }
@@ -497,6 +505,21 @@ class CFireStatueBlock : public CBlock
 public:
 	CFireStatueBlock();
 	~CFireStatueBlock();
+
+	void Update(void) override;
+
+private:
+
+};
+
+//*****************************************************************************
+// 火炎放射像(回転)ブロッククラス
+//*****************************************************************************
+class CTurnFireStatueBlock : public CBlock
+{
+public:
+	CTurnFireStatueBlock();
+	~CTurnFireStatueBlock();
 
 	void Update(void) override;
 

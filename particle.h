@@ -12,6 +12,12 @@
 //*****************************************************************************
 #include "main.h"
 #include "effect.h"
+#include <unordered_map>
+#include <functional>
+
+class CParticle;
+
+using ParticleCreateFunc = std::function<CParticle* ()>;
 
 //*****************************************************************************
 // パーティクルクラス
@@ -34,20 +40,22 @@ public:
 		TYPE_MAX
 	}TYPE;
 
-	static CParticle*Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType,int nMaxParticle);
+	static CParticle*Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, TYPE type,int nMaxParticle);
+	static void InitFactory(void);
 	HRESULT Init(void);
 	void Update(void);
 
-	void SetParticle(int nType) { m_nType = nType; }
+	void SetParticle(TYPE type) { m_nType = type; }
 	void SetLife(int nLife) { m_nLife = nLife; }
 
 	int GetLife(void) { return m_nLife; }
 	int GetMaxParticle(void) { return m_nMaxParticle; }
 
 private:
-	int m_nType;		// 種類
+	TYPE m_nType;		// 種類
 	int m_nLife;		// 寿命
-	int m_nMaxParticle;	// 粒子の数
+	int m_nMaxParticle;	// 粒子の
+	static std::unordered_map<TYPE, ParticleCreateFunc> m_ParticleFactoryMap;
 };
 
 //*****************************************************************************

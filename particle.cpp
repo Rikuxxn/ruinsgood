@@ -10,13 +10,18 @@
 //*****************************************************************************
 #include "particle.h"
 
+//*****************************************************************************
+// 静的メンバ変数宣言
+//*****************************************************************************
+std::unordered_map<CParticle::TYPE, ParticleCreateFunc> CParticle::m_ParticleFactoryMap = {};
+
 //=============================================================================
 // コンストラクタ
 //=============================================================================
 CParticle::CParticle()
 {
 	// 値のクリア
-	m_nType		   = 0;		// 種類
+	m_nType		   = TYPE_FIRE;		// 種類
 	m_nLife		   = 0;		// 寿命
 	m_nMaxParticle = 0;		// 粒子の最大数
 }
@@ -30,36 +35,29 @@ CParticle::~CParticle()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CParticle*CParticle::Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType,int nMaxParticle)
+CParticle*CParticle::Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, TYPE type,int nMaxParticle)
 {
-	CParticle* pParticle;
-
-	switch (nType)
+	if (m_ParticleFactoryMap.empty())
 	{
-	case TYPE_FIRE:
-		// 炎パーティクルオブジェクトの生成
-		pParticle = new CFireParticle;
-		break;
-	case TYPE_WATER:
-		// 水しぶきパーティクルオブジェクトの生成
-		pParticle = new CWaterParticle;
-		break;
-	case TYPE_AURA:
-		// オーラパーティクルオブジェクトの生成
-		pParticle = new CAuraParticle;
-		break;
-	case TYPE_AURA2:
-		// オーラ(仮面用)パーティクルオブジェクトの生成
-		pParticle = new CAura2Particle;
-		break;
-	case TYPE_MOVE:
-		// 移動時パーティクルオブジェクトの生成
-		pParticle = new CMoveParticle;
-		break;
-	default:
-		// パーティクルオブジェクトの生成
-		pParticle = new CParticle;
-		break;
+		// ファクトリー
+		InitFactory();
+	}
+
+	CParticle* pParticle = nullptr;
+
+	auto it = m_ParticleFactoryMap.find(type);
+	if (it != m_ParticleFactoryMap.end())
+	{
+		pParticle = it->second();
+	}
+	else
+	{
+		pParticle = new CParticle(); // デフォルト基底クラス
+	}
+
+	if (!pParticle)
+	{
+		return NULL;
 	}
 
 	// 初期化処理
@@ -68,10 +66,25 @@ CParticle*CParticle::Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, int nType
 	pParticle->SetPos(pos);
 	pParticle->SetCol(col);
 	pParticle->SetLife(nLife);
-	pParticle->SetParticle(nType);
+	pParticle->SetParticle(type);
 	pParticle->m_nMaxParticle = nMaxParticle;
 
 	return pParticle;
+}
+//=============================================================================
+// ファクトリー
+//=============================================================================
+void CParticle::InitFactory(void)
+{
+	// リストを空にする
+	m_ParticleFactoryMap.clear();
+
+	m_ParticleFactoryMap[CParticle::TYPE_FIRE]			= []() -> CParticle* { return new CFireParticle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_FLAMETHROWER]	= []() -> CParticle* { return new CFlamethrowerParticle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_WATER]			= []() -> CParticle* { return new CWaterParticle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_AURA]			= []() -> CParticle* { return new CAuraParticle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_AURA2]			= []() -> CParticle* { return new CAura2Particle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_MOVE]			= []() -> CParticle* { return new CMoveParticle(); };
 }
 //=============================================================================
 // 初期化処理
