@@ -117,6 +117,8 @@ private:
 		"data/TEXTURE/block2.png",
 		"data/TEXTURE/stairs.png",
 		"data/TEXTURE/block3.png",
+		"data/TEXTURE/magma.jpg",
+		"data/TEXTURE/floor4.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

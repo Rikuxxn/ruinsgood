@@ -93,7 +93,7 @@ void CEffect::Update(void)
 	SetPos(Pos);
 	SetSize(m_fRadius);
 
-	m_fRadius--;
+	m_fRadius -= 1.5f;
 
 	if (m_fRadius <= 0.0f)
 	{

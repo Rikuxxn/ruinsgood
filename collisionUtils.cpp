@@ -110,8 +110,11 @@ bool CCollision::CheckCylinderAABBCollisionWithHitDistance(
 	{
 		if (outHitDistance)
 		{
-			// 距離は中心からclampProjへの距離を正の数に変換して渡す
-			*outHitDistance = halfHeight - fabs(clampProj);
+			// 発射位置から求める
+			D3DXVECTOR3 startPos = cylinderCenter + axis * halfHeight;	// 後端
+			D3DXVECTOR3 hitPos = cylinderCenter + axis * clampProj;		// 当たった位置
+			D3DXVECTOR3 disPos = hitPos - startPos;
+			*outHitDistance = D3DXVec3Length(&disPos);
 		}
 
 		// 当たり判定あり

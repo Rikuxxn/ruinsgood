@@ -81,6 +81,7 @@ public:
 		TYPE_STAIRS,
 		TYPE_PILLAR2,
 		TYPE_BLOCK3,
+		TYPE_FLOOR4,
 		TYPE_MAX
 	}TYPE;
 
@@ -210,6 +211,21 @@ public:
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
+
+private:
+
+};
+
+//*****************************************************************************
+// 溶岩ブロッククラス
+//*****************************************************************************
+class CLavaBlock : public CBlock
+{
+public:
+	CLavaBlock();
+	~CLavaBlock();
+
+	void Update(void) override;
 
 private:
 

@@ -114,6 +114,7 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_FIRE_STATUE]			= []() -> CBlock* { return new CFireStatueBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_TURN_FIRE_STATUE]	= []() -> CBlock* { return new CTurnFireStatueBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_BLOCK3]				= []() -> CBlock* { return new CBoxRockBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_FLOOR4]				= []() -> CBlock* { return new CLavaBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -396,6 +397,7 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_STAIRS,			"data/TEXTURE/stairs.png" },
 	{ TYPE_PILLAR2,			"data/TEXTURE/pillar2.png" },
 	{ TYPE_BLOCK3,			"data/TEXTURE/block3.png" },
+	{ TYPE_FLOOR4,			"data/TEXTURE/floor4.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -726,6 +728,75 @@ D3DXMATRIX CBlock::GetWorldMatrix(void)
 	D3DXMATRIX world = matScale * matRot * matTrans;
 
 	return world;
+}
+
+
+//=============================================================================
+// 溶岩ブロックのコンストラクタ
+//=============================================================================
+CLavaBlock::CLavaBlock()
+{
+	// 値のクリア
+}
+//=============================================================================
+// 溶岩ブロックのデストラクタ
+//=============================================================================
+CLavaBlock::~CLavaBlock()
+{
+	// なし
+}
+//=============================================================================
+// 溶岩ブロックの更新処理
+//=============================================================================
+void CLavaBlock::Update(void)
+{
+	CBlock::Update();// 共通処理
+
+	// ブロック AABB を取得
+	D3DXVECTOR3 blockPos = GetPos();
+	D3DXVECTOR3 modelSize = GetModelSize(); // ブロック元のサイズ（中心原点）
+	D3DXVECTOR3 scale = GetSize();// 拡大率
+
+	// 拡大率を適用する
+	D3DXVECTOR3 blockSize;
+	blockSize.x = modelSize.x * scale.x;
+	blockSize.y = modelSize.y * scale.y;
+	blockSize.z = modelSize.z * scale.z;
+
+	D3DXVECTOR3 blockMin = blockPos - blockSize * 0.5f;
+	D3DXVECTOR3 blockMax = blockPos + blockSize * 0.5f;
+
+	// --- スイッチ押下判定（プレイヤー接触時） ---
+	CPlayer* pPlayer = CGame::GetPlayer();
+
+	if (pPlayer)
+	{
+		D3DXVECTOR3 pPos = pPlayer->GetColliderPos(); // カプセルコライダー中心位置
+
+		// カプセルコライダーのサイズからAABBサイズを計算
+		float radius = pPlayer->GetRadius();
+		float height = pPlayer->GetHeight();
+
+		D3DXVECTOR3 pSize;
+		pSize.x = radius * 2.0f;
+		pSize.z = radius * 2.0f;
+		pSize.y = height + radius * 2.0f;
+
+		// AABB計算
+		D3DXVECTOR3 pMin = pPos - pSize * 0.5f;
+		D3DXVECTOR3 pMax = pPos + pSize * 0.5f;
+
+		bool isOverlap =
+			blockMin.x <= pMax.x && blockMax.x >= pMin.x &&
+			blockMin.y <= pMax.y && blockMax.y >= pMin.y &&
+			blockMin.z <= pMax.z && blockMax.z >= pMin.z;
+
+		if (isOverlap)
+		{
+			// リスポーン処理
+			pPlayer->RespawnToCheckpoint(D3DXVECTOR3(-1132.0f, 299.5f, 724.5f));
+		}
+	}
 }
 
 
@@ -2776,10 +2847,9 @@ void CFireStatueBlock::SetParticle(void)
 
 	// 元のシリンダーの判定サイズ
 	float cylinderRadius = 40.0f;
-	float maxCylinderHeight = 180.0f;
+	float maxCylinderHeight = 220.0f;
 
 	// 判定用の中心位置は発射位置から軸方向に半分移動したところ（シリンダーの中心）
-	// ただし高さは後で変えるため一旦maxで計算
 	float offsetDistance = maxCylinderHeight * 0.5f;
 	D3DXVECTOR3 cylinderCenter = worldPosBack - forward * offsetDistance;
 
@@ -2790,7 +2860,9 @@ void CFireStatueBlock::SetParticle(void)
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
 		if (block->GetType() != TYPE_BLOCK3)
+		{
 			continue;
+		}
 
 		D3DXVECTOR3 blockPos = block->GetPos();
 		D3DXVECTOR3 blockSize = block->GetModelSize();
@@ -2839,7 +2911,7 @@ void CFireStatueBlock::SetParticle(void)
 	float playerHeight = pPlayer->GetHeight();
 
 	if (CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
-		cylinderCenter, cylinderRadius, cylinderHeight, -forward))
+		cylinderCenter, cylinderRadius, cylinderHeight, forward))
 	{
 		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
 	}
@@ -3031,4 +3103,3 @@ bool CTurnFireStatueBlock::CheckCapsuleCylinderCollision_Dir(
 
 	return false;
 }
-

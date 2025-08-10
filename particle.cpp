@@ -271,7 +271,7 @@ void CFlamethrowerParticle::Update(void)
 		col = GetCol();
 
 		// 半径の設定
-		fRadius = 15.0f;
+		fRadius = 20.0f;
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);

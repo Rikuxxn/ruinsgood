@@ -817,6 +817,7 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap
 	{ CBlock::TYPE_STAIRS,			"data/MODELS/stairs.x" },
 	{ CBlock::TYPE_PILLAR2,			"data/MODELS/pillar_002.x" },
 	{ CBlock::TYPE_BLOCK3,			"data/MODELS/block_02.x" },
+	{ CBlock::TYPE_FLOOR4,			"data/MODELS/floor_04.x" },
 };
 //=============================================================================
 // タイプからXファイルパスを取得
