@@ -843,7 +843,8 @@ void CPlayer::Controll(void)
 			m_particleTimer = 0;
 
 			// パーティクルの生成
-			CParticle::Create(m_pos,
+			CParticle::Create(INIT_VEC3,
+				m_pos,
 				D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.4f),
 				25,                    // 寿命
 				CParticle::TYPE_MOVE,  // パーティクルタイプ

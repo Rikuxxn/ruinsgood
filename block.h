@@ -80,6 +80,7 @@ public:
 		TYPE_BLOCK2,
 		TYPE_STAIRS,
 		TYPE_PILLAR2,
+		TYPE_BLOCK3,
 		TYPE_MAX
 	}TYPE;
 
@@ -131,6 +132,7 @@ public:
 	virtual btScalar GetMass(void) const { return 2.0f; }  // デフォルト質量
 	D3DXMATRIX GetWorldMatrix(void);
 	virtual btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	virtual btScalar GetRollingFriction(void) const { return 0.7f; }
 
 private:
 	char m_szPath[MAX_PATH];		// ファイルパス
@@ -196,6 +198,21 @@ public:
 	btScalar GetMass(void) const override { return 5.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+};
+
+//*****************************************************************************
+// 四角い岩ブロッククラス
+//*****************************************************************************
+class CBoxRockBlock : public CBlock
+{
+public:
+	btScalar GetMass(void) const override { return 6.0f; }
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
+	btScalar GetRollingFriction(void) const { return 5.7f; }
+
+private:
+
 };
 
 //*****************************************************************************
@@ -510,8 +527,13 @@ public:
 	~CFireStatueBlock();
 
 	void Update(void) override;
+	void SetParticle(void);
 
 private:
+	bool CheckCapsuleCylinderCollision_Dir(
+		const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
+		const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
+		const D3DXVECTOR3& cylinderDir);
 
 };
 
@@ -525,9 +547,21 @@ public:
 	~CTurnFireStatueBlock();
 
 	void Update(void) override;
+	void SetParticle(void);
 
 private:
-
+	bool CheckCapsuleCylinderCollision_Dir(
+		const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
+		const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
+		const D3DXVECTOR3& cylinderDir);
 };
 
+//*****************************************************************************
+// クランプ関数
+//*****************************************************************************
+template<typename T>
+inline const T& clamp(const T& v, const T& lo, const T& hi)
+{
+	return (v < lo) ? lo : (hi < v) ? hi : v;
+}
 #endif

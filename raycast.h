@@ -37,8 +37,6 @@ public:
         float& outDistance
     );
 
-private:
-
 };
 
 #endif

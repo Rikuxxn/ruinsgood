@@ -22,14 +22,14 @@ public:
 	CEffect(int nPriority = 5);
 	~CEffect();
 
-	static CEffect* Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife);
+	static CEffect* Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife);
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	void SetMove(D3DXVECTOR3 move);
-	void SetLife(int nLife);
-	void SetRadius(float fRadius);
+	void SetMove(D3DXVECTOR3 move) { m_move = move; }
+	void SetLife(int nLife) { m_nLife = nLife; }
+	void SetRadius(float fRadius) { m_fRadius = fRadius; }
 	float GetRadius(void) { return m_fRadius; }
 
 private:

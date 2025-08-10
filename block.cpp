@@ -14,6 +14,7 @@
 #include "particle.h"
 #include "game.h"
 #include "result.h"
+#include "collisionUtils.h"
 
 //*****************************************************************************
 // 静的メンバ変数宣言
@@ -112,6 +113,7 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_BRIDGE3]				= []() -> CBlock* { return new CFootingBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_FIRE_STATUE]			= []() -> CBlock* { return new CFireStatueBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_TURN_FIRE_STATUE]	= []() -> CBlock* { return new CTurnFireStatueBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_BLOCK3]				= []() -> CBlock* { return new CBoxRockBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -393,6 +395,7 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_BLOCK2,			"data/TEXTURE/block2.png" },
 	{ TYPE_STAIRS,			"data/TEXTURE/stairs.png" },
 	{ TYPE_PILLAR2,			"data/TEXTURE/pillar2.png" },
+	{ TYPE_BLOCK3,			"data/TEXTURE/block3.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -496,7 +499,7 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 
 	m_pRigidBody->setAngularFactor(GetAngularFactor());
 	m_pRigidBody->setFriction(1.0f);		// 摩擦
-	m_pRigidBody->setRollingFriction(0.7f);	// 転がり摩擦
+	m_pRigidBody->setRollingFriction(GetRollingFriction());	// 転がり摩擦
 	m_pRigidBody->setDamping(0.1f, 0.5f);	// linearDamping, angularDamping
 
 	btDiscreteDynamicsWorld* pWorld = CManager::GetPhysicsWorld();
@@ -912,8 +915,8 @@ void CWaterBlock::ApplyToPlayer(void)
 			CManager::GetSound()->Play(CSound::SOUND_LABEL_WATER);
 
 			// 水しぶきパーティクル生成
-			pParticle = CParticle::Create(pos, D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 50, CParticle::TYPE_WATER, 10);
-			pParticle = CParticle::Create(pos, D3DXCOLOR(0.3f, 0.5f, 1.0f, 0.5f), 50, CParticle::TYPE_WATER, 10);
+			pParticle = CParticle::Create(INIT_VEC3, pos, D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 50, CParticle::TYPE_WATER, 10);
+			pParticle = CParticle::Create(INIT_VEC3, pos, D3DXCOLOR(0.3f, 0.5f, 1.0f, 0.5f), 50, CParticle::TYPE_WATER, 10);
 		}
 
 		// プレイヤーが水に入っていたかを記録
@@ -1016,7 +1019,7 @@ HRESULT CDoorBlock::Init(void)
 //=============================================================================
 void CDoorBlock::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME || !CGame::GetPlayer())
+	if (CManager::GetMode() != MODE_GAME || !CGame::GetPlayer() || IsEditMode())
 	{
 		return;
 	}
@@ -1025,7 +1028,7 @@ void CDoorBlock::Update(void)
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 	float distance = D3DXVec3Length(&disPos);
 
-	const float kTriggerDistance = 280.0f;// 反応する距離
+	const float kTriggerDistance = 330.0f;// 反応する距離
 	const float kOpenHeight = 210.0f;       // どれくらい開くか
 
 	if (distance < kTriggerDistance && !m_isDoorOpened)
@@ -1859,7 +1862,8 @@ void CRockBlock::MoveToTarget(void)
 			m_particleTimer = 0;
 
 			// パーティクルの生成
-			CParticle::Create(D3DXVECTOR3(GetPos().x, GetPos().y - 200.0f, GetPos().z),
+			CParticle::Create(INIT_VEC3,
+				D3DXVECTOR3(GetPos().x, GetPos().y - 200.0f, GetPos().z),
 				D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f),
 				30,                    // 寿命
 				CParticle::TYPE_WATER,  // パーティクルタイプ
@@ -2210,8 +2214,8 @@ void CTorchBlock::Update(void)
 		if (distance < kTriggerDistance)
 		{
 			// パーティクル生成
-			CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
-			CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+			CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
+			CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 
 			if (m_playedFireSoundID == -1) // 再生していなければ再生開始
 			{
@@ -2252,8 +2256,8 @@ void CTorchBlock::Update(void)
 		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 		// パーティクル生成
-		CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
-		CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+		CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
+		CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 	}
 }
 
@@ -2305,8 +2309,8 @@ void CTorch2Block::Update(void)
 	if (distance < kTriggerDistance)
 	{
 		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_FIRE, 1);
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_FIRE, 1);
 
 		if (m_playedFireSoundID == -1) // 再生していなければ再生開始
 		{
@@ -2382,7 +2386,7 @@ void CMaskBlock::Update(void)
 			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 			// パーティクル生成
-			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
+			pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.6f, 0.6f, 1.0f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
 
 			if (m_playedSoundID == -1) // 再生していなければ再生開始
 			{
@@ -2474,7 +2478,7 @@ void CSwordBlock::Update(void)
 			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 			// パーティクル生成
-			pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+			pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
 
 			if (m_playedSoundID == -1) // 再生していなければ再生開始
 			{
@@ -2521,7 +2525,7 @@ void CSwordBlock::Update(void)
 		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 		// パーティクル生成
-		pParticle = CParticle::Create(worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
 	}
 }
 
@@ -2731,6 +2735,158 @@ void CFireStatueBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 
+	CPlayer* pPlayer = CGame::GetPlayer();
+
+	if (!pPlayer)
+	{
+		return;
+	}
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+	float distance = D3DXVec3Length(&disPos);
+	const float kTriggerDistance = 880.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		// パーティクルの設定
+		SetParticle();
+	}
+}
+//=============================================================================
+// 火炎放射像ブロックのパーティクル設定処理
+//=============================================================================
+void CFireStatueBlock::SetParticle(void)
+{
+	CParticle* pParticle = NULL;
+
+	// ブロックのワールドマトリックス
+	D3DXMATRIX worldMtx = GetWorldMatrix();
+
+	// ==== 前方向ベクトル（Z軸）====
+	D3DXVECTOR3 localForward(0.0f, 0.0f, 1.0f);
+	D3DXVECTOR3 forward;
+	D3DXVec3TransformNormal(&forward, &localForward, &worldMtx);
+	D3DXVec3Normalize(&forward, &forward);
+
+	// ==== 発射位置（後側）====
+	D3DXVECTOR3 localOffsetBack(0.0f, -30.0f, -40.0f); // Z負方向にオフセット
+	D3DXVECTOR3 worldPosBack;
+	D3DXVec3TransformCoord(&worldPosBack, &localOffsetBack, &worldMtx);
+
+	// 元のシリンダーの判定サイズ
+	float cylinderRadius = 40.0f;
+	float maxCylinderHeight = 180.0f;
+
+	// 判定用の中心位置は発射位置から軸方向に半分移動したところ（シリンダーの中心）
+	// ただし高さは後で変えるため一旦maxで計算
+	float offsetDistance = maxCylinderHeight * 0.5f;
+	D3DXVECTOR3 cylinderCenter = worldPosBack - forward * offsetDistance;
+
+	// ブロックによる遮断判定
+	float minHitDistance = maxCylinderHeight; // 縮める距離。最大長さスタート
+	bool isBlocked = false;
+
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block->GetType() != TYPE_BLOCK3)
+			continue;
+
+		D3DXVECTOR3 blockPos = block->GetPos();
+		D3DXVECTOR3 blockSize = block->GetModelSize();
+		D3DXVECTOR3 aabbMin = blockPos - blockSize * 0.5f;
+		D3DXVECTOR3 aabbMax = blockPos + blockSize * 0.5f;
+
+		// ここでシリンダー（最大長さ）とAABBの当たり判定をし、
+		// 当たっていたら当たり面までの距離を計算
+		float hitDistance = 0.0f;
+		if (CCollision::CheckCylinderAABBCollisionWithHitDistance(cylinderCenter, cylinderRadius, maxCylinderHeight, forward, aabbMin, aabbMax, &hitDistance))
+		{
+			isBlocked = true;
+			if (hitDistance < minHitDistance)
+			{
+				minHitDistance = hitDistance;
+			}
+		}
+	}
+
+	// シリンダーの長さを縮める（最小の当たり距離）
+	float cylinderHeight = isBlocked ? minHitDistance : maxCylinderHeight;
+
+	// 中心位置も調整
+	offsetDistance = cylinderHeight * 0.5f;
+	cylinderCenter = worldPosBack - forward * offsetDistance;
+
+	// パーティクル生成（縮めた長さに合わせて）
+	pParticle = CParticle::Create(-forward, worldPosBack, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 40, CParticle::TYPE_FLAMETHROWER, 5);
+
+	// パーティクルの速度倍率セット（縮めた割合で速度を調整）
+	if (pParticle)
+	{
+		auto flamethrowerParticle = dynamic_cast<CFlamethrowerParticle*>(pParticle);
+		if (flamethrowerParticle)
+		{
+			// 速度スケールを発生位置基準の距離割合で単純計算
+			float speedScale = clamp(minHitDistance / maxCylinderHeight, 0.0f, 1.0f);
+			flamethrowerParticle->SetSpeedScale(speedScale);
+		}
+	}
+
+	// プレイヤーの当たり判定も縮めた範囲で
+	CPlayer* pPlayer = CGame::GetPlayer();
+	D3DXVECTOR3 playerPos = pPlayer->GetColliderPos();
+	float playerRadius = pPlayer->GetRadius();
+	float playerHeight = pPlayer->GetHeight();
+
+	if (CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
+		cylinderCenter, cylinderRadius, cylinderHeight, -forward))
+	{
+		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+	}
+}
+//=============================================================================
+// プレイヤーと火炎放射の当たり判定処理
+//=============================================================================
+bool CFireStatueBlock::CheckCapsuleCylinderCollision_Dir(
+	const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
+	const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
+	const D3DXVECTOR3& cylinderDir)
+{
+	// ベクトル差
+	D3DXVECTOR3 delta = capsuleCenter - cylinderCenter;
+
+	// 軸方向に射影
+	float proj = D3DXVec3Dot(&delta, &cylinderDir);
+
+	// 軸上距離判定
+	float halfHeightSum = (capsuleHeight * 0.5f) + (cylinderHeight * 0.5f);
+	float axisDist = 0.0f;
+
+	if (proj > halfHeightSum)
+	{
+		axisDist = proj - halfHeightSum;
+	}
+	else if (proj < -halfHeightSum)
+	{
+		axisDist = -halfHeightSum - proj;
+	}
+	else
+	{
+		axisDist = 0.0f; // 軸上は重なっている
+	}
+
+	// 軸直交面の距離
+	D3DXVECTOR3 closestPointOnAxis = cylinderCenter + cylinderDir * proj;
+	D3DXVECTOR3 diff = capsuleCenter - closestPointOnAxis;
+	float radialDist = D3DXVec3Length(&diff);
+
+	// 判定
+	if (axisDist <= capsuleRadius + cylinderRadius && radialDist <= capsuleRadius + cylinderRadius)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -2755,5 +2911,124 @@ void CTurnFireStatueBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 
+	CPlayer* pPlayer = CGame::GetPlayer();
+
+	if (!pPlayer)
+	{
+		return;
+	}
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+	float distance = D3DXVec3Length(&disPos);
+	const float kTriggerDistance = 880.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		// パーティクルの設定
+		SetParticle();
+	}
+}
+//=============================================================================
+// 火炎放射像(回転)ブロックのパーティクル設定処理
+//=============================================================================
+void CTurnFireStatueBlock::SetParticle(void)
+{
+	CParticle* pParticle = NULL;
+
+	// ブロックのワールドマトリックス
+	D3DXMATRIX worldMtx = GetWorldMatrix();
+
+	// ==== 前方向ベクトル（Z軸）====
+	D3DXVECTOR3 localForward(0.0f, 0.0f, 1.0f);
+	D3DXVECTOR3 forward;
+	D3DXVec3TransformNormal(&forward, &localForward, &worldMtx);
+	D3DXVec3Normalize(&forward, &forward);
+
+	// ==== 発射位置（前側）====
+	D3DXVECTOR3 localOffsetFront(0.0f, -30.0f, 40.0f); // Z正方向にオフセット
+	D3DXVECTOR3 worldPosFront;
+	D3DXVec3TransformCoord(&worldPosFront, &localOffsetFront, &worldMtx);
+
+	// ==== 発射位置（後側）====
+	D3DXVECTOR3 localOffsetBack(0.0f, -30.0f, -40.0f); // Z負方向にオフセット
+	D3DXVECTOR3 worldPosBack;
+	D3DXVec3TransformCoord(&worldPosBack, &localOffsetBack, &worldMtx);
+
+	// パーティクル生成
+	pParticle = CParticle::Create(forward, worldPosFront, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 40, CParticle::TYPE_FLAMETHROWER, 5);
+	pParticle = CParticle::Create(-forward, worldPosBack, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 40, CParticle::TYPE_FLAMETHROWER, 5);
+
+	CPlayer* pPlayer = CGame::GetPlayer();
+	D3DXVECTOR3 playerPos = pPlayer->GetColliderPos();  // カプセル中心位置
+	float playerRadius = pPlayer->GetRadius();
+	float playerHeight = pPlayer->GetHeight();
+
+	// シリンダーの判定サイズ
+	float cylinderRadius = 50.0f;
+	float cylinderHeight = 220.0f;
+
+	// 判定用の中心位置をオフセット
+	float offsetDistance = 150.0f;
+	D3DXVECTOR3 cylinderCenterFront = worldPosBack - forward * -offsetDistance;
+	D3DXVECTOR3 cylinderCenterBack = worldPosBack - forward * offsetDistance;
+
+	// 前側との判定
+	if (CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
+		cylinderCenterFront, cylinderRadius, cylinderHeight, -forward))
+	{
+		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+	}
+
+	// 後側との判定
+	if (CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
+		cylinderCenterBack, cylinderRadius, cylinderHeight, -forward))
+	{
+		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+	}
+}
+//=============================================================================
+// プレイヤーと火炎放射の当たり判定処理
+//=============================================================================
+bool CTurnFireStatueBlock::CheckCapsuleCylinderCollision_Dir(
+	const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
+	const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
+	const D3DXVECTOR3& cylinderDir)
+{
+	// ベクトル差
+	D3DXVECTOR3 delta = capsuleCenter - cylinderCenter;
+
+	// 軸方向に射影
+	float proj = D3DXVec3Dot(&delta, &cylinderDir);
+
+	// 軸上距離判定
+	float halfHeightSum = (capsuleHeight * 0.5f) + (cylinderHeight * 0.5f);
+	float axisDist = 0.0f;
+
+	if (proj > halfHeightSum)
+	{
+		axisDist = proj - halfHeightSum;
+	}
+	else if (proj < -halfHeightSum)
+	{
+		axisDist = -halfHeightSum - proj;
+	}
+	else
+	{
+		axisDist = 0.0f; // 軸上は重なっている
+	}
+
+	// 軸直交面の距離
+	D3DXVECTOR3 closestPointOnAxis = cylinderCenter + cylinderDir * proj;
+	D3DXVECTOR3 diff = capsuleCenter - closestPointOnAxis;
+	float radialDist = D3DXVec3Length(&diff);
+
+	// 判定
+	if (axisDist <= capsuleRadius + cylinderRadius && radialDist <= capsuleRadius + cylinderRadius)
+	{
+		return true;
+	}
+
+	return false;
 }
 

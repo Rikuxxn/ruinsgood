@@ -35,7 +35,7 @@ CEffect::~CEffect()
 //=============================================================================
 // ê∂ê¨èàóù
 //=============================================================================
-CEffect* CEffect::Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DCOLOR col, float fRadius, int nLife)
+CEffect* CEffect::Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife)
 {
 	CEffect* pEffect;
 
@@ -145,25 +145,3 @@ void CEffect::Draw(void)
 	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 }
-//=============================================================================
-// à⁄ìÆó ÇÃê›íË
-//=============================================================================
-void CEffect::SetMove(D3DXVECTOR3 move)
-{
-	m_move = move;
-}
-//=============================================================================
-// éıñΩÇÃê›íË
-//=============================================================================
-void CEffect::SetLife(int nLife)
-{
-	m_nLife = nLife;
-}
-//=============================================================================
-// îºåaÇÃê›íË
-//=============================================================================
-void CEffect::SetRadius(float fRadius)
-{
-	m_fRadius = fRadius;
-}
-

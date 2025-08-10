@@ -40,21 +40,24 @@ public:
 		TYPE_MAX
 	}TYPE;
 
-	static CParticle*Create(D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, TYPE type,int nMaxParticle);
+	static CParticle* Create(D3DXVECTOR3 dir, D3DXVECTOR3 pos, D3DXCOLOR col, int nLife, TYPE type, int nMaxParticle);
 	static void InitFactory(void);
 	HRESULT Init(void);
 	void Update(void);
 
 	void SetParticle(TYPE type) { m_nType = type; }
 	void SetLife(int nLife) { m_nLife = nLife; }
+	void SetDir(D3DXVECTOR3 dir) { m_Dir = dir; }
 
 	int GetLife(void) { return m_nLife; }
 	int GetMaxParticle(void) { return m_nMaxParticle; }
+	D3DXVECTOR3 GetDir(void) { return m_Dir; }
 
 private:
+	D3DXVECTOR3 m_Dir;	// ï˚å¸
 	TYPE m_nType;		// éÌóﬁ
 	int m_nLife;		// éıñΩ
-	int m_nMaxParticle;	// ó±éqÇÃ
+	int m_nMaxParticle;	// ó±éqÇÃêî
 	static std::unordered_map<TYPE, ParticleCreateFunc> m_ParticleFactoryMap;
 };
 
@@ -86,8 +89,11 @@ public:
 	HRESULT Init(void);
 	void Update(void);
 
-private:
+	void SetSpeedScale(float scale) { m_speedScale = scale; }
+	float GetSpeedScale() const { return m_speedScale; }
 
+private:
+	float m_speedScale;  // ë¨ìxî{ó¶
 };
 
 //*****************************************************************************

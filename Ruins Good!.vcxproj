@@ -162,6 +162,7 @@
     <ClCompile Include="block.cpp" />
     <ClCompile Include="blockmanager.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="collisionUtils.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="debugproc3D.cpp" />
     <ClCompile Include="effect.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="block.h" />
     <ClInclude Include="blockmanager.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="collisionUtils.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="debugproc3D.h" />
     <ClInclude Include="effect.h" />
