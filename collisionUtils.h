@@ -24,6 +24,12 @@ public:
 		const D3DXVECTOR3& aabbMin, const D3DXVECTOR3& aabbMax,
 		float* outHitDistance);
 
+	// シリンダーとカプセルの当たり判定
+	static bool CheckCapsuleCylinderCollision_Dir(
+		const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
+		const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
+		const D3DXVECTOR3& cylinderDir, bool flag);
+
 };
 
 

@@ -123,3 +123,65 @@ bool CCollision::CheckCylinderAABBCollisionWithHitDistance(
 
 	return false;
 }
+//=============================================================================
+// シリンダーとカプセルの当たり判定
+//=============================================================================
+bool CCollision::CheckCapsuleCylinderCollision_Dir(
+	const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
+	const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
+	const D3DXVECTOR3& cylinderDir, bool flag)
+{
+
+	float collisionCylinderRadius;
+	float collisionCapsuleRadius;
+
+	// flagは使わなければfalseでいい
+	if (flag)
+	{
+		// ==== 半径を縮小 ====
+		collisionCylinderRadius = cylinderRadius * 0.40f; // 円柱は50%
+		collisionCapsuleRadius = capsuleRadius * 0.85f;   // カプセルは90%
+	}
+	else
+	{
+		collisionCylinderRadius = cylinderRadius;
+		collisionCapsuleRadius = capsuleRadius;
+	}
+
+	// ベクトル差
+	D3DXVECTOR3 delta = capsuleCenter - cylinderCenter;
+
+	// 軸方向に射影
+	float proj = D3DXVec3Dot(&delta, &cylinderDir);
+
+	// 軸上距離判定
+	float halfHeightSum = (capsuleHeight * 0.5f) + (cylinderHeight * 0.5f);
+	float axisDist = 0.0f;
+
+	if (proj > halfHeightSum)
+	{
+		axisDist = proj - halfHeightSum;
+	}
+	else if (proj < -halfHeightSum)
+	{
+		axisDist = -halfHeightSum - proj;
+	}
+	else
+	{
+		axisDist = 0.0f; // 軸上は重なっている
+	}
+
+	// 軸直交面の距離
+	D3DXVECTOR3 closestPointOnAxis = cylinderCenter + cylinderDir * proj;
+	D3DXVECTOR3 diff = capsuleCenter - closestPointOnAxis;
+	float radialDist = D3DXVec3Length(&diff);
+
+	// ==== 判定 ====
+	if (axisDist <= collisionCapsuleRadius + collisionCylinderRadius &&
+		radialDist <= collisionCapsuleRadius + collisionCylinderRadius)
+	{
+		return true;
+	}
+
+	return false;
+}

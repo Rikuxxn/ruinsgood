@@ -94,7 +94,6 @@ void CBlockManager::Update(void)
 	UpdateDraggingBlock();
 
 #endif
-
 }
 //=============================================================================
 // 情報の更新処理
@@ -818,6 +817,9 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap
 	{ CBlock::TYPE_PILLAR2,			"data/MODELS/pillar_002.x" },
 	{ CBlock::TYPE_BLOCK3,			"data/MODELS/block_02.x" },
 	{ CBlock::TYPE_FLOOR4,			"data/MODELS/floor_04.x" },
+	{ CBlock::TYPE_MOVE_FIRE_STATUE,"data/MODELS/fire_statue.x" },
+	{ CBlock::TYPE_TORCH3,			"data/MODELS/torch_02.x" },
+	{ CBlock::TYPE_NETFLOOR,		"data/MODELS/net.x" },
 };
 //=============================================================================
 // タイプからXファイルパスを取得
@@ -977,6 +979,25 @@ void CBlockManager::LoadFromJson(const char* filename)
 			}
 		}
 	}
+}
+//=============================================================================
+// 置き型松明の着火状態チェック
+//=============================================================================
+bool CBlockManager::CheckAllTorches(void)
+{
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block->GetType() == CBlock::TYPE_TORCH3)
+		{
+			CTorch3Block* pTorch3 = dynamic_cast<CTorch3Block*>(block);
+			if (!pTorch3->IsHit())  // 火がついてない松明があれば
+			{
+				return false;  // まだ全部ついてない
+			}
+		}
+	}
+
+	return true; // すべて火がついている
 }
 //=============================================================================
 // 全ブロックの取得

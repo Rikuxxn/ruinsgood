@@ -82,6 +82,9 @@ public:
 		TYPE_PILLAR2,
 		TYPE_BLOCK3,
 		TYPE_FLOOR4,
+		TYPE_MOVE_FIRE_STATUE,
+		TYPE_TORCH3,
+		TYPE_NETFLOOR,
 		TYPE_MAX
 	}TYPE;
 
@@ -469,6 +472,24 @@ private:
 };
 
 //*****************************************************************************
+// 置き型松明(動かない)ブロッククラス
+//*****************************************************************************
+class CTorch3Block : public CBlock
+{
+public:
+	CTorch3Block();
+	~CTorch3Block();
+
+	void Update(void) override;
+	void SetHit(bool flag) { m_isHit = flag; }
+	bool IsHit(void) { return m_isHit; }
+
+private:
+	int m_playedFireSoundID;// 再生中の音ID
+	bool m_isHit;
+};
+
+//*****************************************************************************
 // 仮面ブロッククラス
 //*****************************************************************************
 class CMaskBlock : public CBlock
@@ -546,11 +567,29 @@ public:
 	void SetParticle(void);
 
 private:
-	bool CheckCapsuleCylinderCollision_Dir(
-		const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
-		const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
-		const D3DXVECTOR3& cylinderDir);
+	int m_playedSoundID;					// 再生中の音ID
+	bool m_isBlocked;
+};
 
+//*****************************************************************************
+// 火炎放射像(動く)ブロッククラス
+//*****************************************************************************
+class CMoveFireStatueBlock : public CBlock
+{
+public:
+	CMoveFireStatueBlock();
+	~CMoveFireStatueBlock();
+
+	void Update(void) override;
+	void SetParticle(void);
+
+	btScalar GetMass(void) const override { return 7.0f; }
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
+	btScalar GetRollingFriction(void) const { return 5.7f; }
+
+private:
+	int m_playedSoundID;					// 再生中の音ID
 };
 
 //*****************************************************************************
@@ -566,10 +605,7 @@ public:
 	void SetParticle(void);
 
 private:
-	bool CheckCapsuleCylinderCollision_Dir(
-		const D3DXVECTOR3& capsuleCenter, float capsuleRadius, float capsuleHeight,
-		const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
-		const D3DXVECTOR3& cylinderDir);
+	int m_playedSoundID;					// 再生中の音ID
 };
 
 //*****************************************************************************
