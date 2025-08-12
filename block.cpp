@@ -3175,7 +3175,8 @@ void CMoveFireStatueBlock::SetParticle(void)
 	if (CCollision::CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
 		cylinderCenter, cylinderRadius, maxCylinderHeight, forward, false))
 	{
-		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+		// ƒŠƒXƒ|[ƒ“ˆ—
+		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(-1132.0f, 299.5f, 724.5f));
 	}
 }
 

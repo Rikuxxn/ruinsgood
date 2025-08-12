@@ -551,15 +551,23 @@ void CPlayer::HoldBlock(void)
 					blocksize.y >= 3.0f ||
 					blocksize.z >= 3.0f;
 
-				if (blockMass > 5.0f || isTooLarge)
+				if (blockMass > 7.0f || isTooLarge)
 				{// ˆê’èŽ¿—Ê‚ð’´‚¦‚½‚ç ‚Ü‚½‚Í ˆê’èƒTƒCƒY‚ð’´‚¦‚½‚ç
 					return;
 				}
 
 				m_pCarryingBlock = target;
 
-				// YŽ²‚Ì‚Ý‰ñ“]
-				m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
+				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE)
+				{
+					// YŽ²‚Ì‚Ý‰ñ“]
+					m_pCarryingBlock->GetRigidBody()->setAngularFactor(m_pCarryingBlock->GetAngularFactor());
+				}
+				else
+				{
+					// YŽ²‚Ì‚Ý‰ñ“]
+					m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
+				}
 			}
 		}
 		else
@@ -586,19 +594,35 @@ void CPlayer::HoldBlock(void)
 				}
 
 				float ftargetDis = 0.0f;
-
+				D3DXVECTOR3 targetPos;// Ž‚¿ã‚°‚½‚¢ƒ^[ƒQƒbƒgˆÊ’u
+				
 				if (m_pCarryingBlock->GetType() == CBlock::TYPE_RAFT)
 				{
 					ftargetDis = 80.0f;
+				}
+				else if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE)
+				{
+					ftargetDis = 100.0f;
 				}
 				else
 				{
 					ftargetDis = 60.0f;
 				}
 
-				// Ž‚¿ã‚°‚½‚¢ƒ^[ƒQƒbƒgˆÊ’u
-				D3DXVECTOR3 targetPos = GetPos() + GetForward() * ftargetDis;
-				targetPos.y = GetPos().y + 70.0f;
+				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE)
+				{
+					// XZ‚Ì‚Ý’Ç]AY‚ÍŒÅ’è
+					targetPos = currentPos;
+					targetPos.x = playerPos.x + GetForward().x * ftargetDis;
+					targetPos.z = playerPos.z + GetForward().z * ftargetDis;
+					targetPos.y = currentPos.y; // ‚‚³‚ð•Ï‚¦‚È‚¢
+				}
+				else
+				{
+					// ’Êí‚Í‘O•û‚ÉŽ‚¿ã‚°‚é
+					targetPos = playerPos + GetForward() * ftargetDis;
+					targetPos.y = GetPos().y + 70.0f; // ’Êí‚ÍŽ‚¿ã‚°‚é
+				}
 
 				// Bullet—p‚Ì·•ª
 				btVector3 posDiff(
@@ -636,8 +660,8 @@ void CPlayer::HoldBlock(void)
 	{
 		if (m_pCarryingBlock)
 		{
-			// ‰ñ“]§ŒÀ‰ðœiŽ©—R‚É“]‚ª‚éj
-			m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+			// ‰ñ“]§ŒÀ‰ðœ
+			m_pCarryingBlock->GetRigidBody()->setAngularFactor(m_pCarryingBlock->GetAngularFactor());
 
 			m_pCarryingBlock = NULL;
 		}

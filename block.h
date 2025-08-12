@@ -210,7 +210,7 @@ public:
 class CBoxRockBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 6.0f; }
+	btScalar GetMass(void) const override { return 7.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
