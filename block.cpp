@@ -3399,6 +3399,9 @@ HRESULT CKeyBlock::Init(void)
 	// 最初の位置をリスポーン位置に設定
 	m_ResPos = GetPos();
 
+	// 動的に戻す
+	SetEditMode(false);
+
 	return S_OK;
 }
 //=============================================================================
@@ -3437,6 +3440,30 @@ void CKeyBlock::Respawn(void)
 	// 動的に戻す
 	SetEditMode(false);
 }
+//=============================================================================
+// セット処理
+//=============================================================================
+void CKeyBlock::Set(D3DXVECTOR3 pos)
+{
+	// 動かすためにキネマティックにする
+	SetEditMode(true);
+
+	// 鍵ブロックの位置を取得
+	D3DXVECTOR3 keyPos = GetPos();
+	D3DXVECTOR3 keyRot = GetRot();
+
+	D3DXVECTOR3 targetPos(pos);			// 設置する目標位置
+	D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);	// 向きをリセット
+
+	keyPos = targetPos;
+	keyRot = rot;
+
+	SetPos(keyPos);
+	SetRot(keyRot);
+
+	// コライダーの更新
+	UpdateCollider();
+}
 
 
 //=============================================================================
@@ -3474,5 +3501,25 @@ void CKeyPedestalBlock::Update()
 {
 	CBlock::Update(); // 共通処理
 
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block->GetType() != TYPE_KEY)
+		{
+			continue;
+		}
+
+		CKeyBlock* pKey = dynamic_cast<CKeyBlock*>(block);
+
+		D3DXVECTOR3 keyPos = block->GetPos();
+		D3DXVECTOR3 disPos = keyPos - GetPos();
+		float distance = D3DXVec3Length(&disPos);
+		const float kTriggerDistance = 180.0f; // 反応距離
+
+		if (distance < kTriggerDistance)
+		{// 鍵を台座にはめる
+			D3DXVECTOR3 targetPos(GetPos().x, GetPos().y + 40.0f, GetPos().z);
+			pKey->Set(targetPos);
+		}
+	}
 
 }

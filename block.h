@@ -640,6 +640,7 @@ public:
 	HRESULT Init(void);
 	void Update(void) override;
 	void Respawn(void);
+	void Set(D3DXVECTOR3 pos);
 
 	btScalar GetMass(void) const override { return 6.0f; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
