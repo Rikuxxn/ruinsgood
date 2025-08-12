@@ -85,6 +85,9 @@ public:
 		TYPE_MOVE_FIRE_STATUE,
 		TYPE_TORCH3,
 		TYPE_NETFLOOR,
+		TYPE_KEYFENCE,
+		TYPE_KEY,
+		TYPE_KEY_PEDESTAL,
 		TYPE_MAX
 	}TYPE;
 
@@ -210,7 +213,7 @@ public:
 class CBoxRockBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 7.0f; }
+	btScalar GetMass(void) const override { return 8.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
@@ -606,6 +609,62 @@ public:
 
 private:
 	int m_playedSoundID;					// 再生中の音ID
+};
+
+//*****************************************************************************
+// 鍵の柵ブロッククラス
+//*****************************************************************************
+class CKeyFenceBlock : public CBlock
+{
+public:
+	CKeyFenceBlock();
+	~CKeyFenceBlock();
+
+	HRESULT Init(void);
+	void Update(void) override;
+
+private:
+	D3DXVECTOR3 m_closedPos;
+	bool m_prevDown;
+};
+
+//*****************************************************************************
+// 鍵ブロッククラス
+//*****************************************************************************
+class CKeyBlock : public CBlock
+{
+public:
+	CKeyBlock();
+	~CKeyBlock();
+
+	HRESULT Init(void);
+	void Update(void) override;
+	void Respawn(void);
+
+	btScalar GetMass(void) const override { return 6.0f; }
+	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	bool IsDynamicBlock(void) const override { return true; }
+
+private:
+	D3DXVECTOR3 m_ResPos;
+
+};
+
+//*****************************************************************************
+// 鍵の台座ブロッククラス
+//*****************************************************************************
+class CKeyPedestalBlock : public CBlock
+{
+public:
+	CKeyPedestalBlock();
+	~CKeyPedestalBlock();
+
+	HRESULT Init(void);
+	void Update(void) override;
+
+private:
+	D3DXVECTOR3 m_Pos;
+
 };
 
 //*****************************************************************************

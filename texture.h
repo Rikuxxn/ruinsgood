@@ -121,6 +121,9 @@ private:
 		"data/TEXTURE/floor4.png",
 		"data/TEXTURE/net.png",
 		"data/TEXTURE/netfloor.png",
+		"data/TEXTURE/keyfence.png",
+		"data/TEXTURE/key.png",
+		"data/TEXTURE/key_pedestal.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

@@ -820,6 +820,9 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap
 	{ CBlock::TYPE_MOVE_FIRE_STATUE,"data/MODELS/fire_statue.x" },
 	{ CBlock::TYPE_TORCH3,			"data/MODELS/torch_02.x" },
 	{ CBlock::TYPE_NETFLOOR,		"data/MODELS/net.x" },
+	{ CBlock::TYPE_KEYFENCE,		"data/MODELS/keyfence.x" },
+	{ CBlock::TYPE_KEY,				"data/MODELS/key.x" },
+	{ CBlock::TYPE_KEY_PEDESTAL,	"data/MODELS/key_pedestal.x" },
 };
 //=============================================================================
 // タイプからXファイルパスを取得

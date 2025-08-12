@@ -117,6 +117,9 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_FLOOR4]				= []() -> CBlock* { return new CLavaBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_MOVE_FIRE_STATUE]	= []() -> CBlock* { return new CMoveFireStatueBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_TORCH3]				= []() -> CBlock* { return new CTorch3Block(); };
+	m_BlockFactoryMap[CBlock::TYPE_KEYFENCE]			= []() -> CBlock* { return new CKeyFenceBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_KEY]					= []() -> CBlock* { return new CKeyBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_KEY_PEDESTAL]		= []() -> CBlock* { return new CKeyPedestalBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -403,6 +406,9 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_MOVE_FIRE_STATUE,"data/TEXTURE/fire_statue.png" },
 	{ TYPE_TORCH3,			"data/TEXTURE/torch2.png" },
 	{ TYPE_NETFLOOR,		"data/TEXTURE/netfloor.png" },
+	{ TYPE_KEYFENCE,		"data/TEXTURE/keyfence.png" },
+	{ TYPE_KEY,				"data/TEXTURE/key.png" },
+	{ TYPE_KEY_PEDESTAL,	"data/TEXTURE/key_pedestal.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -413,7 +419,7 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 
 	m_colliderSize = size;
 
-	if (m_Type == TYPE_ROCK)
+	if (m_Type == TYPE_ROCK || m_Type == TYPE_KEY)
 	{
 		float radius = std::max(std::max(size.x, size.y), size.z) * 0.5f;
 		m_pShape = new btSphereShape(radius);
@@ -771,7 +777,35 @@ void CLavaBlock::Update(void)
 	D3DXVECTOR3 blockMin = blockPos - blockSize * 0.5f;
 	D3DXVECTOR3 blockMax = blockPos + blockSize * 0.5f;
 
-	// --- 接触判定 ---
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block == this || block->GetType() != TYPE_KEY)
+		{
+			continue; // 自分 or 指定ブロック以外は無視
+		}
+
+		CKeyBlock* pKey = dynamic_cast<CKeyBlock*>(block);
+
+		// ブロックの AABB を取得
+		D3DXVECTOR3 pos = block->GetPos();
+		D3DXVECTOR3 size = block->GetModelSize();
+		D3DXVECTOR3 min = pos - size * 0.5f;
+		D3DXVECTOR3 max = pos + size * 0.5f;
+
+		// AABB同士の交差チェック
+		bool isOverlap =
+			blockMin.x <= max.x && blockMax.x >= min.x &&
+			blockMin.y <= max.y && blockMax.y >= min.y &&
+			blockMin.z <= max.z && blockMax.z >= min.z;
+
+		if (isOverlap)
+		{// 当たってたら
+			// リスポーン
+			pKey->Respawn();
+		}
+	}
+
+	// --- プレイヤー接触判定 ---
 	CPlayer* pPlayer = CGame::GetPlayer();
 
 	if (pPlayer)
@@ -2486,12 +2520,6 @@ void CTorch3Block::Update(void)
 		}
 	}
 
-	if (CBlockManager::CheckAllTorches())
-	{// 全ての松明に火が付いたら
-
-	}
-
-
 	// 音源の位置更新はIDを使う
 	if (m_playedFireSoundID != -1)
 	{
@@ -3279,4 +3307,172 @@ void CTurnFireStatueBlock::SetParticle(void)
 	{
 		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
 	}
+}
+
+
+//=============================================================================
+// 鍵の柵ブロックのコンストラクタ
+//=============================================================================
+CKeyFenceBlock::CKeyFenceBlock()
+{
+	// 値のクリア
+	m_closedPos = INIT_VEC3;
+	m_prevDown = false;
+}
+//=============================================================================
+// 鍵の柵ブロックのデストラクタ
+//=============================================================================
+CKeyFenceBlock::~CKeyFenceBlock()
+{
+	// なし
+}
+//=============================================================================
+// 鍵の柵ブロックの初期化処理
+//=============================================================================
+HRESULT CKeyFenceBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	m_closedPos = GetPos();
+
+	return S_OK;
+}
+//=============================================================================
+// 鍵の柵ブロックの更新処理
+//=============================================================================
+void CKeyFenceBlock::Update()
+{
+	CBlock::Update(); // 共通処理
+
+	if (CBlockManager::CheckAllTorches())
+	{// 全ての松明に火が付いたら
+
+		const float kDownRange = 190.0f; // 下がる深さ
+
+		float targetY = m_closedPos.y - kDownRange;
+
+		D3DXVECTOR3 pos = GetPos();
+		if (pos.y > targetY)
+		{
+			pos.y = max(pos.y - 1.0f, targetY);
+			SetPos(pos);
+		}
+
+		bool n = CBlockManager::CheckAllTorches();
+
+		if (n && !m_prevDown)
+		{
+			// 演出カメラにする
+			CManager::GetCamera()->SetCamMode(5, D3DXVECTOR3(-1571.0f, 644.5f, 820.5f),
+				D3DXVECTOR3(-2180.5f, 181.0f, 589.0f),
+				D3DXVECTOR3(0.62f, 1.21f, 0.0f));
+		}
+
+		// フラグを更新して次のフレームに備える
+		m_prevDown = n;
+	}
+}
+//=============================================================================
+// 鍵ブロックのコンストラクタ
+//=============================================================================
+CKeyBlock::CKeyBlock()
+{
+	// 値のクリア
+	m_ResPos = INIT_VEC3;
+}
+//=============================================================================
+// 鍵ブロックのデストラクタ
+//=============================================================================
+CKeyBlock::~CKeyBlock()
+{
+	// なし
+}
+//=============================================================================
+// 鍵ブロックの初期化処理
+//=============================================================================
+HRESULT CKeyBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	// 最初の位置をリスポーン位置に設定
+	m_ResPos = GetPos();
+
+	return S_OK;
+}
+//=============================================================================
+// 鍵ブロックの更新処理
+//=============================================================================
+void CKeyBlock::Update()
+{
+	CBlock::Update(); // 共通処理
+
+
+}
+//=============================================================================
+// リスポーン処理
+//=============================================================================
+void CKeyBlock::Respawn(void)
+{
+	// 動かすためにキネマティックにする
+	SetEditMode(true);
+
+	// 鍵ブロックの位置を取得
+	D3DXVECTOR3 keyPos = GetPos();
+	D3DXVECTOR3 keyRot = GetRot();
+
+	D3DXVECTOR3 respawnPos(m_ResPos);// リスポーン位置
+	D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
+
+	keyPos = respawnPos;
+	keyRot = rot;
+
+	SetPos(keyPos);
+	SetRot(keyRot);
+
+	// コライダーの更新
+	UpdateCollider();
+
+	// 動的に戻す
+	SetEditMode(false);
+}
+
+
+//=============================================================================
+// 鍵の台座ブロックのコンストラクタ
+//=============================================================================
+CKeyPedestalBlock::CKeyPedestalBlock()
+{
+	// 値のクリア
+	m_Pos = INIT_VEC3;
+}
+//=============================================================================
+// 鍵の台座ブロックのデストラクタ
+//=============================================================================
+CKeyPedestalBlock::~CKeyPedestalBlock()
+{
+	// なし
+}
+//=============================================================================
+// 鍵の台座ブロックの初期化処理
+//=============================================================================
+HRESULT CKeyPedestalBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	// 最初の位置をリスポーン位置に設定
+	m_Pos = GetPos();
+
+	return S_OK;
+}
+//=============================================================================
+// 鍵の台座ブロックの更新処理
+//=============================================================================
+void CKeyPedestalBlock::Update()
+{
+	CBlock::Update(); // 共通処理
+
+
 }
