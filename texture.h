@@ -124,6 +124,8 @@ private:
 		"data/TEXTURE/keyfence.png",
 		"data/TEXTURE/key.png",
 		"data/TEXTURE/key_pedestal.png",
+		"data/TEXTURE/keydoor_tex.png",
+		"data/TEXTURE/keydoor.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

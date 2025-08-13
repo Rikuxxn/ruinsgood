@@ -558,9 +558,10 @@ void CPlayer::HoldBlock(void)
 
 				m_pCarryingBlock = target;
 
-				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE)
+				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE ||
+					m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
 				{
-					// Y軸のみ回転
+					// 無回転
 					m_pCarryingBlock->GetRigidBody()->setAngularFactor(m_pCarryingBlock->GetAngularFactor());
 				}
 				else
@@ -596,7 +597,8 @@ void CPlayer::HoldBlock(void)
 				float ftargetDis = 0.0f;
 				D3DXVECTOR3 targetPos;// 持ち上げたいターゲット位置
 				
-				if (m_pCarryingBlock->GetType() == CBlock::TYPE_RAFT)
+				if (m_pCarryingBlock->GetType() == CBlock::TYPE_RAFT ||
+					m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
 				{
 					ftargetDis = 80.0f;
 				}
@@ -609,7 +611,8 @@ void CPlayer::HoldBlock(void)
 					ftargetDis = 60.0f;
 				}
 
-				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE)
+				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE ||
+					m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
 				{
 					// XZのみ追従、Yは固定
 					targetPos = currentPos;

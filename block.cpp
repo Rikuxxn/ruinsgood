@@ -120,6 +120,7 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_KEYFENCE]			= []() -> CBlock* { return new CKeyFenceBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_KEY]					= []() -> CBlock* { return new CKeyBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_KEY_PEDESTAL]		= []() -> CBlock* { return new CKeyPedestalBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_KEY_DOOR]			= []() -> CBlock* { return new CKeyDoorBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -409,6 +410,7 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_KEYFENCE,		"data/TEXTURE/keyfence.png" },
 	{ TYPE_KEY,				"data/TEXTURE/key.png" },
 	{ TYPE_KEY_PEDESTAL,	"data/TEXTURE/key_pedestal.png" },
+	{ TYPE_KEY_DOOR,		"data/TEXTURE/keydoor.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -3009,13 +3011,22 @@ void CFireStatueBlock::SetParticle(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block->GetType() != TYPE_BLOCK3)
+		if (block->GetType() != TYPE_BLOCK3 && block->GetType() != TYPE_BLOCK2)
 		{
 			continue;
 		}
 
+
 		D3DXVECTOR3 blockPos = block->GetPos();
-		D3DXVECTOR3 blockSize = block->GetModelSize();
+		D3DXVECTOR3 modelSize = block->GetModelSize();// 元のサイズ
+		D3DXVECTOR3 scale = GetSize();// 拡大率
+
+		// 拡大率を適用する
+		D3DXVECTOR3 blockSize;
+		blockSize.x = modelSize.x * scale.x;
+		blockSize.y = modelSize.y * scale.y;
+		blockSize.z = modelSize.z * scale.z;
+
 		D3DXVECTOR3 aabbMin = blockPos - blockSize * 0.5f;
 		D3DXVECTOR3 aabbMax = blockPos + blockSize * 0.5f;
 
@@ -3063,7 +3074,8 @@ void CFireStatueBlock::SetParticle(void)
 	if (CCollision::CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
 		cylinderCenter, cylinderRadius, cylinderHeight, forward,m_isBlocked))
 	{
-		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+		// リスポーン処理
+		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(1130.5f, 320.0f, 728.0f));
 	}
 }
 
@@ -3247,6 +3259,17 @@ void CTurnFireStatueBlock::Update(void)
 	{
 		// パーティクルの設定
 		SetParticle();
+
+		D3DXVECTOR3 rot = GetRot();
+
+		rot.y += 0.01f;
+
+		if (rot.y > D3DX_PI * 2.0f)
+		{
+			rot.y -= D3DX_PI * 2.0f;
+		}
+
+		SetRot(rot);
 	}
 }
 //=============================================================================
@@ -3473,6 +3496,7 @@ CKeyPedestalBlock::CKeyPedestalBlock()
 {
 	// 値のクリア
 	m_Pos = INIT_VEC3;
+	m_isSet = false;
 }
 //=============================================================================
 // 鍵の台座ブロックのデストラクタ
@@ -3513,13 +3537,76 @@ void CKeyPedestalBlock::Update()
 		D3DXVECTOR3 keyPos = block->GetPos();
 		D3DXVECTOR3 disPos = keyPos - GetPos();
 		float distance = D3DXVec3Length(&disPos);
-		const float kTriggerDistance = 180.0f; // 反応距離
+		const float kTriggerDistance = 130.0f; // 反応距離
 
 		if (distance < kTriggerDistance)
 		{// 鍵を台座にはめる
 			D3DXVECTOR3 targetPos(GetPos().x, GetPos().y + 40.0f, GetPos().z);
 			pKey->Set(targetPos);
+			m_isSet = true;
 		}
 	}
+}
 
+
+//=============================================================================
+// 鍵ドアブロックのコンストラクタ
+//=============================================================================
+CKeyDoorBlock::CKeyDoorBlock()
+{
+	// 値のクリア
+	m_openPos = INIT_VEC3;
+}
+//=============================================================================
+// 鍵ドアブロックのデストラクタ
+//=============================================================================
+CKeyDoorBlock::~CKeyDoorBlock()
+{
+	// なし
+}
+//=============================================================================
+// 鍵ドアブロックの初期化処理
+//=============================================================================
+HRESULT CKeyDoorBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	// 最初の位置を保存
+	m_openPos = GetPos();
+
+	return S_OK;
+}
+//=============================================================================
+// 鍵ドアブロックの更新処理
+//=============================================================================
+void CKeyDoorBlock::Update()
+{
+	CBlock::Update(); // 共通処理
+
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block->GetType() != TYPE_KEY_PEDESTAL)
+		{// 台座じゃなかったら
+			continue;
+		}
+
+		CKeyPedestalBlock* pPedestal = dynamic_cast<CKeyPedestalBlock*>(block);
+
+		if (pPedestal->IsSet())
+		{// 台座に設置されていたら
+
+			// ドアを開ける
+			const float kOpenRange = 210.0f; // 開く高さ
+
+			float targetY = m_openPos.y + kOpenRange;
+
+			D3DXVECTOR3 pos = GetPos();
+			if (pos.y < targetY)
+			{
+				pos.y += 1.0f;
+				SetPos(pos);
+			}
+		}
+	}
 }
