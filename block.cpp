@@ -2937,7 +2937,7 @@ void CFireStatueBlock::Update(void)
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 	float distance = D3DXVec3Length(&disPos);
-	const float kTriggerDistance = 880.0f; // 反応距離
+	const float kTriggerDistance = 580.0f; // 反応距離
 
 	// ブロックのワールドマトリックス
 	D3DXMATRIX worldMtx = GetWorldMatrix();

@@ -71,6 +71,7 @@ HRESULT CGame::Init(void)
 	case CStage::STAGE_ID_2:
 		// プレイヤーの生成
 		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1542.3f, 360.0f, -850.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		// JSONの読み込み
 		m_pBlockManager->LoadFromJson("data/stage_02.json");
@@ -101,8 +102,8 @@ HRESULT CGame::Init(void)
 	// ポーズUIの生成
 	m_pUi = CUi::Create(CUi::TYPE_PAUSE, "data/TEXTURE/ui_pause.png",D3DXVECTOR3(210.0f, 895.0f, 0.0f), 160.0f, 35.0f);
 
-	// ゲームBGMの再生
-	CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
+	//// ゲームBGMの再生
+	//CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
 
 	return S_OK;
 }
