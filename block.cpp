@@ -121,6 +121,7 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_KEY]					= []() -> CBlock* { return new CKeyBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_KEY_PEDESTAL]		= []() -> CBlock* { return new CKeyPedestalBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_KEY_DOOR]			= []() -> CBlock* { return new CKeyDoorBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_SHIELD]				= []() -> CBlock* { return new CShieldBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -411,6 +412,7 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_KEY,				"data/TEXTURE/key.png" },
 	{ TYPE_KEY_PEDESTAL,	"data/TEXTURE/key_pedestal.png" },
 	{ TYPE_KEY_DOOR,		"data/TEXTURE/keydoor.png" },
+	{ TYPE_SHIELD,			"data/TEXTURE/shield.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -835,7 +837,7 @@ void CLavaBlock::Update(void)
 		if (isOverlap)
 		{
 			// リスポーン処理
-			pPlayer->RespawnToCheckpoint(D3DXVECTOR3(-1132.0f, 299.5f, 724.5f));
+			pPlayer->RespawnToCheckpoint();
 		}
 	}
 }
@@ -1084,7 +1086,7 @@ void CWaterBlock::AddWaterStayTime(void)
 		{
 			CPlayer* pPlayer = CGame::GetPlayer();
 
-			pPlayer->RespawnToCheckpoint(); // 任意の場所へリスポーン
+			pPlayer->RespawnToCheckpoint(D3DXVECTOR3(427.0f, 30.0f, 1110.0f)); // リスポーン
 			m_waterStayTime = 0;
 		}
 	}
@@ -1710,7 +1712,7 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
-	//Swing();	// スイング処理
+	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
 }
@@ -1879,7 +1881,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 	
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2937,7 +2939,7 @@ void CFireStatueBlock::Update(void)
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 	float distance = D3DXVec3Length(&disPos);
-	const float kTriggerDistance = 580.0f; // 反応距離
+	const float kTriggerDistance = 380.0f; // 反応距離
 
 	// ブロックのワールドマトリックス
 	D3DXMATRIX worldMtx = GetWorldMatrix();
@@ -2951,6 +2953,7 @@ void CFireStatueBlock::Update(void)
 	{
 		// パーティクルの設定
 		SetParticle();
+
 		if (m_playedSoundID == -1) // 再生していなければ再生開始
 		{
 			// 前の音を止める（念のため）
@@ -3075,7 +3078,7 @@ void CFireStatueBlock::SetParticle(void)
 		cylinderCenter, cylinderRadius, cylinderHeight, forward,m_isBlocked))
 	{
 		// リスポーン処理
-		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(1130.5f, 320.0f, 728.0f));
+		pPlayer->RespawnToCheckpoint();
 	}
 }
 
@@ -3253,12 +3256,21 @@ void CTurnFireStatueBlock::Update(void)
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 	float distance = D3DXVec3Length(&disPos);
-	const float kTriggerDistance = 880.0f; // 反応距離
+	const float kTriggerDistance = 720.0f; // 反応距離
 
 	if (distance < kTriggerDistance)
 	{
 		// パーティクルの設定
 		SetParticle();
+
+		if (m_playedSoundID == -1) // 再生していなければ再生開始
+		{
+			// 前の音を止める（念のため）
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+
+			// 3Dサウンド再生してIDを保持
+			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, kTriggerDistance);
+		}
 
 		D3DXVECTOR3 rot = GetRot();
 
@@ -3270,6 +3282,21 @@ void CTurnFireStatueBlock::Update(void)
 		}
 
 		SetRot(rot);
+	}
+	else
+	{
+		// 離れたら音停止してIDリセット
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->Stop(m_playedSoundID);
+			m_playedSoundID = -1;
+		}
+	}
+
+	// 音源の位置更新はIDを使う
+	if (m_playedSoundID != -1)
+	{
+		CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
 	}
 }
 //=============================================================================
@@ -3299,8 +3326,8 @@ void CTurnFireStatueBlock::SetParticle(void)
 	D3DXVec3TransformCoord(&worldPosBack, &localOffsetBack, &worldMtx);
 
 	// 元のシリンダーの判定サイズ
-	float cylinderRadius = 60.0f;
-	float maxCylinderHeight = 220.0f;
+	float cylinderRadius = 50.0f;
+	float maxCylinderHeight = 200.0f;
 
 	// 判定用の中心位置は発射位置から軸方向に半分移動したところ（シリンダーの中心）
 	float offsetDistanceFront = maxCylinderHeight * 0.5f;
@@ -3321,14 +3348,14 @@ void CTurnFireStatueBlock::SetParticle(void)
 	if (CCollision::CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
 		cylinderCenterFront, cylinderRadius, maxCylinderHeight, forward, false))
 	{
-		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+		pPlayer->RespawnToCheckpoint();
 	}
 
 	// プレイヤーとの当たり判定(後側)
 	if (CCollision::CheckCapsuleCylinderCollision_Dir(playerPos, playerRadius, playerHeight,
 		cylinderCenterBack, cylinderRadius, maxCylinderHeight, forward, false))
 	{
-		pPlayer->RespawnToCheckpoint(D3DXVECTOR3(0.0f, 100.0f, -300.0f));
+		pPlayer->RespawnToCheckpoint();
 	}
 }
 
@@ -3607,6 +3634,89 @@ void CKeyDoorBlock::Update()
 				pos.y += 1.0f;
 				SetPos(pos);
 			}
+		}
+	}
+}
+
+
+//=============================================================================
+// 盾ブロックのコンストラクタ
+//=============================================================================
+CShieldBlock::CShieldBlock()
+{
+	// 値のクリア
+	m_isEnd = false;
+	m_playedSoundID = -1;
+}
+//=============================================================================
+// 盾ブロックのデストラクタ
+//=============================================================================
+CShieldBlock::~CShieldBlock()
+{
+	// なし
+}
+//=============================================================================
+// 盾ブロックの更新処理
+//=============================================================================
+void CShieldBlock::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	CParticle* pParticle = NULL;
+
+	if (CManager::GetMode() == MODE_GAME)
+	{
+		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+		D3DXVECTOR3 disPos = playerPos - GetPos();
+
+		float distance = D3DXVec3Length(&disPos);
+
+		const float kTriggerDistance = 780.0f; // 反応距離
+
+		if (distance < kTriggerDistance)
+		{
+			// オフセット
+			D3DXVECTOR3 localOffset(0.0f, -60.0f, 0.0f);
+			D3DXVECTOR3 worldOffset;
+
+			// ブロックのワールドマトリックスを取得
+			D3DXMATRIX worldMtx = GetWorldMatrix();
+
+			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+			// パーティクル生成
+			pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
+
+			if (m_playedSoundID == -1) // 再生していなければ再生開始
+			{
+				// 前の音を止める（念のため）
+				CManager::GetSound()->Stop(CSound::SOUND_LABEL_TREASURE);
+
+				// 3Dサウンド再生してIDを保持
+				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_TREASURE, GetPos(), 250.0f, kTriggerDistance);
+			}
+
+			// 音源の位置更新はIDを使う
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
+			}
+		}
+		else
+		{
+			// 離れたら音停止してIDリセット
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->Stop(m_playedSoundID);
+				m_playedSoundID = -1;
+			}
+		}
+
+		const float getDistance = 250.0f; // 反応距離
+
+		if (distance < getDistance)
+		{// 手に入れた
+			m_isEnd = true;
 		}
 	}
 }

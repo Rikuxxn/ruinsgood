@@ -70,8 +70,9 @@ HRESULT CGame::Init(void)
 		break;
 	case CStage::STAGE_ID_2:
 		// ƒvƒŒƒCƒ„[‚Ì¶¬
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1542.3f, 360.0f, -850.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		// JSON‚Ì“Ç‚Ýž‚Ý
 		m_pBlockManager->LoadFromJson("data/stage_02.json");

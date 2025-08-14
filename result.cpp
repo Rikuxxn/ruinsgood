@@ -11,6 +11,7 @@
 #include "result.h"
 #include "input.h"
 #include "manager.h"
+#include "stageselect.h"
 
 //*****************************************************************************
 // ê√ìIÉÅÉìÉoïœêîêÈåæ
@@ -119,16 +120,39 @@ HRESULT CResult::Init(void)
 	// UI(ÉâÉìÉN)ÇÃê∂ê¨
 	m_pUi = CUi::Create(CUi::TYPE_RESULT03, "data/TEXTURE/ui_result006.png", D3DXVECTOR3(860.0f, 355.0f, 0.0f), 120.0f, 130.0f);
 
-	if (m_isMaskGet)
+	int stageId = CStageSelect::GetSelectedStage();
+
+	switch (stageId)
 	{
-		// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
-		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result004.png",D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
-	}
-	else if (!m_isMaskGet)
-	{
-		// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
-		m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result003.png",D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
-	}
+	case CStage::STAGE_ID_1:
+		if (m_isMaskGet)
+		{
+			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
+			m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result004.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
+		}
+		else if (!m_isMaskGet)
+		{
+			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
+			m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result003.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
+		}
+		break;
+	case CStage::STAGE_ID_2:
+		if (m_isMaskGet)
+		{
+			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
+			m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result004.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
+		}
+		else if (!m_isMaskGet)
+		{
+			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
+			m_pUi = CUi::Create(CUi::TYPE_RESULT02, "data/TEXTURE/ui_result003.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
+		}
+		break;
+	case CStage::STAGE_ID_3:
+		break;
+	case CStage::STAGE_ID_NONE:
+		break;
+	};
 
 	return S_OK;
 }

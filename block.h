@@ -89,6 +89,7 @@ public:
 		TYPE_KEY,
 		TYPE_KEY_PEDESTAL,
 		TYPE_KEY_DOOR,
+		TYPE_SHIELD,
 		TYPE_MAX
 	}TYPE;
 
@@ -684,6 +685,24 @@ public:
 
 private:
 	D3DXVECTOR3 m_openPos;
+
+};
+
+//*****************************************************************************
+// 盾ブロッククラス
+//*****************************************************************************
+class CShieldBlock : public CBlock
+{
+public:
+	CShieldBlock();
+	~CShieldBlock();
+
+	void Update(void) override;
+	bool IsEnd(void) { return m_isEnd; }
+
+private:
+	bool m_isEnd;
+	int m_playedSoundID;					// 再生中の音ID
 
 };
 
