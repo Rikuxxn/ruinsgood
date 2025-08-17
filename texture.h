@@ -127,6 +127,7 @@ private:
 		"data/TEXTURE/keydoor_tex.png",
 		"data/TEXTURE/keydoor.png",
 		"data/TEXTURE/shield.png",
+		"data/TEXTURE/stage_02.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

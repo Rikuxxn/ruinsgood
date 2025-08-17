@@ -11,6 +11,12 @@
 // インクルードファイル
 //*****************************************************************************
 #include "object.h"
+#include <unordered_map>
+#include <functional>
+
+class CUi;
+
+using UiCreateFunc = std::function<CUi* ()>;
 
 //*****************************************************************************
 // UIクラス
@@ -26,13 +32,14 @@ public:
 	{
 		TYPE_PAUSE = 0,
 		TYPE_MASK,
-		TYPE_RESULT01,
-		TYPE_RESULT02,
-		TYPE_RESULT03,
+		TYPE_RESULT_UI,
+		TYPE_RESULT_RANK,
+		TYPE_STAGE_NAME,
 		TYPE_MAX
 	}TYPE;
 
 	static CUi* Create(TYPE type, const char* path,D3DXVECTOR3 pos, float fWidth, float fHeight);
+	static void InitFactory(void);
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
@@ -59,6 +66,7 @@ private:
 	float m_uvWidth;
 	float m_uvHeight;
 	bool m_isUVDirty;
+	static std::unordered_map<TYPE, UiCreateFunc> m_UiFactoryMap;
 };
 
 //*****************************************************************************
@@ -100,29 +108,11 @@ private:
 //*****************************************************************************
 // リザルトUIクラス
 //*****************************************************************************
-class CResultUi01 : public CUi
+class CResultUi : public CUi
 {
 public:
-	CResultUi01();
-	~CResultUi01();
-
-	HRESULT Init(void);
-	void Uninit(void);
-	void Update(void);
-	void Draw(void);
-
-private:
-
-};
-
-//*****************************************************************************
-// リザルトUI(発見したかどうか)クラス
-//*****************************************************************************
-class CResultUi02 : public CUi
-{
-public:
-	CResultUi02();
-	~CResultUi02();
+	CResultUi();
+	~CResultUi();
 
 	HRESULT Init(void);
 	void Uninit(void);
@@ -136,11 +126,11 @@ private:
 //*****************************************************************************
 // リザルトUI(ランク)クラス
 //*****************************************************************************
-class CResultUi03 : public CUi
+class CResultRankUi : public CUi
 {
 public:
-	CResultUi03();
-	~CResultUi03();
+	CResultRankUi();
+	~CResultRankUi();
 
 	HRESULT Init(void);
 	void Uninit(void);
@@ -151,5 +141,34 @@ private:
 
 };
 
+//*****************************************************************************
+// ステージ名表示クラス
+//*****************************************************************************
+class CStageUi : public CUi
+{
+public:
+	CStageUi();
+	~CStageUi();
+
+	// 状態
+	typedef enum
+	{
+		STATE_FADEIN = 0,
+		STATE_SHOW,
+		STATE_FADEOUT,
+		STATE_END,
+		STATE_MAX
+	}STATE;
+
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void Draw(void);
+
+private:
+	float m_fTimer;	// 経過時間(秒)
+	float m_fAlpha;	// アルファ値
+	STATE m_state;	// 状態
+};
 
 #endif

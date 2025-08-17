@@ -55,7 +55,7 @@ CStage* CStage::Create(STAGE type, D3DXVECTOR3 pos, float fWidth, float fHeight)
 		break;
 	case STAGE_ID_2:
 		pStage = new CStage2;
-		pStage->SetPath("data/TEXTURE/stage_none.png");
+		pStage->SetPath("data/TEXTURE/stage_02.png");
 		break;
 	case STAGE_ID_3:
 		pStage = new CStage3;
