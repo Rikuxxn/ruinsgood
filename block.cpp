@@ -3890,8 +3890,6 @@ void CStatueBlock2::Update(void)
 //=============================================================================
 void CStatueBlock2::Move(void)
 {
-	CParticle* pParticle = NULL;
-
 	static bool isMoving = false;      // 移動中フラグ
 	static bool hasTriggered = false;  // 一度だけトリガーさせたい場合
 	static D3DXVECTOR3 goalPos;        // ゴール座標

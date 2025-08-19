@@ -162,7 +162,7 @@ void CGame::Update(void)
 		}
 	}
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
 
 	if (pFade->GetFade() == CFade::FADE_NONE && pInputKeyboard->GetTrigger(DIK_RETURN))
@@ -173,7 +173,7 @@ void CGame::Update(void)
 		// ƒŠƒUƒ‹ƒg‰æ–Ê‚ÉˆÚs
 		pFade->SetFade(MODE_RESULT);
 	}
-//#endif
+#endif
 }
 //=============================================================================
 // •`‰æˆ—
