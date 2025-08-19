@@ -122,6 +122,9 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_KEY_PEDESTAL]		= []() -> CBlock* { return new CKeyPedestalBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_KEY_DOOR]			= []() -> CBlock* { return new CKeyDoorBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_SHIELD]				= []() -> CBlock* { return new CShieldBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_STATUE]				= []() -> CBlock* { return new CStatueBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_STATUE2]				= []() -> CBlock* { return new CStatueBlock2(); };
+	m_BlockFactoryMap[CBlock::TYPE_EGG]					= []() -> CBlock* { return new CEggBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -413,6 +416,9 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap =
 	{ TYPE_KEY_PEDESTAL,	"data/TEXTURE/key_pedestal.png" },
 	{ TYPE_KEY_DOOR,		"data/TEXTURE/keydoor.png" },
 	{ TYPE_SHIELD,			"data/TEXTURE/shield.png" },
+	{ TYPE_STATUE,			"data/TEXTURE/statue.png" },
+	{ TYPE_STATUE2,			"data/TEXTURE/statue2.png" },
+	{ TYPE_EGG,				"data/TEXTURE/egg.png" },
 };
 //=============================================================================
 // 当たり判定の生成処理
@@ -2611,8 +2617,8 @@ void CMaskBlock::Update(void)
 		{
 			if (!m_isGet)
 			{
-				// 仮面取得UIの生成
-				CUi::Create(CUi::TYPE_MASK, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 140.0f);
+				// 秘宝取得UIの生成
+				CUi::Create(CUi::TYPE_GET, "data/TEXTURE/ui_mask.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 140.0f);
 			}
 
 			m_isGet = true;
@@ -3717,6 +3723,332 @@ void CShieldBlock::Update(void)
 		if (distance < getDistance)
 		{// 手に入れた
 			m_isEnd = true;
+		}
+	}
+}
+
+
+//=============================================================================
+// 石像ブロックのコンストラクタ
+//=============================================================================
+CStatueBlock::CStatueBlock()
+{
+	// 値のクリア
+	m_playedSoundID = -1;
+}
+//=============================================================================
+// 石像ブロックのデストラクタ
+//=============================================================================
+CStatueBlock::~CStatueBlock()
+{
+	// なし
+}
+//=============================================================================
+// 石像ブロックの更新処理
+//=============================================================================
+void CStatueBlock::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	CParticle* pParticle = NULL;
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 780.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		// オフセット
+		D3DXVECTOR3 localOffset(0.0f, -140.0f, 0.0f);
+		D3DXVECTOR3 worldOffset;
+
+		// ブロックのワールドマトリックスを取得
+		D3DXMATRIX worldMtx = GetWorldMatrix();
+
+		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+		// パーティクル生成
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_STATUE_FIRE, 1);
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_STATUE_FIRE, 1);
+
+		if (m_playedSoundID == -1) // 再生していなければ再生開始
+		{
+			// 前の音を止める（念のため）
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+
+			// 3Dサウンド再生してIDを保持
+			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 250.0f, kTriggerDistance);
+		}
+
+		// 音源の位置更新はIDを使う
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
+		}
+	}
+	else
+	{
+		// 離れたら音停止してIDリセット
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->Stop(m_playedSoundID);
+			m_playedSoundID = -1;
+		}
+	}
+}
+
+
+//=============================================================================
+// 火をつけると動く石像ブロックのコンストラクタ
+//=============================================================================
+CStatueBlock2::CStatueBlock2()
+{
+	// 値のクリア
+	m_playedSoundID = -1;
+	m_triggerDis = false;
+}
+//=============================================================================
+// 火をつけると動く石像ブロックのデストラクタ
+//=============================================================================
+CStatueBlock2::~CStatueBlock2()
+{
+	// なし
+}
+//=============================================================================
+// 火をつけると動く石像ブロックの更新処理
+//=============================================================================
+void CStatueBlock2::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	CParticle* pParticle = NULL;
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 680.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		// オフセット
+		D3DXVECTOR3 localOffset1(90.0f, -200.0f, 0.0f);
+		D3DXVECTOR3 localOffset2(-90.0f, -170.0f, 0.0f);
+		D3DXVECTOR3 worldOffset1;
+		D3DXVECTOR3 worldOffset2;
+
+		// ブロックのワールドマトリックスを取得
+		D3DXMATRIX worldMtx = GetWorldMatrix();
+
+		D3DXVec3TransformCoord(&worldOffset1, &localOffset1, &worldMtx);
+		D3DXVec3TransformCoord(&worldOffset2, &localOffset2, &worldMtx);
+
+		// パーティクル生成
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset1, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_STATUE_FIRE, 1);
+		pParticle = CParticle::Create(INIT_VEC3, worldOffset1, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_STATUE_FIRE, 1);
+
+		if (m_triggerDis)
+		{
+			pParticle = CParticle::Create(INIT_VEC3, worldOffset2, D3DXCOLOR(0.8f, 0.3f, 0.1f, 0.8f), 8, CParticle::TYPE_STATUE_FIRE, 1);
+			pParticle = CParticle::Create(INIT_VEC3, worldOffset2, D3DXCOLOR(1.0f, 0.5f, 0.0f, 0.8f), 15, CParticle::TYPE_STATUE_FIRE, 1);
+		}
+
+		if (m_playedSoundID == -1) // 再生していなければ再生開始
+		{
+			// 前の音を止める（念のため）
+			CManager::GetSound()->Stop(CSound::SOUND_LABEL_FIRE);
+
+			// 3Dサウンド再生してIDを保持
+			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 250.0f, kTriggerDistance);
+		}
+
+		// 音源の位置更新はIDを使う
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
+		}
+	}
+	else
+	{
+		// 離れたら音停止してIDリセット
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->Stop(m_playedSoundID);
+			m_playedSoundID = -1;
+		}
+	}
+
+	// 移動処理
+	Move();
+}
+//=============================================================================
+// 火をつけると動く石像ブロックの移動処理
+//=============================================================================
+void CStatueBlock2::Move(void)
+{
+	CParticle* pParticle = NULL;
+
+	static bool isMoving = false;      // 移動中フラグ
+	static bool hasTriggered = false;  // 一度だけトリガーさせたい場合
+	static D3DXVECTOR3 goalPos;        // ゴール座標
+
+	D3DXVECTOR3 pos = GetPos();
+
+	if (!hasTriggered) // まだトリガーしてない
+	{
+		// --- 松明との距離チェック ---
+		float minDistance = FLT_MAX;
+		bool torchFound = false;
+
+		for (CBlock* block : CBlockManager::GetAllBlocks())
+		{
+			if (block->GetType() != TYPE_TORCH2)
+			{// 置き型松明じゃなかったら
+				continue;
+			}
+
+			D3DXVECTOR3 torchPos = block->GetPos();
+			D3DXVECTOR3 disPos = torchPos - pos;
+
+			float distance = D3DXVec3Length(&disPos);
+			if (distance < minDistance)
+			{
+				minDistance = distance;
+				torchFound = true;
+			}
+		}
+
+		// 一定距離以内に松明があったら動かす
+		const float kTriggerDistance = 210.0f; // 反応距離
+
+		// 距離内ならトリガーON
+		if (torchFound && minDistance < kTriggerDistance)
+		{
+			// ひらめきSE
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
+
+			m_triggerDis = true;
+			isMoving = true;
+			hasTriggered = true;  // 一回だけにしたい場合はこれを有効
+			goalPos = pos + D3DXVECTOR3(180.0f, 0.0f, 0.0f); // ゴール位置
+		}
+	}
+
+	// --- 移動処理 ---
+	if (isMoving)
+	{
+		// 移動速度
+		const float speed = 1.0f;
+
+		// 方向ベクトル
+		D3DXVECTOR3 dir = goalPos - pos;
+		float dist = D3DXVec3Length(&dir);
+
+		if (dist < speed)
+		{
+			// ゴール到達
+			pos = goalPos;
+			isMoving = false;
+		}
+		else
+		{
+			D3DXVec3Normalize(&dir, &dir);
+			pos += dir * speed;
+		}
+
+		SetPos(pos);
+	}
+}
+
+
+//=============================================================================
+// 卵ブロックのコンストラクタ
+//=============================================================================
+CEggBlock::CEggBlock()
+{
+	// 値のクリア
+	m_isGet = false;
+	m_playedSoundID = -1;
+}
+//=============================================================================
+// 卵ブロックのデストラクタ
+//=============================================================================
+CEggBlock::~CEggBlock()
+{
+	// なし
+}
+//=============================================================================
+// 卵ブロックの更新処理
+//=============================================================================
+void CEggBlock::Update(void)
+{
+	CBlock::Update(); // 共通処理
+
+	CParticle* pParticle = NULL;
+
+	if (CManager::GetMode() == MODE_GAME)
+	{
+		D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+		D3DXVECTOR3 disPos = playerPos - GetPos();
+
+		float distance = D3DXVec3Length(&disPos);
+
+		const float kTriggerDistance = 1100.0f; // 反応距離
+
+		if (distance < kTriggerDistance && !m_isGet)
+		{
+			// オフセット
+			D3DXVECTOR3 localOffset(0.0f, 15.0f, 0.0f);
+			D3DXVECTOR3 worldOffset;
+
+			// ブロックのワールドマトリックスを取得
+			D3DXMATRIX worldMtx = GetWorldMatrix();
+
+			D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
+
+			// パーティクル生成
+			pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.8f, 0.2f, 0.2f, 0.3f), 50, CParticle::TYPE_AURA2, 1);
+
+			if (m_playedSoundID == -1) // 再生していなければ再生開始
+			{
+				// 前の音を止める（念のため）
+				CManager::GetSound()->Stop(CSound::SOUND_LABEL_MASK);
+
+				// 3Dサウンド再生してIDを保持
+				m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_MASK, GetPos(), 250.0f, kTriggerDistance);
+			}
+
+			// 音源の位置更新はIDを使う
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, GetPos());
+			}
+		}
+		else
+		{
+			// 離れたら音停止してIDリセット
+			if (m_playedSoundID != -1)
+			{
+				CManager::GetSound()->Stop(m_playedSoundID);
+				m_playedSoundID = -1;
+			}
+		}
+
+		const float getDistance = 250.0f; // 反応距離
+
+		if (distance < getDistance)
+		{
+			if (!m_isGet)
+			{
+				// 秘宝取得UIの生成
+				CUi::Create(CUi::TYPE_GET, "data/TEXTURE/ui_egg.png", D3DXVECTOR3(900.0f, 220.0f, 0.0f), 320.0f, 140.0f);
+			}
+
+			m_isGet = true;
 		}
 	}
 }

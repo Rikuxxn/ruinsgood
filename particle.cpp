@@ -87,6 +87,7 @@ void CParticle::InitFactory(void)
 	m_ParticleFactoryMap.clear();
 
 	m_ParticleFactoryMap[CParticle::TYPE_FIRE]			= []() -> CParticle* { return new CFireParticle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_STATUE_FIRE]	= []() -> CParticle* { return new CStatueFireParticle(); };
 	m_ParticleFactoryMap[CParticle::TYPE_FLAMETHROWER]	= []() -> CParticle* { return new CFlamethrowerParticle(); };
 	m_ParticleFactoryMap[CParticle::TYPE_WATER]			= []() -> CParticle* { return new CWaterParticle(); };
 	m_ParticleFactoryMap[CParticle::TYPE_AURA]			= []() -> CParticle* { return new CAuraParticle(); };
@@ -185,6 +186,80 @@ void CFireParticle::Update(void)
 
 		// 半径の設定
 		fRadius = 10.0f;
+
+		// エフェクトの設定
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+	}
+
+	// パーティクルの更新処理
+	CParticle::Update();
+}
+
+
+//=============================================================================
+// 石像の炎パーティクルのコンストラクタ
+//=============================================================================
+CStatueFireParticle::CStatueFireParticle()
+{
+
+}
+//=============================================================================
+// 石像の炎パーティクルのデストラクタ
+//=============================================================================
+CStatueFireParticle::~CStatueFireParticle()
+{
+	// なし
+}
+//=============================================================================
+// 石像の炎パーティクルの初期化処理
+//=============================================================================
+HRESULT CStatueFireParticle::Init(void)
+{
+	SetPath("data/TEXTURE/smoke.jpg");
+
+	// パーティクルの初期化処理
+	CParticle::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// 石像の炎パーティクルの更新処理
+//=============================================================================
+void CStatueFireParticle::Update(void)
+{
+	D3DXVECTOR3 pos;
+	D3DXVECTOR3 move;
+	D3DXCOLOR col;
+	float fRadius;
+	const char* texPath;
+	int nMaxParticle = GetMaxParticle();
+	int nLife = GetLife();
+
+	// パーティクル生成
+	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
+	{
+		// テクスチャの指定
+		texPath = "data/TEXTURE/smoke.jpg";
+
+		// 位置の設定
+		pos = GetPos();
+
+		// 移動量の設定
+		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;	//角度
+		float speed = (rand() % 10) / 30.0f + 0.2f;			//移動量
+
+		move.x = cosf(angle) * speed;
+		move.z = sinf(angle) * speed;
+
+		float baseY = 5.0f;						// 基本上昇速度
+		float randY = (rand() % 100) / 100.0f;	// 0～1のランダム
+		move.y = baseY + randY * 1.5f;			// 1.0～2.5くらいで上昇
+
+		// 色の設定
+		col = GetCol();
+
+		// 半径の設定
+		fRadius = 25.0f;
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);

@@ -128,6 +128,12 @@ private:
 		"data/TEXTURE/keydoor.png",
 		"data/TEXTURE/shield.png",
 		"data/TEXTURE/stage_02.png",
+		"data/TEXTURE/statue.png",
+		"data/TEXTURE/statue2.png",
+		"data/TEXTURE/egg.png",
+		"data/TEXTURE/ui_egg.png",
+		"data/TEXTURE/ui_eggfound.png",
+		"data/TEXTURE/ui_eggnotfound.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

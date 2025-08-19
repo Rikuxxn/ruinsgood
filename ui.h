@@ -31,7 +31,7 @@ public:
 	typedef enum
 	{
 		TYPE_PAUSE = 0,
-		TYPE_MASK,
+		TYPE_GET,
 		TYPE_RESULT_UI,
 		TYPE_RESULT_RANK,
 		TYPE_STAGE_NAME,
@@ -79,25 +79,21 @@ public:
 	~CPauseUi();
 
 	HRESULT Init(void);
-	void Uninit(void);
 	void Update(void);
-	void Draw(void);
 
 };
 
 //*****************************************************************************
-// 仮面取得UIクラス
+// 秘宝取得UIクラス
 //*****************************************************************************
-class CMaskUi : public CUi
+class CGetUi : public CUi
 {
 public:
-	CMaskUi();
-	~CMaskUi();
+	CGetUi();
+	~CGetUi();
 
 	HRESULT Init(void);
-	void Uninit(void);
 	void Update(void);
-	void Draw(void);
 
 private:
 	float m_fTimer;// 経過時間(秒)
@@ -115,9 +111,7 @@ public:
 	~CResultUi();
 
 	HRESULT Init(void);
-	void Uninit(void);
 	void Update(void);
-	void Draw(void);
 
 private:
 
@@ -133,9 +127,7 @@ public:
 	~CResultRankUi();
 
 	HRESULT Init(void);
-	void Uninit(void);
 	void Update(void);
-	void Draw(void);
 
 private:
 
@@ -161,9 +153,7 @@ public:
 	}STATE;
 
 	HRESULT Init(void);
-	void Uninit(void);
 	void Update(void);
-	void Draw(void);
 
 private:
 	float m_fTimer;	// 経過時間(秒)

@@ -90,6 +90,9 @@ public:
 		TYPE_KEY_PEDESTAL,
 		TYPE_KEY_DOOR,
 		TYPE_SHIELD,
+		TYPE_STATUE,
+		TYPE_STATUE2,
+		TYPE_EGG,
 		TYPE_MAX
 	}TYPE;
 
@@ -704,6 +707,55 @@ private:
 	bool m_isEnd;
 	int m_playedSoundID;					// 再生中の音ID
 
+};
+
+//*****************************************************************************
+// 石像ブロッククラス
+//*****************************************************************************
+class CStatueBlock : public CBlock
+{
+public:
+	CStatueBlock();
+	~CStatueBlock();
+
+	void Update(void) override;
+
+private:
+	int m_playedSoundID;					// 再生中の音ID
+};
+
+//*****************************************************************************
+// 火をつけると動く石像ブロッククラス
+//*****************************************************************************
+class CStatueBlock2 : public CBlock
+{
+public:
+	CStatueBlock2();
+	~CStatueBlock2();
+
+	void Update(void) override;
+	void Move(void);
+
+private:
+	int m_playedSoundID;					// 再生中の音ID
+	bool m_triggerDis;						// 松明が一定距離に入ったか
+};
+
+//*****************************************************************************
+// 卵ブロッククラス
+//*****************************************************************************
+class CEggBlock : public CBlock
+{
+public:
+	CEggBlock();
+	~CEggBlock();
+
+	void Update(void) override;
+	bool IsGet(void) { return m_isGet; }
+
+private:
+	bool m_isGet;
+	int m_playedSoundID;					// 再生中の音ID
 };
 
 //*****************************************************************************
