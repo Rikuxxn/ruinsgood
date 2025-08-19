@@ -109,7 +109,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hInstancePrev, _
 	dwExecLastTime = timeGetTime();		// 現在時刻を取得（保存）
 
 	// ウィンドウの表示
-	ShowWindow(hWnd, nCmdShow);
+	ShowWindow(hWnd, SW_MAXIMIZE);
 	UpdateWindow(hWnd);
 
 	DWORD dwFrameCount;					// フレームカウント
