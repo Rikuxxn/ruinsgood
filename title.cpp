@@ -87,7 +87,7 @@ HRESULT CTitle::Init(void)
 	ImageInfo images[2] =
 	{
 		   { D3DXVECTOR3(450.0f, 250.0f, 0.0f), 320.0f, 220.0f },	// É^ÉCÉgÉãÉçÉS
-		   { D3DXVECTOR3(880.0f, 770.0f, 0.0f), 320.0f, 55.0f }		// PRESS
+		   { D3DXVECTOR3(880.0f, 770.0f, 0.0f), 320.0f, 50.0f }		// PRESS
 	};
 
 	for (int nCnt = 0; nCnt < 2; nCnt++)

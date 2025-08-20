@@ -174,9 +174,19 @@ private:
 class CWoodBoxBlock : public CBlock
 {
 public:
+	CWoodBoxBlock();
+	~CWoodBoxBlock();
+
+	HRESULT Init(void);
+	void Update(void) override;
+	void Respawn(void);
+
 	btScalar GetMass(void) const override { return 4.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+
+private:
+	D3DXVECTOR3 m_ResPos;	// リスポーン位置
 };
 
 //*****************************************************************************
@@ -255,6 +265,7 @@ public:
 	void SetInWater(bool flag);
 	void AddWaterStayTime(void);
 	void ResetWaterStayTime(void);
+	void IsRespawn(bool flag) { m_isRespawn = flag; }
 
 private:
 	void ApplyToBlocks(void);   // 他ブロックに浮力
@@ -263,6 +274,7 @@ private:
 	int m_waterStayTime;		// 水中滞在時間（秒）
 	bool m_isInWater;			// 今水中にいるか
 	bool m_bWasInWater;			// 水に入ったか
+	bool m_isRespawn;			// リスポーン状態か
 };
 
 //*****************************************************************************
@@ -291,11 +303,12 @@ public:
 	CBigDoorBlock();
 	~CBigDoorBlock();
 
+	HRESULT Init(void) override;
 	void Update(void) override;
 
 private:
 	bool m_isDoorOpened;			// 開いたかどうか
-
+	D3DXVECTOR3 m_openPos;
 };
 
 //*****************************************************************************

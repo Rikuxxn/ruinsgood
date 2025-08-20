@@ -550,9 +550,9 @@ void CPlayer::HoldBlock(void)
 				D3DXVECTOR3 blocksize = target->GetSize();// Šg‘å—¦
 
 				bool isTooLarge =
-					blocksize.x >= 3.0f ||
-					blocksize.y >= 3.0f ||
-					blocksize.z >= 3.0f;
+					blocksize.x >= 2.0f ||
+					blocksize.y >= 2.0f ||
+					blocksize.z >= 2.0f;
 
 				if (blockMass > 7.0f || isTooLarge)
 				{// ˆê’èŽ¿—Ê‚ð’´‚¦‚½‚ç ‚Ü‚½‚Í ˆê’èƒTƒCƒY‚ð’´‚¦‚½‚ç

@@ -753,6 +753,73 @@ D3DXMATRIX CBlock::GetWorldMatrix(void)
 
 
 //=============================================================================
+// 木箱ブロックのコンストラクタ
+//=============================================================================
+CWoodBoxBlock::CWoodBoxBlock()
+{
+	// 値のクリア
+	m_ResPos = INIT_VEC3;
+}
+//=============================================================================
+// 木箱ブロックのデストラクタ
+//=============================================================================
+CWoodBoxBlock::~CWoodBoxBlock()
+{
+	// なし
+}
+//=============================================================================
+// 木箱ブロックの初期化処理
+//=============================================================================
+HRESULT CWoodBoxBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	// 最初の位置をリスポーン位置に設定
+	m_ResPos = GetPos();
+
+	// 動的に戻す
+	SetEditMode(false);
+
+	return S_OK;
+}
+//=============================================================================
+// 木箱ブロックの更新処理
+//=============================================================================
+void CWoodBoxBlock::Update()
+{
+	CBlock::Update(); // 共通処理
+}
+//=============================================================================
+// リスポーン処理
+//=============================================================================
+void CWoodBoxBlock::Respawn(void)
+{
+	// 動かすためにキネマティックにする
+	SetEditMode(true);
+
+	// ブロックの位置を取得
+	D3DXVECTOR3 Pos = GetPos();
+	D3DXVECTOR3 Rot = GetRot();
+
+	D3DXVECTOR3 respawnPos(m_ResPos);// リスポーン位置
+	D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
+
+	Pos = respawnPos;
+	Rot = rot;
+
+	SetPos(Pos);
+	SetRot(Rot);
+
+	// コライダーの更新
+	UpdateCollider();
+
+	// 動的に戻す
+	SetEditMode(false);
+}
+
+
+//=============================================================================
 // 溶岩ブロックのコンストラクタ
 //=============================================================================
 CLavaBlock::CLavaBlock()
@@ -858,6 +925,7 @@ CWaterBlock::CWaterBlock()
 	m_waterStayTime = 0;				// 水中滞在時間（秒）
 	m_isInWater = false;				// 今水中にいるか
 	m_bWasInWater = false;				// 水に入ったか
+	m_isRespawn = true;					// リスポーン状態か
 }
 //=============================================================================
 // 水ブロックのデストラクタ
@@ -924,6 +992,14 @@ void CWaterBlock::ApplyToBlocks(void)
 		if (!isOverlap)
 		{// 当たってなかったら
 			continue;
+		}
+
+		CWoodBoxBlock* pWoodBox = dynamic_cast<CWoodBoxBlock*>(block);
+
+		if (block->GetType() == TYPE_WOODBOX && m_isRespawn)
+		{
+			// リスポーン処理
+			pWoodBox->Respawn();
 		}
 
 		btRigidBody* pRigid = block->GetRigidBody();
@@ -1204,10 +1280,25 @@ CBigDoorBlock::~CBigDoorBlock()
 	// なし
 }
 //=============================================================================
+// 最終エリアドアブロックの初期化処理
+//=============================================================================
+HRESULT CBigDoorBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	// 最初の位置を保存
+	m_openPos = GetPos();
+
+	return S_OK;
+}
+//=============================================================================
 // 最終エリアドアブロックの更新処理
 //=============================================================================
 void CBigDoorBlock::Update(void)
 {
+	CBlock::Update();// 共通処理
+
 	if (!m_isDoorOpened)
 	{
 		// ターゲットブロックを探す
@@ -1232,17 +1323,18 @@ void CBigDoorBlock::Update(void)
 
 	if (m_isDoorOpened)
 	{
-		// ドアを開く
-		D3DXVECTOR3 newPos = GetPos();
+		// ドアを開ける
+		const float kOpenRange = 250.0f; // 開く高さ
 
-		if (newPos.y <= 385.0f)
+		float targetY = m_openPos.y + kOpenRange;
+
+		D3DXVECTOR3 pos = GetPos();
+		if (pos.y < targetY)
 		{
-			newPos.y += 0.5f;
-			SetPos(newPos);
+			pos.y += 1.0f;
+			SetPos(pos);
 		}
 	}
-
-	CBlock::Update();// 共通処理
 }
 
 
@@ -1339,7 +1431,7 @@ void CSwitchBlock::Update(void)
 	}
 
 	// 押されている → 閉じた位置から少し下げる
-	const float kPressDepth = 10.0f; // 下がる深さ
+	const float kPressDepth = 8.0f; // 下がる深さ
 
 	float targetY = m_closedPos.y - kPressDepth;
 
@@ -1380,6 +1472,7 @@ void CSwitchBlock::Update(void)
 		}
 
 		D3DXVECTOR3 waterPos = block->GetPos();
+		CWaterBlock* pWater = dynamic_cast<CWaterBlock*>(block);
 
 		if (waterPos.y < -280.0f)
 		{
@@ -1389,6 +1482,7 @@ void CSwitchBlock::Update(void)
 		}
 		else
 		{
+			pWater->IsRespawn(false);
 			m_isSwitchOn = false;
 		}
 	}
@@ -3466,8 +3560,6 @@ HRESULT CKeyBlock::Init(void)
 void CKeyBlock::Update()
 {
 	CBlock::Update(); // 共通処理
-
-
 }
 //=============================================================================
 // リスポーン処理
