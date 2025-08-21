@@ -22,8 +22,9 @@ public:
     void Uninit(void);
     void Update(void);                  // 更新（入力処理）
     void Draw(void);                    // 描画
-
+  
 private:
+    LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;	// 背景用頂点バッファへのポインタ
     std::vector<CPause*> m_Items;
     int m_SelectedIndex;
     bool m_inputLock;

@@ -63,7 +63,7 @@ private:
 	static CTexture* m_pTexture;				// テクスチャへのポインタ
 	static CCamera* m_pCamera;					// カメラへのポインタ
 	static CLight* m_pLight;					// ライトへのポインタ
-	static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
+	//static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
 	int m_fps;									// FPS値
 
 	btBroadphaseInterface* m_pBroadphase;						// 衝突判定のクラスへのポインタ

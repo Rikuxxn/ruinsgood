@@ -45,12 +45,16 @@ CObject2D::~CObject2D()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CObject2D* CObject2D::Create(void)
+CObject2D* CObject2D::Create(D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	CObject2D* pObject2D;
 
 	// オブジェクトの生成
 	pObject2D = new CObject2D;
+
+	pObject2D->SetPos(pos);
+	pObject2D->SetSize(fWidth, fHeight);
+	pObject2D->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 	// 初期化処理
 	pObject2D->Init();
@@ -63,8 +67,7 @@ CObject2D* CObject2D::Create(void)
 HRESULT CObject2D::Init(void)
 {
 	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
@@ -80,10 +83,10 @@ HRESULT CObject2D::Init(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x, m_pos.y, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x, m_pos.y + m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
 
 	// rhwの設定
 	pVtx[0].rhw = 1.0f;

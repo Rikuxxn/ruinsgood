@@ -27,14 +27,14 @@
 class CObject2D : public CObject
 {
 public:
-	CObject2D(int nPriority = 7);
+	CObject2D(int nPriority = 6);
 	~CObject2D();
 
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	static CObject2D* Create(void);
+	static CObject2D* Create(D3DXVECTOR3 pos, float fWidth, float fHeight);
 	void SetPos(D3DXVECTOR3 pos);
 	void SetRot(D3DXVECTOR3 rot);
 	void SetCol(D3DXCOLOR color);

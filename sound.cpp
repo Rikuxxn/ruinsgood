@@ -244,7 +244,7 @@ int CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, f
 	FLOAT32 matrix[8] = {}; // 適切なサイズ（出力チャンネル×入力チャンネル）
 	CalculateCustomPanning(inst, matrix);
 
-	// パンニング適用（例: 出力チャンネル4、入力1）
+	// パンニング適用（出力チャンネル4、入力1）
 	inst.pSourceVoice->SetOutputMatrix(NULL, 1, 4, matrix);
 
 	hr = inst.pSourceVoice->Start(0);

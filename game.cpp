@@ -24,6 +24,7 @@ CBlockManager* CGame::m_pBlockManager= NULL;	// ブロックマネージャーへのポインタ
 CImGuiManager* CGame::m_pImGuiManager= NULL;	// ImGuiマネージャーへのポインタ
 CObjectBillboard* CGame::m_pBillboard = NULL;	// ビルボードへのポインタ
 CUi* CGame::m_pUi = NULL;						// UIへのポインタ
+CPauseManager* CGame::m_pPauseManager = NULL;
 
 //=============================================================================
 // コンストラクタ
@@ -50,6 +51,7 @@ HRESULT CGame::Init(void)
 	// ブロックマネージャーの初期化
 	m_pBlockManager->Init();
 
+
 	int stageId = CStageSelect::GetSelectedStage();
 
 	switch (stageId)
@@ -61,8 +63,8 @@ HRESULT CGame::Init(void)
 		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 20.0f);
 
 		// プレイヤーの生成
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_01.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
 
@@ -110,6 +112,12 @@ HRESULT CGame::Init(void)
 	//// ゲームBGMの再生
 	//CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
 
+	// ポーズマネージャーの生成
+	m_pPauseManager = new CPauseManager();
+
+	// ポーズマネージャーの初期化
+	m_pPauseManager->Init();
+
 	return S_OK;
 }
 //=============================================================================
@@ -127,6 +135,16 @@ void CGame::Uninit(void)
 
 		delete m_pBlockManager;
 		m_pBlockManager = NULL;
+	}
+
+	// ポーズマネージャーの破棄
+	if (m_pPauseManager != NULL)
+	{
+		// ポーズマネージャーの終了処理
+		m_pPauseManager->Uninit();
+
+		delete m_pPauseManager;
+		m_pPauseManager = NULL;
 	}
 }
 //=============================================================================
@@ -180,5 +198,10 @@ void CGame::Update(void)
 //=============================================================================
 void CGame::Draw(void)
 {
-
+	// ポーズ中だったら
+	if (CManager::GetisPaused())
+	{
+		// ポーズマネージャーの描画処理
+		m_pPauseManager->Draw();
+	}
 }

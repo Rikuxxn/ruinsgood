@@ -106,6 +106,8 @@ HRESULT CResult::Init(void)
 	float fTimeWidth = 72.0f;
 	float fTimeHeight = 88.0f;
 
+	//CObject2D::Create(D3DXVECTOR3(960.0f, 540.0f, 0.0f), 1920.0f, 1080.0f);
+
 	// É^ÉCÉÄÇÃê∂ê¨
 	m_pTime = CTime::Create(m_nClearMinutes, m_nClearSeconds, fTimePosX, 695.0f, fTimeWidth, fTimeHeight);
 

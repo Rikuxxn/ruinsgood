@@ -26,7 +26,7 @@ CCamera* CManager::m_pCamera = NULL;
 CLight* CManager::m_pLight = NULL;
 CScene* CManager::m_pScene = NULL;
 CFade* CManager::m_pFade = NULL;
-CPauseManager* CManager::m_pPauseManager = NULL;
+//CPauseManager* CManager::m_pPauseManager = NULL;
 
 bool CManager::m_isPaused = false;					// trueならポーズ中
 
@@ -129,12 +129,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd)
 
 	// テクスチャの読み込み
 	m_pTexture->Load();
-
-	// ポーズマネージャーの生成
-	m_pPauseManager = new CPauseManager();
-
-	// ポーズマネージャーの初期化
-	m_pPauseManager->Init();
 
 	// タイトル画面
 	m_pFade = CFade::Create(CScene::MODE_TITLE);
@@ -274,16 +268,6 @@ void CManager::Uninit(void)
 		m_pFade = NULL;
 	}
 
-	// ポーズマネージャーの破棄
-	if (m_pPauseManager != NULL)
-	{
-		// ポーズマネージャーの終了処理
-		m_pPauseManager->Uninit();
-
-		delete m_pPauseManager;
-		m_pPauseManager = NULL;
-	}
-
 	// レンダラーの破棄
 	if (m_pRenderer != NULL)
 	{
@@ -348,7 +332,7 @@ void CManager::Update(void)
 			m_pInputMouse->SetCursorVisibility(true);
 
 			// ポーズマネージャーの更新処理
-			m_pPauseManager->Update();
+			CGame::GetPauseManager()->Update();
 
 			return;
 		}
@@ -372,22 +356,12 @@ void CManager::Draw(void)
 {
 	// レンダラーの描画
 	m_pRenderer->Draw(m_fps);
-
-	// ポーズ中だったら
-	if (m_isPaused)
-	{
-		// ポーズマネージャーの描画処理
-		m_pPauseManager->Draw();
-	}
 }
 //=============================================================================
 // モードの設定
 //=============================================================================
 void CManager::SetMode(CScene::MODE mode)
 {
-	// ポーズマネージャーの終了処理
-	m_pPauseManager->Uninit();
-
 	// カメラの初期化処理
 	m_pCamera->Init();
 
@@ -404,9 +378,6 @@ void CManager::SetMode(CScene::MODE mode)
 
 	// ポーズをfalseにしておく
 	CManager::SetEnablePause(false);
-
-	// ポーズマネージャーの初期化処理
-	m_pPauseManager->Init();
 
 	// 新しいモードの生成
 	m_pScene = CScene::Create(mode);

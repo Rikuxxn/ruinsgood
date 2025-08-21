@@ -789,6 +789,12 @@ HRESULT CWoodBoxBlock::Init(void)
 void CWoodBoxBlock::Update()
 {
 	CBlock::Update(); // 共通処理
+
+	if (GetPos().y <= -810.0f)
+	{
+		// リスポーン処理
+		Respawn();
+	}
 }
 //=============================================================================
 // リスポーン処理
@@ -996,6 +1002,7 @@ void CWaterBlock::ApplyToBlocks(void)
 
 		CWoodBoxBlock* pWoodBox = dynamic_cast<CWoodBoxBlock*>(block);
 
+		// 木箱ブロックだったら
 		if (block->GetType() == TYPE_WOODBOX && m_isRespawn)
 		{
 			// リスポーン処理

@@ -16,6 +16,7 @@
 #include "time.h"
 #include "blockmanager.h"
 #include "ui.h"
+#include "pausemanager.h"
 
 //*****************************************************************************
 // ゲームクラス
@@ -38,6 +39,7 @@ public:
 	static CImGuiManager* GetImGuiManager(void) { return m_pImGuiManager; }
 	static CObjectBillboard* GetBillboard(void) { return m_pBillboard; }
 	static CUi* GetUi(void) { return m_pUi; }
+	static CPauseManager* GetPauseManager(void) { return m_pPauseManager; }
 
 private:
 	static CPlayer* m_pPlayer;					// プレイヤーへのポインタ
@@ -48,6 +50,7 @@ private:
 	static CImGuiManager* m_pImGuiManager;		// ImGuiマネージャーへのポインタ
 	static CObjectBillboard* m_pBillboard;		// ビルボードへのポインタ
 	static CUi* m_pUi;							// UIへのポインタ
+	static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
 
 };
 
