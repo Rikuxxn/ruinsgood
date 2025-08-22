@@ -230,8 +230,16 @@ int CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, f
 	XAUDIO2_BUFFER buffer = {};
 	buffer.AudioBytes = m_SoundData[label].audioBytes;
 	buffer.pAudioData = m_SoundData[label].pAudioData;
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-	buffer.LoopCount = m_aSoundInfo[label].loopCount;
+
+	if (m_aSoundInfo[label].loopCount == XAUDIO2_LOOP_INFINITE)
+	{// ループの時
+		buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+	}
+	else
+	{// ループじゃない時
+		buffer.LoopCount = m_aSoundInfo[label].loopCount;
+		buffer.Flags = XAUDIO2_END_OF_STREAM;
+	}
 
 	hr = inst.pSourceVoice->SubmitSourceBuffer(&buffer);
 	if (FAILED(hr))

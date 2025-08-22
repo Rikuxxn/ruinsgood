@@ -471,7 +471,7 @@ public:
 	void Update(void) override;
 
 private:
-	int m_playedFireSoundID;	// Ä¶’†‚Ì‰¹ID
+	int m_playedSoundID;	// Ä¶’†‚Ì‰¹ID
 };
 
 //*****************************************************************************
@@ -489,7 +489,7 @@ public:
 	bool IsDynamicBlock(void) const override { return true; }
 
 private:
-	int m_playedFireSoundID;// Ä¶’†‚Ì‰¹ID
+	int m_playedSoundID;// Ä¶’†‚Ì‰¹ID
 };
 
 //*****************************************************************************
@@ -506,7 +506,7 @@ public:
 	bool IsHit(void) { return m_isHit; }
 
 private:
-	int m_playedFireSoundID;// Ä¶’†‚Ì‰¹ID
+	int m_playedSoundID;// Ä¶’†‚Ì‰¹ID
 	bool m_isHit;
 };
 
