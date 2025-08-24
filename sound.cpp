@@ -215,7 +215,9 @@ int CSound::Play3D(SOUND_LABEL label, D3DXVECTOR3 soundPos, float minDistance, f
 
 	HRESULT hr = m_pXAudio2->CreateSourceVoice(&inst.pSourceVoice, &(m_SoundData[label].wfx.Format));
 	if (FAILED(hr))
+	{
 		return -1;
+	}
 
 	// エミッター設定
 	inst.emitter.Position = { soundPos.x, soundPos.y, soundPos.z };
