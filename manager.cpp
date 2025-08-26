@@ -26,10 +26,6 @@ CCamera* CManager::m_pCamera = NULL;
 CLight* CManager::m_pLight = NULL;
 CScene* CManager::m_pScene = NULL;
 CFade* CManager::m_pFade = NULL;
-//CPauseManager* CManager::m_pPauseManager = NULL;
-
-bool CManager::m_isPaused = false;					// trueならポーズ中
-
 btDiscreteDynamicsWorld* CManager::m_pDynamicsWorld = NULL;
 
 //=============================================================================
@@ -299,43 +295,21 @@ void CManager::Update(void)
 		m_pFade->Update();
 	}
 
-	if (m_pScene->GetMode() == MODE_GAME)
+	// ポーズ中はゲーム更新しない
+	if (CGame::GetisPaused() == true)
 	{
-		// TABキーでポーズON/OFF
 		if (m_pInputKeyboard->GetTrigger(DIK_TAB) || m_pInputJoypad->GetTrigger(CInputJoypad::JOYKEY_START))
 		{
-			// ポーズSE
-			m_pSound->Play(CSound::SOUND_LABEL_PAUSE);
-
-			// ポーズ切り替え前の状態を記録
-			bool wasPaused = m_isPaused;
-
-			m_isPaused = !m_isPaused;
-
-			// ポーズ状態に応じて音を制御
-			if (m_isPaused && !wasPaused)
-			{
-				// 一時停止する
-				m_pSound->PauseAll();
-			}
-			else if (!m_isPaused && wasPaused)
-			{
-				// 再開する
-				m_pSound->ResumeAll();
-			}
+			CGame::SetEnablePause(false);
 		}
 
-		// ポーズ中はゲーム更新しない
-		if (m_isPaused == true)
-		{
-			// マウスカーソルを表示にする
-			m_pInputMouse->SetCursorVisibility(true);
+		// マウスカーソルを表示にする
+		m_pInputMouse->SetCursorVisibility(true);
 
-			// ポーズマネージャーの更新処理
-			CGame::GetPauseManager()->Update();
+		// ポーズマネージャーの更新処理
+		CGame::GetPauseManager()->Update();
 
-			return;
-		}
+		return;
 	}
 
 	m_pDynamicsWorld->stepSimulation((btScalar)m_fps);
@@ -377,7 +351,7 @@ void CManager::SetMode(CScene::MODE mode)
 	CObject::ReleaseAll();
 
 	// ポーズをfalseにしておく
-	CManager::SetEnablePause(false);
+	CGame::SetEnablePause(false);
 
 	// 新しいモードの生成
 	m_pScene = CScene::Create(mode);
@@ -388,22 +362,4 @@ void CManager::SetMode(CScene::MODE mode)
 CScene::MODE CManager::GetMode(void)
 {
 	return m_pScene->GetMode();
-}
-//=============================================================================
-// ポーズの設定
-//=============================================================================
-void CManager::SetEnablePause(bool bPause)
-{
-	m_isPaused = bPause;
-
-	if (bPause)
-	{
-		// 音を一時停止
-		m_pSound->PauseAll();
-	}
-	else
-	{
-		// 音を再開
-		m_pSound->ResumeAll();
-	}
 }

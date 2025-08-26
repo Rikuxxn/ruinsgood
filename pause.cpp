@@ -16,13 +16,9 @@
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-CPause::CPause(int nPriority) : CObject(nPriority)
+CPause::CPause(int nPriority) : CObject2D(nPriority)
 {
 	// 値のクリア
-	m_pVtxBuff		= NULL;
-	m_pos			= INIT_VEC3;
-	m_fWidth		= 0.0f;
-	m_fHeight		= 0.0f;
 	m_nIdxTexture	= 0;
 	memset(m_szPath, 0, sizeof(m_szPath));
 	m_isSelected = false;
@@ -61,8 +57,7 @@ CPause* CPause::Create(MENU type,D3DXVECTOR3 pos, float fWidth, float fHeight)
 	}
 
 	pPause->SetPos(pos);
-	pPause->m_fWidth = fWidth;
-	pPause->m_fHeight = fHeight;
+	pPause->SetSize(fWidth, fHeight);
 	pPause->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 	// 初期化処理
@@ -80,45 +75,8 @@ HRESULT CPause::Init(void)
 
 	m_nIdxTexture = CManager::GetTexture()->Register(m_szPath);
 
-	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&m_pVtxBuff,
-		NULL);
-
-	VERTEX_2D* pVtx;// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
-	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
-
-	// rhwの設定
-	pVtx[0].rhw = 1.0f;
-	pVtx[1].rhw = 1.0f;
-	pVtx[2].rhw = 1.0f;
-	pVtx[3].rhw = 1.0f;
-
-	// 頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// テクスチャ座標の設定
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-	// 頂点バッファをアンロックする
-	m_pVtxBuff->Unlock();
+	// 2Dオブジェクトの初期化処理
+	CObject2D::Init();
 
 	return S_OK;
 }
@@ -126,50 +84,29 @@ HRESULT CPause::Init(void)
 // 終了処理
 //=============================================================================
 void CPause::Uninit(void)
-{
-	// 頂点バッファの破棄
-	if (m_pVtxBuff != NULL)
-	{
-		m_pVtxBuff->Release();
-		m_pVtxBuff = NULL;
-	}
-
-	this->Release();
+{	
+	// 2Dオブジェクトの終了処理
+	CObject2D::Uninit();
 }
 //=============================================================================
 // 更新処理
 //=============================================================================
 void CPause::Update(void)
 {
-	VERTEX_2D* pVtx;// 頂点情報へのポインタ
+	//VERTEX_2D* pVtx;// 頂点情報へのポインタ
+
+	// 2Dオブジェクトの更新処理
+	CObject2D::Update();
 
 	// 選択項目の色の切り替え
 	if (IsMouseOver() || m_isSelected)
 	{
-		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 	else
 	{
-		m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f));
 	}
-
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
-	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
-
-	// 頂点カラーの設定
-	pVtx[0].col = m_col;
-	pVtx[1].col = m_col;
-	pVtx[2].col = m_col;
-	pVtx[3].col = m_col;
-
-	// 頂点バッファをアンロックする
-	m_pVtxBuff->Unlock();
 }
 //=============================================================================
 // 描画処理
@@ -180,33 +117,17 @@ void CPause::Draw(void)
 	CTexture* pTexture = CManager::GetTexture();
 
 	// ポーズ状態だったら
-	if (CManager::GetisPaused())
+	if (CGame::GetisPaused())
 	{
 		// デバイスの取得
 		LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
-		//=============================================
-		// ポーズ
-		//=============================================
-		// 頂点バッファをデータストリームに設定
-		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
-
-		// 頂点フォーマットの設定
-		pDevice->SetFVF(FVF_VERTEX_2D);
-
 		// テクスチャの設定
 		pDevice->SetTexture(0, pTexture->GetAddress(m_nIdxTexture));
 
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		// 2Dオブジェクトの描画処理
+		CObject2D::Draw();
 	}
-}
-//=============================================================================
-// 位置の取得処理
-//=============================================================================
-D3DXVECTOR3 CPause::GetPos(void)
-{
-	return m_pos;
 }
 //=============================================================================
 // マウスカーソルの判定処理
@@ -227,10 +148,10 @@ bool CPause::IsMouseOver(void)
 	RECT clientRect;
 	GetClientRect(hwnd, &clientRect);
 
-	float left = m_pos.x - m_fWidth;
-	float right = m_pos.x + m_fWidth;
-	float top = m_pos.y - m_fHeight;
-	float bottom = m_pos.y + m_fHeight;
+	float left = GetPos().x - GetWidth();
+	float right = GetPos().x + GetWidth();
+	float top = GetPos().y - GetHeight();
+	float bottom = GetPos().y + GetHeight();
 
 	return (cursorPos.x >= left && cursorPos.x <= right &&
 		cursorPos.y >= top && cursorPos.y <= bottom);
@@ -258,7 +179,7 @@ CContinue::~CContinue()
 void CContinue::Execute(void)
 {
 	// 続ける
-	CManager::SetEnablePause(false);
+	CGame::SetEnablePause(false);
 }
 
 

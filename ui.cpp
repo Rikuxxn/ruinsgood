@@ -21,14 +21,9 @@ std::unordered_map<CUi::TYPE, UiCreateFunc> CUi::m_UiFactoryMap = {};
 //=============================================================================
 // コンストラクタ
 //=============================================================================
-CUi::CUi(int nPriority) : CObject(nPriority)
+CUi::CUi(int nPriority) : CObject2D(nPriority)
 {
 	// 値のクリア
-	m_pVtxBuff = NULL;		// 頂点バッファへのポインタ
-	m_pos = INIT_VEC3;
-	m_col = INIT_XCOL;
-	m_fWidth = 0.0f;			// 幅
-	m_fHeight = 0.0f;			// 高さ
 	m_nIdxTexture = 0;
 	memset(m_szPath, 0, sizeof(m_szPath));
 	m_type = TYPE_PAUSE;
@@ -109,45 +104,8 @@ HRESULT CUi::Init(void)
 	// テクスチャの取得
 	m_nIdxTexture = CManager::GetTexture()->Register(m_szPath);
 
-	//頂点バッファの生成
-	pDevice->CreateVertexBuffer(sizeof(VERTEX_2D) * 4,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&m_pVtxBuff,
-		NULL);
-
-	VERTEX_2D* pVtx = NULL;// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
-	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
-
-	// rhwの設定
-	pVtx[0].rhw = 1.0f;
-	pVtx[1].rhw = 1.0f;
-	pVtx[2].rhw = 1.0f;
-	pVtx[3].rhw = 1.0f;
-
-	// 頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// テクスチャ座標の設定
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
-
-	// 頂点バッファをアンロックする
-	m_pVtxBuff->Unlock();
+	// 2Dオブジェクトの初期化処理
+	CObject2D::Init();
 
 	return S_OK;
 }
@@ -156,50 +114,25 @@ HRESULT CUi::Init(void)
 //=============================================================================
 void CUi::Uninit(void)
 {
-	// 頂点バッファの破棄
-	if (m_pVtxBuff != NULL)
-	{
-		m_pVtxBuff->Release();
-		m_pVtxBuff = NULL;
-	}
-
-	// オブジェクトの破棄(自分自身)
-	this->Release();
+	// 2Dオブジェクトの終了処理
+	CObject2D::Uninit();
 }
 //=============================================================================
 // 更新処理
 //=============================================================================
 void CUi::Update(void)
 {
-	VERTEX_2D* pVtx;// 頂点情報へのポインタ
-
-	// 頂点バッファをロックし、頂点情報へのポインタを取得
-	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
-
-	// 頂点カラーの設定
-	pVtx[0].col = m_col;
-	pVtx[1].col = m_col;
-	pVtx[2].col = m_col;
-	pVtx[3].col = m_col;
+	// 2Dオブジェクトの更新処理
+	CObject2D::Update();
 
 	if (m_isUVDirty)
 	{
-		pVtx[0].tex = D3DXVECTOR2(m_uvLeft, m_uvTop);
-		pVtx[1].tex = D3DXVECTOR2(m_uvLeft + m_uvWidth, m_uvTop);
-		pVtx[2].tex = D3DXVECTOR2(m_uvLeft, m_uvTop + m_uvHeight);
-		pVtx[3].tex = D3DXVECTOR2(m_uvLeft + m_uvWidth, m_uvTop + m_uvHeight);
+		// テクスチャUV移動処理
+		CObject2D::MoveTexUV(m_uvLeft, m_uvTop, m_uvWidth, m_uvHeight);
 
 		m_isUVDirty = false;
 	}
 
-	//頂点バッファをアンロックする
-	m_pVtxBuff->Unlock();
 }
 //=============================================================================
 // 描画処理
@@ -209,17 +142,11 @@ void CUi::Draw(void)
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
-
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
-
 	// テクスチャの設定
 	pDevice->SetTexture(0, CManager::GetTexture()->GetAddress(m_nIdxTexture));
 
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+	// 2Dオブジェクトの描画処理
+	CObject2D::Draw();
 }
 //=============================================================================
 // UVの設定処理

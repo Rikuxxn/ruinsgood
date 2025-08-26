@@ -14,6 +14,7 @@
 #include "model.h"
 #include "particle.h"
 #include "game.h"
+#include "stageselect.h"
 
 using namespace std;
 
@@ -541,125 +542,123 @@ void CPlayer::HoldBlock(void)
 		{
 			CBlock* target = FindFrontBlockByRaycast(50.0f);// レイの長さを設定
 
-			if (target)
+			if (!target)
 			{
-				// ブロックの質量を取得
-				float blockMass = target->GetMass();
+				return;
+			}
 
-				// ブロックのサイズ(拡大率)を取得
-				D3DXVECTOR3 blocksize = target->GetSize();// 拡大率
+			// ブロックの質量を取得
+			float blockMass = target->GetMass();
 
-				bool isTooLarge =
-					blocksize.x >= 2.0f ||
-					blocksize.y >= 2.0f ||
-					blocksize.z >= 2.0f;
+			// ブロックのサイズ(拡大率)を取得
+			D3DXVECTOR3 blocksize = target->GetSize();// 拡大率
 
-				if (blockMass > 7.0f || isTooLarge)
-				{// 一定質量を超えたら または 一定サイズを超えたら
-					return;
-				}
+			float maxsize = 2.0f;
 
-				m_pCarryingBlock = target;
+			bool isTooLarge =
+				blocksize.x >= maxsize ||
+				blocksize.y >= maxsize ||
+				blocksize.z >= maxsize;
 
-				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE ||
-					m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
-				{
-					// 無回転
-					m_pCarryingBlock->GetRigidBody()->setAngularFactor(m_pCarryingBlock->GetAngularFactor());
-				}
-				else
-				{
-					// Y軸のみ回転
-					m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
-				}
+			if (blockMass > 7.0f || isTooLarge)
+			{// 一定質量を超えたら または 一定サイズを超えたら
+				return;
+			}
+
+			int stageId = CStageSelect::GetSelectedStage();
+			if (stageId == 0 && target->GetType() == CBlock::TYPE_BLOCK3)
+			{
+				return;
+			}
+
+			m_pCarryingBlock = target;
+
+			if (m_pCarryingBlock->GetAngularFactor() == btVector3(0.0f, 0.0f, 0.0f))
+			{
+				// 無回転
+				m_pCarryingBlock->GetRigidBody()->setAngularFactor(m_pCarryingBlock->GetAngularFactor());
+			}
+			else
+			{
+				// Y軸のみ回転
+				m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(0.0f, 1.0f, 0.0f));
 			}
 		}
 		else
 		{
 			btRigidBody* pRigid = m_pCarryingBlock->GetRigidBody();
 
-			if (pRigid && m_pCarryingBlock->IsDynamicBlock())
+			if (!pRigid || !m_pCarryingBlock->IsDynamicBlock())
 			{
-				// 現在の位置
-				D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
-				D3DXVECTOR3 playerPos = GetPos();
-
-				// 距離チェック
-				D3DXVECTOR3 diff = currentPos - playerPos;
-				float distance = D3DXVec3Length(&diff);
-				const float maxCarryDistance = 200.0f; // 離し上限距離
-
-				if (distance > maxCarryDistance || currentPos <= playerPos)
-				{
-					// 離す
-					m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
-					m_pCarryingBlock = NULL;
-					return;
-				}
-
-				float ftargetDis = 0.0f;
-				D3DXVECTOR3 targetPos;// 持ち上げたいターゲット位置
-				
-				if (m_pCarryingBlock->GetType() == CBlock::TYPE_RAFT ||
-					m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
-				{
-					ftargetDis = 80.0f;
-				}
-				else if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE)
-				{
-					ftargetDis = 100.0f;
-				}
-				else
-				{
-					ftargetDis = 60.0f;
-				}
-
-				if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE ||
-					m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
-				{
-					// XZのみ追従、Yは固定
-					targetPos = currentPos;
-					targetPos.x = playerPos.x + GetForward().x * ftargetDis;
-					targetPos.z = playerPos.z + GetForward().z * ftargetDis;
-					targetPos.y = currentPos.y; // 高さを変えない
-				}
-				else
-				{
-					// 通常は前方に持ち上げる
-					targetPos = playerPos + GetForward() * ftargetDis;
-					targetPos.y = GetPos().y + 70.0f; // 通常は持ち上げる
-				}
-
-				// Bullet用の差分
-				btVector3 posDiff(
-					targetPos.x - currentPos.x,
-					targetPos.y - currentPos.y,
-					targetPos.z - currentPos.z
-				);
-
-				// 現在の速度
-				btVector3 vel = pRigid->getLinearVelocity();
-
-				// スプリング定数・減衰係数（調整用）
-				const float stiffness = 300.0f;  // バネの強さ
-				const float damping = 30.0f;   // 減衰の強さ
-
-				// スプリング＋ダンパー力 = -kX - cV
-				btVector3 springForce = posDiff * stiffness;
-				btVector3 dampingForce = vel * -damping;
-				btVector3 totalForce = springForce + dampingForce;
-
-				// 力を加える
-				pRigid->applyCentralForce(totalForce);
-
-				// 横の速度を抑えて安定させる（オプション）
-				vel.setX(vel.getX() * 1.0f);
-				vel.setZ(vel.getZ() * 1.0f);
-				pRigid->setLinearVelocity(vel);
-
-				// 回転も抑えると安定する
-				pRigid->setAngularVelocity(btVector3(0, 0, 0));
+				return;
 			}
+
+			// 現在の位置
+			D3DXVECTOR3 currentPos = m_pCarryingBlock->GetPos();
+			D3DXVECTOR3 playerPos = GetPos();
+
+			// 距離チェック
+			D3DXVECTOR3 diff = currentPos - playerPos;
+			float distance = D3DXVec3Length(&diff);
+			const float maxCarryDistance = 200.0f; // 離し上限距離(この距離を超えたらブロックを離す)
+
+			if (distance > maxCarryDistance || currentPos <= playerPos)
+			{
+				// 離す
+				m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+				m_pCarryingBlock = NULL;
+				return;
+			}
+
+			float ftargetDis = m_pCarryingBlock->CarryTargetDis();// 離す距離(持ち上げたときの目標距離)
+
+			D3DXVECTOR3 targetPos;// 持ち上げたいターゲット位置
+			
+			if (m_pCarryingBlock->GetType() == CBlock::TYPE_MOVE_FIRE_STATUE ||
+				m_pCarryingBlock->GetType() == CBlock::TYPE_BLOCK3)
+			{
+				// XZのみ追従、Yは固定
+				targetPos = currentPos;
+				targetPos.x = playerPos.x + GetForward().x * ftargetDis;
+				targetPos.z = playerPos.z + GetForward().z * ftargetDis;
+				targetPos.y = currentPos.y; // 高さを変えない
+			}
+			else
+			{
+				// 通常は前方に持ち上げる
+				targetPos = playerPos + GetForward() * ftargetDis;
+				targetPos.y = GetPos().y + 70.0f; // 通常は持ち上げる
+			}
+
+			// Bullet用の差分
+			btVector3 posDiff(
+				targetPos.x - currentPos.x,
+				targetPos.y - currentPos.y,
+				targetPos.z - currentPos.z
+			);
+
+			// 現在の速度
+			btVector3 vel = pRigid->getLinearVelocity();
+
+			// スプリング定数・減衰係数（調整用）
+			const float stiffness = 300.0f;  // バネの強さ
+			const float damping = 30.0f;   // 減衰の強さ
+
+			// スプリング＋ダンパー力 = -kX - cV
+			btVector3 springForce = posDiff * stiffness;
+			btVector3 dampingForce = vel * -damping;
+			btVector3 totalForce = springForce + dampingForce;
+
+			// 力を加える
+			pRigid->applyCentralForce(totalForce);
+
+			// 横の速度を抑えて安定させる（オプション）
+			vel.setX(vel.getX() * 1.0f);
+			vel.setZ(vel.getZ() * 1.0f);
+			pRigid->setLinearVelocity(vel);
+
+			// 回転も抑えると安定する
+			pRigid->setAngularVelocity(btVector3(0, 0, 0));
 		}
 	}
 	else

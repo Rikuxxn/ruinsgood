@@ -26,6 +26,7 @@ int CBlockManager::m_nNumAll = 0;				// ブロックの総数
 int CBlockManager::m_selectedIdx = 0;			// 選択中のインデックス
 CBlock* CBlockManager::m_draggingBlock = {};
 std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap = {};
+CBlock* CBlockManager::m_selectedBlock = {};
 
 //=============================================================================
 // コンストラクタ
@@ -33,6 +34,7 @@ std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap = {};
 CBlockManager::CBlockManager()
 {
 	// 値のクリア
+	m_selectedBlock = NULL;
 	m_prevSelectedIdx = -1;
 	m_hasConsumedPayload = false;
 	m_pDebug3D = NULL;							// 3Dデバッグ表示へのポインタ
@@ -96,6 +98,13 @@ void CBlockManager::Update(void)
 #endif
 }
 //=============================================================================
+// 描画処理
+//=============================================================================
+void CBlockManager::Draw(void)
+{
+
+}
+//=============================================================================
 // 情報の更新処理
 //=============================================================================
 void CBlockManager::UpdateInfo(void)
@@ -148,15 +157,15 @@ void CBlockManager::UpdateInfo(void)
 		}
 
 		// 対象ブロックの取得
-		CBlock* selectedBlock = m_blocks[m_selectedIdx];
+		m_selectedBlock = m_blocks[m_selectedIdx];
 
 		// ブロック情報の調整処理
-		UpdateTransform(selectedBlock);
+		UpdateTransform(m_selectedBlock);
 
 		if (GetUpdateCollider() == false)
 		{
 			// コライダーの調整処理
-			UpdateCollider(selectedBlock);
+			UpdateCollider(m_selectedBlock);
 		}
 		else
 		{

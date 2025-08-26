@@ -83,9 +83,9 @@ HRESULT CObject2D::Init(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(m_pos.x, m_pos.y, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(m_pos.x, m_pos.y + m_fHeight, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y - m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(m_pos.x - m_fWidth, m_pos.y + m_fHeight, 0.0f);
 	pVtx[3].pos = D3DXVECTOR3(m_pos.x + m_fWidth, m_pos.y + m_fHeight, 0.0f);
 
 	// rhwの設定
@@ -140,7 +140,7 @@ void CObject2D::Update()
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 対角線の長さを算出する
-	m_fLength = sqrtf(m_fWidth * m_fWidth + m_fHeight * m_fHeight) / 2.0f;
+	m_fLength = sqrtf(m_fWidth * m_fWidth + m_fHeight * m_fHeight);
 
 	// 対角線の角度を算出する
 	m_fAngle = atan2f(m_fWidth, m_fHeight);
@@ -192,34 +192,6 @@ void CObject2D::Draw(void)
 	pDevice->SetTexture(0, NULL);
 }
 //=============================================================================
-// 位置の設定
-//=============================================================================
-void CObject2D::SetPos(D3DXVECTOR3 pos)
-{
-	m_pos = pos;
-}
-//=============================================================================
-// 向きの設定
-//=============================================================================
-void CObject2D::SetRot(D3DXVECTOR3 rot)
-{
-	m_rot = rot;
-}
-//=============================================================================
-// 色の設定
-//=============================================================================
-void CObject2D::SetCol(D3DXCOLOR color)
-{
-	m_col = color;
-}
-//=============================================================================
-// スクロールスピードの設定
-//=============================================================================
-void CObject2D::SetScrollSpeed(float fUSpeed)
-{
-	m_fUSpeed = fUSpeed;
-}
-//=============================================================================
 // テクスチャUVの設定
 //=============================================================================
 void CObject2D::SetUV(int nTexU, int nTexV)
@@ -242,70 +214,22 @@ void CObject2D::SetUV(int nTexU, int nTexV)
 	m_pVtxBuff->Unlock();
 }
 //=============================================================================
-// 位置の取得
+// テクスチャUV移動処理
 //=============================================================================
-D3DXVECTOR3 CObject2D::GetPos(void)
-{
-	return m_pos;
-}
-//=============================================================================
-// 移動量の取得
-//=============================================================================
-D3DXVECTOR3 CObject2D::GetMove(void)
-{
-	return m_move;
-}
-//=============================================================================
-// 向きの取得
-//=============================================================================
-D3DXVECTOR3 CObject2D::GetRot(void)
-{
-	return m_rot;
-}
-//=============================================================================
-// 色の取得
-//=============================================================================
-D3DCOLOR CObject2D::GetCol(void)
-{
-	return m_col;
-}
-//=============================================================================
-// 爆破用テクスチャアニメーション処理
-//=============================================================================
-void CObject2D::TextureAnimExp(int nTexPosX, int nTexPosY,int nAnimSpeed)
+void CObject2D::MoveTexUV(float fLeft, float fTop, float fWidth, float fHeight)
 {
 	VERTEX_2D* pVtx;// 頂点情報へのポインタ
 
-	float UV1 = 1.0f / nTexPosX;
-	float UV2 = 1.0f / nTexPosY;
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
+	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	m_nCounterAnim++;// カウンターを加算
+	pVtx[0].tex = D3DXVECTOR2(fLeft, fTop);
+	pVtx[1].tex = D3DXVECTOR2(fLeft + fWidth, fTop);
+	pVtx[2].tex = D3DXVECTOR2(fLeft, fTop + fHeight);
+	pVtx[3].tex = D3DXVECTOR2(fLeft + fWidth, fTop + fHeight);
 
-	if (m_nCounterAnim > nAnimSpeed)
-	{
-		m_nCounterAnim = 0;
-		m_nPatternAnim++;
-
-		// 8番目のテクスチャ超えたら
-		if (m_nPatternAnim >= nTexPosX)
-		{
-			m_nPatternAnim = 0;
-			Uninit();
-			return;
-		}
-
-		// 頂点バッファをロックし、頂点情報へのポインタを取得
-		m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-		// テクスチャ座標の設定
-		pVtx[0].tex = D3DXVECTOR2(m_nPatternAnim * UV1,0.0f);
-		pVtx[1].tex = D3DXVECTOR2(m_nPatternAnim * UV1 + UV1,0.0f);
-		pVtx[2].tex = D3DXVECTOR2(m_nPatternAnim * UV1, UV2);
-		pVtx[3].tex = D3DXVECTOR2(m_nPatternAnim * UV1 + UV1, UV2);
-
-		// 頂点バッファをアンロックする
-		m_pVtxBuff->Unlock();
-	}
+	// 頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
 }
 //=============================================================================
 // 通常テクスチャアニメーション処理

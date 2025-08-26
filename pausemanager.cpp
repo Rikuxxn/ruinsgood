@@ -10,6 +10,7 @@
 //*****************************************************************************
 #include "pausemanager.h"
 #include "manager.h"
+#include "game.h"
 
 //=============================================================================
 // コンストラクタ
@@ -118,7 +119,7 @@ void CPauseManager::Uninit(void)
 //=============================================================================
 void CPauseManager::Update(void)
 {
-    if (!CManager::GetisPaused())
+    if (!CGame::GetisPaused())
     {
         return;
     }

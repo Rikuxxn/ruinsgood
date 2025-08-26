@@ -19,7 +19,6 @@
 #include "light.h"
 #include "scene.h"
 #include "fade.h"
-#include "pause.h"
 #include "pausemanager.h"
 
 //*****************************************************************************
@@ -45,8 +44,6 @@ public:
 	static CCamera* GetCamera(void) { return m_pCamera; }
 	static CLight* GetLight(void) { return m_pLight; }
 	static CFade* GetFade(void) { return m_pFade; }
-	static bool GetisPaused(void) { return m_isPaused; };
-	static void SetEnablePause(bool bPause);
 	int GetFPS(int fps) { return m_fps = fps; };
 	int GetFPSCnt(void) { return m_fps; }
 	static btDiscreteDynamicsWorld* GetPhysicsWorld(void) { return m_pDynamicsWorld; }
@@ -63,7 +60,6 @@ private:
 	static CTexture* m_pTexture;				// テクスチャへのポインタ
 	static CCamera* m_pCamera;					// カメラへのポインタ
 	static CLight* m_pLight;					// ライトへのポインタ
-	//static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
 	int m_fps;									// FPS値
 
 	btBroadphaseInterface* m_pBroadphase;						// 衝突判定のクラスへのポインタ
@@ -74,7 +70,6 @@ private:
 
 	static CFade* m_pFade;
 	static CScene* m_pScene;
-	static bool m_isPaused;						// trueならポーズ中
 };
 
 #endif

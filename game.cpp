@@ -25,6 +25,7 @@ CImGuiManager* CGame::m_pImGuiManager= NULL;	// ImGuiマネージャーへのポインタ
 CObjectBillboard* CGame::m_pBillboard = NULL;	// ビルボードへのポインタ
 CUi* CGame::m_pUi = NULL;						// UIへのポインタ
 CPauseManager* CGame::m_pPauseManager = NULL;
+bool CGame::m_isPaused = false;					// trueならポーズ中
 
 //=============================================================================
 // コンストラクタ
@@ -153,6 +154,33 @@ void CGame::Uninit(void)
 void CGame::Update(void)
 {
 	CFade* pFade = CManager::GetFade();
+	CInputKeyboard* pKeyboard = CManager::GetInputKeyboard();
+	CInputMouse* pMouse = CManager::GetInputMouse();
+	CInputJoypad* pJoypad = CManager::GetInputJoypad();
+
+	// TABキーでポーズON/OFF
+	if (pKeyboard->GetTrigger(DIK_TAB) || pJoypad->GetTrigger(CInputJoypad::JOYKEY_START))
+	{
+		// ポーズSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_PAUSE);
+
+		// ポーズ切り替え前の状態を記録
+		bool wasPaused = m_isPaused;
+
+		m_isPaused = !m_isPaused;
+
+		// ポーズ状態に応じて音を制御
+		if (m_isPaused && !wasPaused)
+		{
+			// 一時停止する
+			CManager::GetSound()->PauseAll();
+		}
+		else if (!m_isPaused && wasPaused)
+		{
+			// 再開する
+			CManager::GetSound()->ResumeAll();
+		}
+	}
 
 	// ブロックマネージャーの更新処理
 	m_pBlockManager->Update();
@@ -199,9 +227,27 @@ void CGame::Update(void)
 void CGame::Draw(void)
 {
 	// ポーズ中だったら
-	if (CManager::GetisPaused())
+	if (m_isPaused)
 	{
 		// ポーズマネージャーの描画処理
 		m_pPauseManager->Draw();
+	}
+}
+//=============================================================================
+// ポーズの設定
+//=============================================================================
+void CGame::SetEnablePause(bool bPause)
+{
+	m_isPaused = bPause;
+
+	if (bPause)
+	{
+		// 音を一時停止
+		CManager::GetSound()->PauseAll();
+	}
+	else
+	{
+		// 音を再開
+		CManager::GetSound()->ResumeAll();
 	}
 }

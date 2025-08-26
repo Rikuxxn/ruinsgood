@@ -222,7 +222,7 @@ void CStageSelect::Update(void)
     {
         m_Stage[i]->SetSelected(i == m_SelectedIndex);
 
-        // ポーズの更新処理
+        // ステージの更新処理
         m_Stage[i]->Update();
     }
 }

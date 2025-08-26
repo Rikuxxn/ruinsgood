@@ -74,7 +74,6 @@ CStage* CStage::Create(STAGE type, D3DXVECTOR3 pos, float fWidth, float fHeight)
 	pStage->m_fWidth = fWidth;
 	pStage->m_fHeight = fHeight;
 	pStage->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
-	pStage->m_targetPos = D3DXVECTOR3(1100.0f, pos.y, pos.z);
 
 	// 初期化処理
 	pStage->Init();
@@ -101,6 +100,9 @@ HRESULT CStage::Init(void)
 
 	// スライド開始位置
 	m_startPos = m_pos;
+
+	// スライド目標位置
+	m_targetPos = D3DXVECTOR3(1100.0f, m_pos.y, m_pos.z);
 
 	// スライド中フラグは最初はfalse
 	m_isSlidingIn = false;

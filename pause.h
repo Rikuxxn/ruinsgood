@@ -10,13 +10,13 @@
 //*****************************************************************************
 // インクルードファイル
 //*****************************************************************************
-#include "object.h"
+#include "object2D.h"
 
 
 //*****************************************************************************
 // ポーズクラス
 //*****************************************************************************
-class CPause : public CObject
+class CPause : public CObject2D
 {
 public:
 	CPause(int nPriority = 7);
@@ -36,11 +36,8 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
-	D3DXVECTOR3 GetPos(void);
 	bool IsMouseOver(void);
 	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
-	void SetCol(D3DXCOLOR col) { m_col = col; }
 	virtual void Execute(void) {};
 
 	// 選択状態設定・取得
@@ -48,10 +45,6 @@ public:
 	bool IsSelected(void) const { return m_isSelected; }
 
 private:
-	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
-	D3DXVECTOR3 m_pos;						// 位置
-	D3DCOLOR m_col;							// 色
-	float m_fWidth, m_fHeight;				// サイズ
 	int m_nIdxTexture;						// テクスチャインデックス
 	char m_szPath[MAX_PATH];				// ファイルパス
 	bool m_isSelected;

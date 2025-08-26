@@ -26,6 +26,7 @@ public:
     void Init(void);
     void Uninit(void);
     void Update(void);
+    void Draw(void);
     void UpdateInfo(void); // ImGuiでの操作関数をここで呼ぶ用
     void SaveToJson(const char* filename);
     void LoadFromJson(const char* filename);
@@ -45,6 +46,7 @@ public:
     bool GetUpdateCollider(void) { return m_autoUpdateColliderSize; }
     static const char* GetFilePathFromType(CBlock::TYPE type);
     static const std::vector<CBlock*>& GetAllBlocks(void);
+    static CBlock* GetSelectedBlock(void) { return m_selectedBlock; }
 
 private:
     static std::vector<CBlock*> m_blocks;   // ブロック情報
@@ -56,6 +58,7 @@ private:
     CDebugProc3D* m_pDebug3D;			    // 3Dデバッグ表示へのポインタ
     bool m_autoUpdateColliderSize;
     static const std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap;
+    static CBlock* m_selectedBlock;                  // 選択中のブロック
 
 };
 

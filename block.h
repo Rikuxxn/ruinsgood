@@ -100,11 +100,12 @@ public:
 	void CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size);										// コライダーの生成
 	void CreatePhysicsFromScale(const D3DXVECTOR3& scale);														// ブロックスケールによるコライダーの生成
 	static void InitFactory(void);
-	virtual HRESULT Init(void);
+	HRESULT Init(void);
 	void Uninit(void);
-	virtual void Update(void);
+	void Update(void);
 	void UpdateCollider(void);
 	void Draw(void);
+	void DrawCollider(void);
 	void ReleasePhysics(void);															// Physics破棄用
 	void CreatePhysicsFromParts(void);
 
@@ -145,6 +146,7 @@ public:
 	D3DXMATRIX GetWorldMatrix(void);
 	virtual btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	virtual btScalar GetRollingFriction(void) const { return 0.7f; }
+	virtual float CarryTargetDis(void) { return 60.0f; }
 
 private:
 	char m_szPath[MAX_PATH];		// ファイルパス
@@ -178,7 +180,7 @@ public:
 	~CWoodBoxBlock();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 	void Respawn(void);
 
 	btScalar GetMass(void) const override { return 4.0f; }
@@ -220,6 +222,7 @@ public:
 	btScalar GetMass(void) const override { return 5.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	float CarryTargetDis(void) { return 80.0f; }
 };
 
 //*****************************************************************************
@@ -232,6 +235,7 @@ public:
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
+	float CarryTargetDis(void) { return 80.0f; }
 
 private:
 
@@ -246,7 +250,7 @@ public:
 	CLavaBlock();
 	~CLavaBlock();
 
-	void Update(void) override;
+	void Update(void);
 
 private:
 
@@ -261,7 +265,7 @@ public:
 	CWaterBlock();
 	~CWaterBlock();
 	
-	void Update(void) override;
+	void Update(void);
 	void SetInWater(bool flag);
 	void AddWaterStayTime(void);
 	void ResetWaterStayTime(void);
@@ -286,8 +290,8 @@ public:
 	CDoorBlock();
 	~CDoorBlock();
 
-	HRESULT Init(void) override;
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 
 private:
 	bool m_isDoorOpened;			// 開いたかどうか
@@ -303,8 +307,8 @@ public:
 	CBigDoorBlock();
 	~CBigDoorBlock();
 
-	HRESULT Init(void) override;
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 
 private:
 	bool m_isDoorOpened;			// 開いたかどうか
@@ -320,8 +324,8 @@ public:
 	CSwitchBlock();
 	~CSwitchBlock();
 
-	HRESULT Init(void) override;
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
@@ -338,8 +342,8 @@ public:
 	CBridgeSwitchBlock();
 	~CBridgeSwitchBlock();
 
-	HRESULT Init(void) override;
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
 
 private:
@@ -357,8 +361,8 @@ public:
 	CBarSwitchBlock();
 	~CBarSwitchBlock();
 
-	HRESULT Init(void) override;
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
 	void SetTimer(int nTimer) { m_Timer = nTimer * 60; }
 
@@ -379,7 +383,7 @@ public:
 	CAxeBlock();
 	~CAxeBlock();
 
-	void Update(void) override;
+	void Update(void);
 	void Swing(void);
 	void IsPlayerHit(void);
 	btScalar GetMass(void) const override { return 80.0f; }
@@ -403,7 +407,7 @@ public:
 	CRockBlock();
 	~CRockBlock();
 
-	void Update(void) override;
+	void Update(void);
 	void Respawn(void);
 	void AddPathPoint(const D3DXVECTOR3& point);// チェックポイント追加 (通常時用)
 	void MoveToTarget(void);					// 転がし処理
@@ -436,7 +440,7 @@ public:
 	CBridgeBlock();
 	~CBridgeBlock();
 
-	void Update(void) override;
+	void Update(void);
 	void Move(void);
 
 private:
@@ -451,7 +455,7 @@ public:
 	CTargetBlock();
 	~CTargetBlock();
 
-	void Update(void) override;
+	void Update(void);
 	bool IsHit(void) { return m_isHit; }
 
 private:
@@ -468,7 +472,7 @@ public:
 	CTorchBlock();
 	~CTorchBlock();
 
-	void Update(void) override;
+	void Update(void);
 
 private:
 	int m_playedSoundID;	// 再生中の音ID
@@ -483,7 +487,7 @@ public:
 	CTorch2Block();
 	~CTorch2Block();
 
-	void Update(void) override;
+	void Update(void);
 	btScalar GetMass(void) const override { return 6.0f; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
@@ -501,7 +505,7 @@ public:
 	CTorch3Block();
 	~CTorch3Block();
 
-	void Update(void) override;
+	void Update(void);
 	void SetHit(bool flag) { m_isHit = flag; }
 	bool IsHit(void) { return m_isHit; }
 
@@ -519,7 +523,7 @@ public:
 	CMaskBlock();
 	~CMaskBlock();
 
-	void Update(void) override;
+	void Update(void);
 	bool IsGet(void) { return m_isGet; }
 
 private:
@@ -536,7 +540,7 @@ public:
 	CSwordBlock();
 	~CSwordBlock();
 
-	void Update(void) override;
+	void Update(void);
 	bool IsEnd(void) { return m_isEnd; }
 
 private:
@@ -553,7 +557,7 @@ public:
 	CBarBlock();
 	~CBarBlock();
 
-	void Update(void) override;
+	void Update(void);
 
 private:
 	bool m_isOpened;
@@ -568,7 +572,7 @@ public:
 	CFootingBlock();
 	~CFootingBlock();
 
-	void Update(void) override;
+	void Update(void);
 	bool GetMove(void) { return m_isMove; }
 
 private:
@@ -584,7 +588,7 @@ public:
 	CFireStatueBlock();
 	~CFireStatueBlock();
 
-	void Update(void) override;
+	void Update(void);
 	void SetParticle(void);
 
 private:
@@ -601,13 +605,14 @@ public:
 	CMoveFireStatueBlock();
 	~CMoveFireStatueBlock();
 
-	void Update(void) override;
+	void Update(void);
 	void SetParticle(void);
 
 	btScalar GetMass(void) const override { return 7.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
+	float CarryTargetDis(void) { return 100.0f; }
 
 private:
 	int m_playedSoundID;					// 再生中の音ID
@@ -622,7 +627,7 @@ public:
 	CTurnFireStatueBlock();
 	~CTurnFireStatueBlock();
 
-	void Update(void) override;
+	void Update(void);
 	void SetParticle(void);
 
 private:
@@ -639,7 +644,7 @@ public:
 	~CKeyFenceBlock();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 
 private:
 	D3DXVECTOR3 m_closedPos;
@@ -656,7 +661,7 @@ public:
 	~CKeyBlock();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 	void Respawn(void);
 	void Set(D3DXVECTOR3 pos);
 
@@ -679,7 +684,7 @@ public:
 	~CKeyPedestalBlock();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 	bool IsSet(void) { return m_isSet; }
 
 private:
@@ -697,7 +702,7 @@ public:
 	~CKeyDoorBlock();
 
 	HRESULT Init(void);
-	void Update(void) override;
+	void Update(void);
 
 private:
 	D3DXVECTOR3 m_openPos;
@@ -713,7 +718,7 @@ public:
 	CShieldBlock();
 	~CShieldBlock();
 
-	void Update(void) override;
+	void Update(void);
 	bool IsEnd(void) { return m_isEnd; }
 
 private:
@@ -731,7 +736,7 @@ public:
 	CStatueBlock();
 	~CStatueBlock();
 
-	void Update(void) override;
+	void Update(void);
 
 private:
 	int m_playedSoundID;					// 再生中の音ID
@@ -746,12 +751,16 @@ public:
 	CStatueBlock2();
 	~CStatueBlock2();
 
-	void Update(void) override;
+	HRESULT Init(void);
+	void Update(void);
 	void Move(void);
 
 private:
+	D3DXVECTOR3 m_startPos;
 	int m_playedSoundID;					// 再生中の音ID
 	bool m_triggerDis;						// 松明が一定距離に入ったか
+	bool m_isMoving;
+	bool m_hasTriggered;
 };
 
 //*****************************************************************************
@@ -763,7 +772,7 @@ public:
 	CEggBlock();
 	~CEggBlock();
 
-	void Update(void) override;
+	void Update(void);
 	bool IsGet(void) { return m_isGet; }
 
 private:

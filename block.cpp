@@ -173,7 +173,7 @@ HRESULT CBlock::Init(void)
 //=============================================================================
 void CBlock::Uninit(void)
 {
-	// 指定したラベルのサウンドを停止
+	// サウンドを停止
 	CManager::GetSound()->Stop();
 
 	ReleasePhysics();
@@ -322,14 +322,22 @@ void CBlock::Draw(void)
 
 #ifdef _DEBUG
 
-	//if (m_pRigidBody)
-	//{
-	//	// コライダーの描画
-	//	m_pDebug3D->DrawBlockCollider(m_pRigidBody, D3DXCOLOR(0.0f, 1.0f, 0.3f, 1.0f));
-	//}
+	////// 当たり判定の描画処理
+	//DrawCollider();
 
 #endif
 
+}
+//=============================================================================
+// 当たり判定描画処理
+//=============================================================================
+void CBlock::DrawCollider(void)
+{
+	if (m_pRigidBody)
+	{
+		// コライダーの描画
+		m_pDebug3D->DrawBlockCollider(m_pRigidBody, D3DXCOLOR(0.0f, 1.0f, 0.3f, 1.0f));
+	}
 }
 //=============================================================================
 // 色の取得
@@ -3906,8 +3914,11 @@ void CStatueBlock::Update(void)
 CStatueBlock2::CStatueBlock2()
 {
 	// 値のクリア
+	m_startPos = INIT_VEC3;
 	m_playedSoundID = -1;
 	m_triggerDis = false;
+	m_isMoving = false;
+	m_hasTriggered = false;
 }
 //=============================================================================
 // 火をつけると動く石像ブロックのデストラクタ
@@ -3915,6 +3926,19 @@ CStatueBlock2::CStatueBlock2()
 CStatueBlock2::~CStatueBlock2()
 {
 	// なし
+}
+//=============================================================================
+// 火をつけると動く石像ブロックの初期化処理
+//=============================================================================
+HRESULT CStatueBlock2::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	// 最初の位置を保存
+	m_startPos = GetPos();
+
+	return S_OK;
 }
 //=============================================================================
 // 火をつけると動く石像ブロックの更新処理
@@ -3989,13 +4013,9 @@ void CStatueBlock2::Update(void)
 //=============================================================================
 void CStatueBlock2::Move(void)
 {
-	static bool isMoving = false;      // 移動中フラグ
-	static bool hasTriggered = false;  // 一度だけトリガーさせたい場合
-	static D3DXVECTOR3 goalPos;        // ゴール座標
-
 	D3DXVECTOR3 pos = GetPos();
 
-	if (!hasTriggered) // まだトリガーしてない
+	if (!m_hasTriggered) // まだトリガーしてない
 	{
 		// --- 松明との距離チェック ---
 		float minDistance = FLT_MAX;
@@ -4017,6 +4037,8 @@ void CStatueBlock2::Move(void)
 				minDistance = distance;
 				torchFound = true;
 			}
+
+
 		}
 
 		// 一定距離以内に松明があったら動かす
@@ -4029,35 +4051,27 @@ void CStatueBlock2::Move(void)
 			CManager::GetSound()->Play(CSound::SOUND_LABEL_INSPIRATION);
 
 			m_triggerDis = true;
-			isMoving = true;
-			hasTriggered = true;  // 一回だけにしたい場合はこれを有効
-			goalPos = pos + D3DXVECTOR3(180.0f, 0.0f, 0.0f); // ゴール位置
+			m_isMoving = true;
+			m_hasTriggered = true;
 		}
 	}
 
 	// --- 移動処理 ---
-	if (isMoving)
+	if (m_isMoving)
 	{
 		// 移動速度
 		const float speed = 1.0f;
 
-		// 方向ベクトル
-		D3DXVECTOR3 dir = goalPos - pos;
-		float dist = D3DXVec3Length(&dir);
+		// 動かす
+		const float Range = 180.0f; // 動く距離
 
-		if (dist < speed)
-		{
-			// ゴール到達
-			pos = goalPos;
-			isMoving = false;
-		}
-		else
-		{
-			D3DXVec3Normalize(&dir, &dir);
-			pos += dir * speed;
-		}
+		float targetX = m_startPos.x + Range;
 
-		SetPos(pos);
+		if (pos.x < targetX)
+		{
+			pos.x += speed;
+			SetPos(pos);
+		}
 	}
 }
 

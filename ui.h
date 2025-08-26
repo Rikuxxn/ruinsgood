@@ -10,7 +10,7 @@
 //*****************************************************************************
 // インクルードファイル
 //*****************************************************************************
-#include "object.h"
+#include "object2D.h"
 #include <unordered_map>
 #include <functional>
 
@@ -21,10 +21,10 @@ using UiCreateFunc = std::function<CUi* ()>;
 //*****************************************************************************
 // UIクラス
 //*****************************************************************************
-class CUi : public CObject
+class CUi : public CObject2D
 {
 public:
-	CUi(int nPriority = 7);
+	CUi(int nPriority = 6);
 	~CUi();
 
 	// UIの種類
@@ -44,20 +44,11 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	D3DXVECTOR3 GetPos(void) { return m_pos; }
 
-	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
-	void SetCol(D3DXCOLOR col) { m_col = col; }
-	void SetSize(float fWidth, float fHeight) { m_fWidth = fWidth; m_fHeight = fHeight; }
 	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
 	void SetUV(float u, float v, float w, float h);  // UV設定
 
 private:
-	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
-	D3DXVECTOR3 m_pos;
-	D3DXCOLOR m_col;
-	float m_fWidth;					// 幅
-	float m_fHeight;				// 高さ
 	int m_nIdxTexture;
 	char m_szPath[MAX_PATH];			// ファイルパス
 	TYPE m_type;
