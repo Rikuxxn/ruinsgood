@@ -129,7 +129,6 @@ void CTime::Update(void)
 	// タイマーカウント処理
 	Count();
 
-
 	// 各桁の表示値を計算
 	int min10 = m_nMinutes / 10;
 	int min1 = m_nMinutes % 10;

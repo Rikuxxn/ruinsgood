@@ -114,6 +114,9 @@ HRESULT CUi::Init(void)
 //=============================================================================
 void CUi::Uninit(void)
 {
+	// サウンドの停止
+	CManager::GetSound()->Stop();
+
 	// 2Dオブジェクトの終了処理
 	CObject2D::Uninit();
 }
@@ -204,6 +207,7 @@ CGetUi::CGetUi()
 	m_fTimer = 0.0f;// 経過時間(秒)
 	m_fAlpha = 1.0f;// アルファ値
 	m_bFading = false;// フェード開始フラグ
+	m_isGet = false;// サウンド用フラグ
 }
 //=============================================================================
 // 秘宝取得UIのデストラクタ
@@ -250,6 +254,15 @@ void CGetUi::Update(void)
 		}
 	}
 
+	if (!m_isGet)
+	{
+		// 入手サウンドの再生
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_GET);
+
+		m_isGet = true;
+	}
+
+	// 色の設定
 	SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
 }
 
@@ -294,6 +307,10 @@ void CResultUi::Update(void)
 CResultRankUi::CResultRankUi()
 {
 	// 値のクリア
+	m_showDeleyTime = 0;
+	m_fAlpha = 0.0f;
+	m_isShow = false;
+	m_prevShow = false;
 }
 //=============================================================================
 // リザルトUI(ランク)のデストラクタ
@@ -309,6 +326,9 @@ HRESULT CResultRankUi::Init(void)
 {
 	// UIの初期化処理
 	CUi::Init();
+
+	// 表示遅延時間の設定(秒)
+	SetDeleyTime(2);
 
 	int min = CResult::GetClearMinutes();
 	int sec = CResult::GetClearSeconds();
@@ -333,6 +353,7 @@ HRESULT CResultRankUi::Init(void)
 		uvLeft = 0.75f;  // C
 	}
 
+	// UV座標の設定
 	CUi::SetUV(uvLeft, 0.0f, 0.25f, 1.0f);  // 横4分割、縦1
 
 	return S_OK;
@@ -342,6 +363,37 @@ HRESULT CResultRankUi::Init(void)
 //=============================================================================
 void CResultRankUi::Update(void)
 {
+	m_showDeleyTime--;
+
+	if (m_showDeleyTime <= 0)
+	{
+		m_isShow = true;
+		m_fAlpha += 0.01f;
+
+		if (m_fAlpha > 1.0f)
+		{
+			m_fAlpha = 1.0f;
+		}
+
+		// 通常に戻す
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+
+		bool n = m_isShow;
+
+		if (n && !m_prevShow)
+		{// 一回だけ通す
+			// ランク表示サウンドの再生
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_RANK);
+		}
+
+		m_prevShow = n;
+	}
+	else
+	{
+		// 透明にする
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
+	}
+
 	// UIの更新処理
 	CUi::Update();
 }

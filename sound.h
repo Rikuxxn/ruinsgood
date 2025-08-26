@@ -38,6 +38,8 @@ public:
 		SOUND_LABEL_TIMER,
 		SOUND_LABEL_TREASURE,
 		SOUND_LABEL_SWING,
+		SOUND_LABEL_GET,
+		SOUND_LABEL_RANK,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -103,6 +105,8 @@ private:
 		{"data/SE/timer.wav", 0},				// タイマーSE
 		{"data/SE/treasure.wav", -1},			// 秘宝SE(ループ)
 		{"data/SE/swing.wav", 0},				// 斧SE
+		{"data/SE/get.wav", 0},					// 入手SE
+		{"data/SE/resultrank.wav", 0},			// リザルトランク表示SE
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

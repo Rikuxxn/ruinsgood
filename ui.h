@@ -90,6 +90,7 @@ private:
 	float m_fTimer;// 経過時間(秒)
 	float m_fAlpha;// アルファ値
 	bool m_bFading;// フェード開始フラグ
+	bool m_isGet;	// サウンド用フラグ
 };
 
 //*****************************************************************************
@@ -119,9 +120,13 @@ public:
 
 	HRESULT Init(void);
 	void Update(void);
+	void SetDeleyTime(int nTime) { m_showDeleyTime = nTime * 60; }
 
 private:
-
+	int m_showDeleyTime;	// 表示までの遅延時間
+	float m_fAlpha;			// アルファ値
+	bool m_isShow;			// 表示されたかどうか
+	bool m_prevShow;		// 直前に表示されたかどうか
 };
 
 //*****************************************************************************
