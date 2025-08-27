@@ -10,7 +10,6 @@
 //*****************************************************************************
 // インクルードファイル
 //*****************************************************************************
-#include "main.h"
 #include "object.h"
 
 
@@ -28,22 +27,21 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	D3DXVECTOR3 GetPos(void);
-	void SetPos(D3DXVECTOR3 pos);
-	void SetAlpha(int nAlpha);
-	void SetWidth(float fWidth);
-	void SetHeight(float fHeight);
-	void SetDepth(float fDepth);
+	D3DXVECTOR3 GetPos(void) { return m_pos; }
+	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
+	void SetWidth(float fWidth) { m_fWidth = fWidth; }
+	void SetHeight(float fHeight) { m_fHeight = fHeight; }
+	void SetDepth(float fDepth) { m_fDepth = fDepth; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
 	D3DXVECTOR3 m_pos;						// 位置
 	D3DXVECTOR3 m_rot;						// 向き
+	D3DXCOLOR m_col;						// 色
 	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
 	float m_fWidth;							// 幅
 	float m_fHeight;						// 高さ
 	float m_fDepth;							// 奥行き
-	int m_nAlpha;							// アルファ値
 };
 
 #endif

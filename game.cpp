@@ -52,16 +52,20 @@ HRESULT CGame::Init(void)
 	// ブロックマネージャーの初期化
 	m_pBlockManager->Init();
 
-
+	// ステージIDの取得
 	int stageId = CStageSelect::GetSelectedStage();
 
 	switch (stageId)
 	{
 	case CStage::STAGE_ID_1:
+		// ゲームBGMの再生
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
+
 		// ビルボードの生成
-		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 20.0f);
-		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 20.0f);
-		m_pBillboard = CObjectBillboard::Create("data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 20.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 0.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 0.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 0.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT,"data/TEXTURE/hint.png", D3DXVECTOR3(610.0f, 130.0f, 206.0f), 100.0f, -50.0f);
 
 		// プレイヤーの生成
 		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -74,6 +78,9 @@ HRESULT CGame::Init(void)
 
 		break;
 	case CStage::STAGE_ID_2:
+		// ゲームBGMの再生
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM2);
+
 		// プレイヤーの生成
 		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1542.3f, 360.0f, -850.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
@@ -109,9 +116,6 @@ HRESULT CGame::Init(void)
 
 	// ポーズUIの生成
 	m_pUi = CUi::Create(CUi::TYPE_PAUSE, "data/TEXTURE/ui_pause.png",D3DXVECTOR3(210.0f, 855.0f, 0.0f), 160.0f, 35.0f);
-
-	// ゲームBGMの再生
-	CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
 
 	// ポーズマネージャーの生成
 	m_pPauseManager = new CPauseManager();

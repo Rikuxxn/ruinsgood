@@ -96,8 +96,8 @@ private:
 		"data/TEXTURE/ui_mask.png",
 		"data/TEXTURE/ui_result001.png",
 		"data/TEXTURE/ui_result002.png",
-		"data/TEXTURE/ui_result003.png",
-		"data/TEXTURE/ui_result004.png",
+		"data/TEXTURE/ui_masknotfound.png",
+		"data/TEXTURE/ui_maskfound.png",
 		"data/TEXTURE/ui_result005.png",
 		"data/TEXTURE/ui_result006.png",
 		"data/TEXTURE/resultBG.png",
@@ -134,6 +134,10 @@ private:
 		"data/TEXTURE/ui_egg.png",
 		"data/TEXTURE/ui_eggfound.png",
 		"data/TEXTURE/ui_eggnotfound.png",
+		"data/TEXTURE/collected.png",
+		"data/TEXTURE/notfound.png",
+		"data/TEXTURE/hint.png",
+		"data/TEXTURE/doorTriggerBlock.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

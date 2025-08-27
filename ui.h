@@ -33,7 +33,9 @@ public:
 		TYPE_PAUSE = 0,
 		TYPE_GET,
 		TYPE_RESULT_UI,
+		TYPE_RESULT_TREASURE,
 		TYPE_RESULT_RANK,
+		TYPE_RESULT_GET,
 		TYPE_STAGE_NAME,
 		TYPE_MAX
 	}TYPE;
@@ -110,6 +112,26 @@ private:
 };
 
 //*****************************************************************************
+// リザルトUI(秘宝)クラス
+//*****************************************************************************
+class CResultTreasureUi : public CUi
+{
+public:
+	CResultTreasureUi();
+	~CResultTreasureUi();
+
+	HRESULT Init(void);
+	void Update(void);
+	void SetDeleyTime(int nTime) { m_showDeleyTime = nTime * 60; }
+
+private:
+	int m_showDeleyTime;	// 表示までの遅延時間
+	float m_fAlpha;			// アルファ値
+	bool m_isShow;			// 表示されたかどうか
+	bool m_prevShow;		// 直前に表示されたかどうか
+};
+
+//*****************************************************************************
 // リザルトUI(ランク)クラス
 //*****************************************************************************
 class CResultRankUi : public CUi
@@ -125,6 +147,25 @@ public:
 private:
 	int m_showDeleyTime;	// 表示までの遅延時間
 	float m_fAlpha;			// アルファ値
+	bool m_isShow;			// 表示されたかどうか
+	bool m_prevShow;		// 直前に表示されたかどうか
+};
+
+//*****************************************************************************
+// リザルトUI(入手したか)クラス
+//*****************************************************************************
+class CResultGetUi : public CUi
+{
+public:
+	CResultGetUi();
+	~CResultGetUi();
+
+	HRESULT Init(void);
+	void Update(void);
+	void SetDeleyTime(int nTime) { m_showDeleyTime = nTime * 60; }
+
+private:
+	int m_showDeleyTime;	// 表示までの遅延時間
 	bool m_isShow;			// 表示されたかどうか
 	bool m_prevShow;		// 直前に表示されたかどうか
 };

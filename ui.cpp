@@ -86,11 +86,13 @@ void CUi::InitFactory(void)
 	// リストを空にする
 	m_UiFactoryMap.clear();
 
-	m_UiFactoryMap[CUi::TYPE_PAUSE]			= []() -> CUi* { return new CPauseUi(); };
-	m_UiFactoryMap[CUi::TYPE_GET]			= []() -> CUi* { return new CGetUi(); };
-	m_UiFactoryMap[CUi::TYPE_RESULT_UI]		= []() -> CUi* { return new CResultUi(); };
-	m_UiFactoryMap[CUi::TYPE_RESULT_RANK]	= []() -> CUi* { return new CResultRankUi(); };
-	m_UiFactoryMap[CUi::TYPE_STAGE_NAME]	= []() -> CUi* { return new CStageUi(); };
+	m_UiFactoryMap[CUi::TYPE_PAUSE]				= []() -> CUi* { return new CPauseUi(); };
+	m_UiFactoryMap[CUi::TYPE_GET]				= []() -> CUi* { return new CGetUi(); };
+	m_UiFactoryMap[CUi::TYPE_RESULT_UI]			= []() -> CUi* { return new CResultUi(); };
+	m_UiFactoryMap[CUi::TYPE_RESULT_TREASURE]	= []() -> CUi* { return new CResultTreasureUi(); };
+	m_UiFactoryMap[CUi::TYPE_RESULT_RANK]		= []() -> CUi* { return new CResultRankUi(); };
+	m_UiFactoryMap[CUi::TYPE_RESULT_GET]		= []() -> CUi* { return new CResultGetUi(); };
+	m_UiFactoryMap[CUi::TYPE_STAGE_NAME]		= []() -> CUi* { return new CStageUi(); };
 
 }
 //=============================================================================
@@ -268,21 +270,21 @@ void CGetUi::Update(void)
 
 
 //=============================================================================
-// リザルトUI(秘宝)のコンストラクタ
+// リザルトUIのコンストラクタ
 //=============================================================================
 CResultUi::CResultUi()
 {
 	// 値のクリア
 }
 //=============================================================================
-// リザルトUI(秘宝)のデストラクタ
+// リザルトUIのデストラクタ
 //=============================================================================
 CResultUi::~CResultUi()
 {
 	// なし
 }
 //=============================================================================
-// リザルトUI(秘宝)の初期化処理
+// リザルトUIの初期化処理
 //=============================================================================
 HRESULT CResultUi::Init(void)
 {
@@ -292,10 +294,82 @@ HRESULT CResultUi::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// リザルトUI(秘宝)の更新処理
+// リザルトUIの更新処理
 //=============================================================================
 void CResultUi::Update(void)
 {
+	// UIの更新処理
+	CUi::Update();
+}
+
+
+//=============================================================================
+// リザルトUI(秘宝)のコンストラクタ
+//=============================================================================
+CResultTreasureUi::CResultTreasureUi()
+{
+	// 値のクリア
+	m_showDeleyTime = 0;	// 表示までの遅延時間
+	m_fAlpha = 0.0f;			// アルファ値
+	m_isShow = false;
+	m_prevShow = false;
+}
+//=============================================================================
+// リザルトUI(秘宝)のデストラクタ
+//=============================================================================
+CResultTreasureUi::~CResultTreasureUi()
+{
+	// なし
+}
+//=============================================================================
+// リザルトUI(秘宝)の初期化処理
+//=============================================================================
+HRESULT CResultTreasureUi::Init(void)
+{
+	// UIの初期化処理
+	CUi::Init();
+
+	// 表示遅延時間の設定(秒)
+	SetDeleyTime(2);
+
+	return S_OK;
+}
+//=============================================================================
+// リザルトUI(秘宝)の更新処理
+//=============================================================================
+void CResultTreasureUi::Update(void)
+{
+	m_showDeleyTime--;
+
+	if (m_showDeleyTime <= 0)
+	{
+		m_isShow = true;
+		m_fAlpha += 0.01f;
+
+		if (m_fAlpha > 1.0f)
+		{
+			m_fAlpha = 1.0f;
+		}
+
+		// 通常に戻す
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+
+		bool n = m_isShow;
+
+		if (n && !m_prevShow)
+		{// 一回だけ通す
+			// ランク表示サウンドの再生
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_RANK);
+		}
+
+		m_prevShow = n;
+	}
+	else
+	{
+		// 透明にする
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
+	}
+
 	// UIの更新処理
 	CUi::Update();
 }
@@ -328,7 +402,7 @@ HRESULT CResultRankUi::Init(void)
 	CUi::Init();
 
 	// 表示遅延時間の設定(秒)
-	SetDeleyTime(2);
+	SetDeleyTime(5);
 
 	int min = CResult::GetClearMinutes();
 	int sec = CResult::GetClearSeconds();
@@ -377,6 +451,71 @@ void CResultRankUi::Update(void)
 
 		// 通常に戻す
 		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+
+		bool n = m_isShow;
+
+		if (n && !m_prevShow)
+		{// 一回だけ通す
+			// ランク表示サウンドの再生
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_RANK);
+		}
+
+		m_prevShow = n;
+	}
+	else
+	{
+		// 透明にする
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
+	}
+
+	// UIの更新処理
+	CUi::Update();
+}
+
+
+//=============================================================================
+// リザルトUI(入手したか)のコンストラクタ
+//=============================================================================
+CResultGetUi::CResultGetUi()
+{
+	// 値のクリア
+	m_showDeleyTime = 0;	// 表示までの遅延時間
+	m_isShow = false;
+	m_prevShow = false;
+}
+//=============================================================================
+// リザルトUI(入手したか)のデストラクタ
+//=============================================================================
+CResultGetUi::~CResultGetUi()
+{
+	// なし
+}
+//=============================================================================
+// リザルトUI(入手したか)の初期化処理
+//=============================================================================
+HRESULT CResultGetUi::Init(void)
+{
+	// UIの初期化処理
+	CUi::Init();
+
+	// 表示遅延時間の設定(秒)
+	SetDeleyTime(3);
+
+	return S_OK;
+}
+//=============================================================================
+// リザルトUI(入手したか)の更新処理
+//=============================================================================
+void CResultGetUi::Update(void)
+{
+	m_showDeleyTime--;
+
+	if (m_showDeleyTime <= 0)
+	{
+		m_isShow = true;
+
+		// 通常に戻す
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 		bool n = m_isShow;
 

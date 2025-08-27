@@ -23,7 +23,15 @@ public:
 	CObjectBillboard(int nPriority = 5);
 	~CObjectBillboard();
 
-	static CObjectBillboard* Create(const char* path, D3DXVECTOR3 pos, float fWidth, float fHeight);
+	// ビルボードの種類
+	typedef enum
+	{
+		TYPE_NORMAL,
+		TYPE_HINT,
+		TYPE_MAX
+	}TYPE;
+
+	static CObjectBillboard* Create(TYPE type, const char* path, D3DXVECTOR3 pos, float fWidth, float fHeight);
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
@@ -33,6 +41,7 @@ public:
 	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
 	void SetCol(D3DXCOLOR col) { m_col = col; }
 	void SetSize(float fRadius) { m_fSize = fRadius; }
+	void SetHeight(float fHeight) { m_fHeight = fHeight; }
 	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
 
 private:
@@ -40,9 +49,68 @@ private:
 	D3DXVECTOR3 m_pos;
 	D3DXCOLOR m_col;
 	D3DXMATRIX m_mtxWorld;
-	float m_fSize;			// サイズ
+	float m_fSize;			// サイズ(エフェクト半径)
+	float m_fHeight;// サイズ(ビルボード)
 	int m_nIdxTexture;
 	char m_szPath[MAX_PATH];			// ファイルパス
+	TYPE m_type;
+};
+
+//*****************************************************************************
+// ノーマルビルボードクラス
+//*****************************************************************************
+class CNormalBillboard : public CObjectBillboard
+{
+public:
+	CNormalBillboard();
+	~CNormalBillboard();
+
+	// ビルボードの状態
+	typedef enum
+	{
+		STATE_FADEIN = 0,
+		STATE_NORMAL,
+		STATE_FADEOUT,
+		STATE_MAX
+	}STATE;
+
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void Draw(void);
+
+private:
+	float m_fAlpha;// アルファ値
+	STATE m_state;
+};
+
+//*****************************************************************************
+// ヒントビルボードクラス
+//*****************************************************************************
+class CHintBillboard : public CObjectBillboard
+{
+public:
+	CHintBillboard();
+	~CHintBillboard();
+
+	// ビルボードの状態
+	typedef enum
+	{
+		STATE_FADEIN = 0,
+		STATE_NORMAL,
+		STATE_FADEOUT,
+		STATE_MAX
+	}STATE;
+
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void Draw(void);
+
+private:
+	float m_fAlpha;// アルファ値
+	STATE m_state;
 
 };
+
 #endif

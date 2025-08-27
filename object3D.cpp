@@ -25,7 +25,6 @@ CObject3D::CObject3D(int nPriority) : CObject(nPriority)
 	m_fWidth   = 0.0f;		// 幅
 	m_fHeight  = 0.0f;		// 高さ
 	m_fDepth   = 0.0f;		// 奥行き
-	m_nAlpha   = 0;			// アルファ値
 }
 //=============================================================================
 // デストラクタ
@@ -55,8 +54,7 @@ CObject3D* CObject3D::Create(void)
 HRESULT CObject3D::Init(void)
 {
 	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	//頂点バッファの生成
 	pDevice->CreateVertexBuffer(sizeof(VERTEX_3D) * 4,
@@ -83,11 +81,11 @@ HRESULT CObject3D::Init(void)
 	pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 	pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 
-	//頂点カラーの設定
-	pVtx[0].col = D3DCOLOR_RGBA(255, 255, 255, 255);
-	pVtx[1].col = D3DCOLOR_RGBA(255, 255, 255, 255);
-	pVtx[2].col = D3DCOLOR_RGBA(255, 255, 255, 255);
-	pVtx[3].col = D3DCOLOR_RGBA(255, 255, 255, 255);
+	// 頂点カラーの設定
+	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	//テクスチャ座標の設定
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -132,10 +130,10 @@ void CObject3D::Update(void)
 	pVtx[3].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, -m_fDepth);
 
 	//頂点カラーの設定
-	pVtx[0].col = D3DCOLOR_RGBA(255, 255, 255, m_nAlpha);
-	pVtx[1].col = D3DCOLOR_RGBA(255, 255, 255, m_nAlpha);
-	pVtx[2].col = D3DCOLOR_RGBA(255, 255, 255, m_nAlpha);
-	pVtx[3].col = D3DCOLOR_RGBA(255, 255, 255, m_nAlpha);
+	pVtx[0].col = m_col;
+	pVtx[1].col = m_col;
+	pVtx[2].col = m_col;
+	pVtx[3].col = m_col;
 
 	//頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
@@ -146,8 +144,7 @@ void CObject3D::Update(void)
 void CObject3D::Draw(void)
 {
 	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	//計算用マトリックス
 	D3DXMATRIX mtxRot, mtxTrans;
@@ -174,46 +171,4 @@ void CObject3D::Draw(void)
 
 	//ポリゴンの描画
 	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-}
-//=============================================================================
-// 位置の取得
-//=============================================================================
-D3DXVECTOR3 CObject3D::GetPos(void)
-{
-	return m_pos;
-}
-//=============================================================================
-// 位置の設定処理
-//=============================================================================
-void CObject3D::SetPos(D3DXVECTOR3 pos)
-{
-	m_pos = pos;
-}
-//=============================================================================
-// アルファ値の設定処理
-//=============================================================================
-void CObject3D::SetAlpha(int nAlpha)
-{
-	m_nAlpha = nAlpha;
-}
-//=============================================================================
-// 幅の設定処理
-//=============================================================================
-void CObject3D::SetWidth(float fWidth)
-{
-	m_fWidth = fWidth;
-}
-//=============================================================================
-// 高さの設定処理
-//=============================================================================
-void CObject3D::SetHeight(float fHeight)
-{
-	m_fHeight = fHeight;
-}
-//=============================================================================
-// 奥行の設定処理
-//=============================================================================
-void CObject3D::SetDepth(float fDepth)
-{
-	m_fDepth = fDepth;
 }

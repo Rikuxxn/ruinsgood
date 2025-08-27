@@ -15,6 +15,7 @@
 #include "imgui_internal.h"
 #include "raycast.h"
 #include "game.h"
+#include "blocklist.h"
 
 using json = nlohmann::json;
 
@@ -837,6 +838,7 @@ const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap
 	{ CBlock::TYPE_STATUE,			"data/MODELS/statue.x" },
 	{ CBlock::TYPE_STATUE2,			"data/MODELS/statue2.x" },
 	{ CBlock::TYPE_EGG,				"data/MODELS/egg.x" },
+	{ CBlock::TYPE_DOOR_TRIGGER,	"data/MODELS/doorTriggerBlock.x" },
 };
 //=============================================================================
 // タイプからXファイルパスを取得

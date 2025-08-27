@@ -11,6 +11,7 @@
 #include "objectBillboard.h"
 #include "renderer.h"
 #include "manager.h"
+#include "game.h"
 
 //=============================================================================
 // コンストラクタ
@@ -22,7 +23,8 @@ CObjectBillboard::CObjectBillboard(int nPriority) : CObject(nPriority)
 	m_pos = INIT_VEC3;
 	m_col = INIT_XCOL;
 	m_mtxWorld = {};
-	m_fSize = 0.0f;			// サイズ
+	m_fSize = 0.0f;			// サイズ(エフェクト半径)
+	m_fHeight = 0.0f;// サイズ(ビルボード)
 	m_nIdxTexture = 0;
 	memset(m_szPath, 0, sizeof(m_szPath));
 }
@@ -36,15 +38,27 @@ CObjectBillboard::~CObjectBillboard()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CObjectBillboard* CObjectBillboard::Create(const char* path,D3DXVECTOR3 pos, float fWidth, float fHeight)
+CObjectBillboard* CObjectBillboard::Create(TYPE type, const char* path, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
-	CObjectBillboard* pObjectBillboard;
+	CObjectBillboard* pObjectBillboard = NULL;
 
-	pObjectBillboard = new CObjectBillboard;
+	switch (type)
+	{
+	case TYPE_NORMAL:
+		pObjectBillboard = new CNormalBillboard;
+		break;
+	case TYPE_HINT:
+		pObjectBillboard = new CHintBillboard;
+		break;
+	default:
+		pObjectBillboard = new CObjectBillboard;
+		break;
+	}
 
 	pObjectBillboard->SetPath(path);
 	pObjectBillboard->m_pos = pos;
-	pObjectBillboard->m_fSize = fWidth;
+	pObjectBillboard->m_fSize = fWidth;// エフェクトの半径
+	pObjectBillboard->SetHeight(fHeight);
 	pObjectBillboard->m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// 初期化処理
@@ -77,10 +91,10 @@ HRESULT CObjectBillboard::Init(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize + m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize + m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize - m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize - m_fHeight, 0.0f);
 
 	// 各頂点の法線の設定
 	pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
@@ -130,11 +144,11 @@ void CObjectBillboard::Update(void)
 	// 頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	//頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize, 0.0f);
+	// 頂点座標の設定
+	pVtx[0].pos = D3DXVECTOR3(-m_fSize, +m_fSize + m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fSize, +m_fSize + m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fSize, -m_fSize - m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fSize, -m_fSize - m_fHeight, 0.0f);
 
 	pVtx[0].col = m_col;
 	pVtx[1].col = m_col;
@@ -209,4 +223,194 @@ void CObjectBillboard::Draw(void)
 
 	// ライトを有効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+}
+
+
+//=============================================================================
+// ノーマルビルボードのコンストラクタ
+//=============================================================================
+CNormalBillboard::CNormalBillboard()
+{
+	// 値のクリア
+	m_fAlpha = 0.0f;// アルファ値
+	m_state = STATE_NORMAL;
+}
+//=============================================================================
+// ノーマルビルボードのデストラクタ
+//=============================================================================
+CNormalBillboard::~CNormalBillboard()
+{
+	// なし
+}
+//=============================================================================
+// ノーマルビルボードの初期化処理
+//=============================================================================
+HRESULT CNormalBillboard::Init(void)
+{
+	// ビルボードの初期化処理
+	CObjectBillboard::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// ノーマルビルボードの終了処理
+//=============================================================================
+void CNormalBillboard::Uninit(void)
+{
+	// ビルボードの終了処理
+	CObjectBillboard::Uninit();
+}
+//=============================================================================
+// ノーマルビルボードの更新処理
+//=============================================================================
+void CNormalBillboard::Update(void)
+{
+	// ビルボードの更新処理
+	CObjectBillboard::Update();
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 400.0f; // 表示距離
+
+	switch (m_state)
+	{
+	case STATE_FADEIN:
+		m_fAlpha += 0.02f;
+
+		if (m_fAlpha > 1.0f)
+		{
+			m_fAlpha = 1.0f;
+			m_state = STATE_NORMAL;
+		}
+
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+
+		break;
+	case STATE_NORMAL:
+		if (distance < kTriggerDistance)
+		{// 徐々に通常に戻す状態
+			m_state = STATE_FADEIN;
+		}
+		else
+		{// 徐々に透明にする状態
+			m_state = STATE_FADEOUT;
+		}
+		break;
+	case STATE_FADEOUT:
+		m_fAlpha -= 0.02f;
+
+		if (m_fAlpha < 0.0f)
+		{
+			m_fAlpha = 0.0f;
+			m_state = STATE_NORMAL;
+		}
+
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+		break;
+	}
+}
+//=============================================================================
+// ノーマルビルボードの描画処理
+//=============================================================================
+void CNormalBillboard::Draw(void)
+{
+	// ビルボードの描画処理
+	CObjectBillboard::Draw();
+}
+
+
+//=============================================================================
+// ヒントビルボードのコンストラクタ
+//=============================================================================
+CHintBillboard::CHintBillboard()
+{
+	// 値のクリア
+	m_fAlpha = 0.0f;// アルファ値
+	m_state = STATE_NORMAL;
+}
+//=============================================================================
+// ヒントビルボードのデストラクタ
+//=============================================================================
+CHintBillboard::~CHintBillboard()
+{
+	// なし
+}
+//=============================================================================
+// ヒントビルボードの初期化処理
+//=============================================================================
+HRESULT CHintBillboard::Init(void)
+{
+	// ビルボードの初期化処理
+	CObjectBillboard::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// ヒントビルボードの終了処理
+//=============================================================================
+void CHintBillboard::Uninit(void)
+{
+	// ビルボードの終了処理
+	CObjectBillboard::Uninit();
+}
+//=============================================================================
+// ヒントビルボードの更新処理
+//=============================================================================
+void CHintBillboard::Update(void)
+{
+	// ビルボードの更新処理
+	CObjectBillboard::Update();
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 disPos = playerPos - GetPos();
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 250.0f; // 表示距離
+
+	switch (m_state)
+	{
+	case STATE_FADEIN:
+		m_fAlpha += 0.02f;
+
+		if (m_fAlpha > 1.0f)
+		{
+			m_fAlpha = 1.0f;
+			m_state = STATE_NORMAL;
+		}
+
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+
+		break;
+	case STATE_NORMAL:
+		if (distance < kTriggerDistance)
+		{// 徐々に通常に戻す状態
+			m_state = STATE_FADEIN;
+		}
+		else
+		{// 徐々に透明にする状態
+			m_state = STATE_FADEOUT;
+		}
+		break;
+	case STATE_FADEOUT:
+		m_fAlpha -= 0.02f;
+
+		if (m_fAlpha < 0.0f)
+		{
+			m_fAlpha = 0.0f;
+			m_state = STATE_NORMAL;
+		}
+
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+		break;
+	}
+}
+//=============================================================================
+// ヒントビルボードの描画処理
+//=============================================================================
+void CHintBillboard::Draw(void)
+{
+	// ビルボードの描画処理
+	CObjectBillboard::Draw();
 }

@@ -11,9 +11,6 @@
 class CSound
 {
 public:
-	// 最大同時再生数
-	static constexpr int MAX_SIMULTANEOUS_PLAY = 2;
-
 	CSound();
 	~CSound();
 
@@ -40,6 +37,8 @@ public:
 		SOUND_LABEL_SWING,
 		SOUND_LABEL_GET,
 		SOUND_LABEL_RANK,
+		SOUND_LABEL_GAMEBGM2,
+		SOUND_LABEL_SHINE,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -58,6 +57,9 @@ public:
 	void UpdateSoundPosition(int instanceId, D3DXVECTOR3 pos);
 
 private:
+	// 最大同時再生数
+	static constexpr int MAX_SIMULTANEOUS_PLAY = 2;
+
 	// 一つのサウンド再生インスタンス
 	struct SoundInstance
 	{
@@ -89,7 +91,7 @@ private:
 	// サウンドの情報
 	SOUNDINFO m_aSoundInfo[SOUND_LABEL_MAX] =
 	{
-		{"data/BGM/gameBGM.wav", -1},			// ゲームBGM
+		{"data/BGM/gameBGM.wav", -1},			// ゲームBGM(ステージ1)
 		{"data/SE/water.wav", 0},				// 入水SE
 		{"data/SE/waterrise.wav", 0},			// 水位上昇SE
 		{"data/SE/hit.wav", 0},					// プレイヤーヒットSE
@@ -107,6 +109,8 @@ private:
 		{"data/SE/swing.wav", 0},				// 斧SE
 		{"data/SE/get.wav", 0},					// 入手SE
 		{"data/SE/resultrank.wav", 0},			// リザルトランク表示SE
+		{"data/BGM/gameBGM2.wav", -1},			// ゲームBGM2(ステージ2)
+		{"data/SE/shines.wav", 0},				// ドアが開くときの台座SE
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

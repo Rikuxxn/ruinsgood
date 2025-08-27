@@ -75,12 +75,14 @@ HRESULT CResult::Init(void)
 		if (m_isMaskGet)
 		{
 			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
-			m_pUi = CUi::Create(CUi::TYPE_RESULT_UI, "data/TEXTURE/ui_result004.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_TREASURE, "data/TEXTURE/ui_maskfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 190.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_GET, "data/TEXTURE/collected.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 80.0f);
 		}
 		else if (!m_isMaskGet)
 		{
 			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
-			m_pUi = CUi::Create(CUi::TYPE_RESULT_UI, "data/TEXTURE/ui_result003.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 120.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_TREASURE, "data/TEXTURE/ui_masknotfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 190.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_GET, "data/TEXTURE/notfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 80.0f);
 		}
 		break;
 	case CStage::STAGE_ID_2:
@@ -88,12 +90,14 @@ HRESULT CResult::Init(void)
 		if (m_isMaskGet)
 		{
 			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
-			m_pUi = CUi::Create(CUi::TYPE_RESULT_UI, "data/TEXTURE/ui_eggfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 190.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_TREASURE, "data/TEXTURE/ui_eggfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 190.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_GET, "data/TEXTURE/collected.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 80.0f);
 		}
 		else if (!m_isMaskGet)
 		{
 			// UI(î≠å©ÇµÇΩÇ©Ç«Ç§Ç©)ÇÃê∂ê¨
-			m_pUi = CUi::Create(CUi::TYPE_RESULT_UI, "data/TEXTURE/ui_eggnotfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 190.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_TREASURE, "data/TEXTURE/ui_eggnotfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 190.0f);
+			m_pUi = CUi::Create(CUi::TYPE_RESULT_GET, "data/TEXTURE/notfound.png", D3DXVECTOR3(450.0f, 755.0f, 0.0f), 190.0f, 80.0f);
 		}
 		break;
 	case CStage::STAGE_ID_3:
