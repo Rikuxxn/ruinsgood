@@ -464,6 +464,10 @@ void CWaterBlock::AddWaterStayTime(void)
 		if (m_waterStayTime >= 180) // 3秒以上滞在したら
 		{
 			CPlayer* pPlayer = CGame::GetPlayer();
+			if (!pPlayer)
+			{
+				return;
+			}
 
 			pPlayer->RespawnToCheckpoint(D3DXVECTOR3(427.0f, 30.0f, 1110.0f)); // リスポーン
 			m_waterStayTime = 0;
@@ -1109,6 +1113,11 @@ void CAxeBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
+
 	Swing();	// スイング処理
 
 	IsPlayerHit();// プレイヤーとの接触判定
@@ -1270,6 +1279,11 @@ CRockBlock::~CRockBlock()
 void CRockBlock::Update(void)
 {
 	CBlock::Update();	// 共通処理
+
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
 
 	const float RESET_HEIGHT = -480.0f;
 
@@ -1793,7 +1807,7 @@ CTorch2Block::~CTorch2Block()
 //=============================================================================
 void CTorch2Block::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
+	if (CManager::GetMode() != MODE_GAME || !CGame::GetPlayer())
 	{
 		return;
 	}
@@ -1872,7 +1886,7 @@ CTorch3Block::~CTorch3Block()
 //=============================================================================
 void CTorch3Block::Update(void)
 {
-	if (CManager::GetMode() != MODE_GAME)
+	if (CManager::GetMode() != MODE_GAME || !CGame::GetPlayer())
 	{
 		return;
 	}
@@ -1951,6 +1965,11 @@ CMaskBlock::~CMaskBlock()
 void CMaskBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
+
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
 
 	CParticle* pParticle = NULL;
 
@@ -2044,6 +2063,11 @@ void CSwordBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
+
 	CParticle* pParticle = NULL;
 
 	if (CManager::GetMode() == MODE_GAME)
@@ -2100,21 +2124,6 @@ void CSwordBlock::Update(void)
 		{// 手に入れた
 			m_isEnd = true;
 		}
-	}
-
-	if (CManager::GetMode() == MODE_TITLE)
-	{
-		// オフセット
-		D3DXVECTOR3 localOffset(0.0f, -60.0f, 0.0f);
-		D3DXVECTOR3 worldOffset;
-
-		// ブロックのワールドマトリックスを取得
-		D3DXMATRIX worldMtx = GetWorldMatrix();
-
-		D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
-
-		// パーティクル生成
-		pParticle = CParticle::Create(INIT_VEC3, worldOffset, D3DXCOLOR(0.6f, 0.6f, 0.0f, 0.3f), 50, CParticle::TYPE_AURA, 1);
 	}
 }
 
@@ -3108,6 +3117,11 @@ void CShieldBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
+
 	CParticle* pParticle = NULL;
 
 	if (CManager::GetMode() == MODE_GAME)
@@ -3189,6 +3203,11 @@ CStatueBlock::~CStatueBlock()
 void CStatueBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
+
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
 
 	CParticle* pParticle = NULL;
 
@@ -3279,6 +3298,11 @@ HRESULT CStatueBlock2::Init(void)
 void CStatueBlock2::Update(void)
 {
 	CBlock::Update(); // 共通処理
+
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
 
 	CParticle* pParticle = NULL;
 
@@ -3431,6 +3455,11 @@ CEggBlock::~CEggBlock()
 void CEggBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
+
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
 
 	CParticle* pParticle = NULL;
 

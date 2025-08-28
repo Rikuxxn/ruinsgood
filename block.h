@@ -124,9 +124,9 @@ public:
 	//*****************************************************************************
 	void SetType(TYPE type) { m_Type = type; }											// タイプの設定
 	void SetSelected(bool flag) { m_bSelected = flag; }									// 選択中のフラグを返す
-	void SetColliderSize(const D3DXVECTOR3& size);										// コライダーサイズの設定
+	void SetColliderSize(const D3DXVECTOR3& size) { m_colliderSize = size; }			// コライダーサイズの設定
 	void SetColliderManual(const D3DXVECTOR3& newSize);									// コライダーサイズの手動設定用
-	void SetColliderOffset(const D3DXVECTOR3& offset);									// コライダーのオフセットの設定
+	void SetColliderOffset(const D3DXVECTOR3& offset) { m_colliderOffset = offset; }	// コライダーのオフセットの設定
 	void SetColliderHandle(const ColliderPart& handle) { m_colliderHandle = handle; }
 	void SetColliderBlade(const ColliderPart& blade) { m_colliderBlade = blade; }
 	void SetEditMode(bool enable);

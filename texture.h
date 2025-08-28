@@ -144,6 +144,7 @@ private:
 		"data/TEXTURE/hint3.png",
 		"data/TEXTURE/hint4.png",
 		"data/TEXTURE/hint5.png",
+		"data/TEXTURE/pillar2.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];
