@@ -1,0 +1,222 @@
+[
+    {
+      "type": 0,
+      "filepath": "data/MODELS/woodbox_003.x"
+    },
+    {
+      "type": 1,
+      "filepath": "data/MODELS/wall_01.x"
+    },
+    {
+      "type": 2,
+      "filepath": "data/MODELS/wall_02.x"
+    },
+    {
+      "type": 3,
+      "filepath": "data/MODELS/wall_03.x"
+    },
+    {
+      "type": 4,
+      "filepath": "data/MODELS/wall_04.x"
+    },
+    {
+      "type": 5,
+      "filepath": "data/MODELS/Axe_01.x"
+    },
+    {
+      "type": 6,
+      "filepath": "data/MODELS/ikada.x"
+    },
+    {
+      "type": 7,
+      "filepath": "data/MODELS/Rock_001.x"
+    },
+    {
+      "type": 8,
+      "filepath": "data/MODELS/torch_01.x"
+    },
+    {
+      "type": 9,
+      "filepath": "data/MODELS/torch_02.x"
+    },
+    {
+      "type": 10,
+      "filepath": "data/MODELS/floor_01.x"
+    },
+    {
+      "type": 11,
+      "filepath": "data/MODELS/floor_02.x"
+    },
+    {
+      "type": 12,
+      "filepath": "data/MODELS/door_01.x"
+    },
+    {
+      "type": 13,
+      "filepath": "data/MODELS/ceiling_01.x"
+    },
+    {
+      "type": 14,
+      "filepath": "data/MODELS/ceiling_02.x"
+    },
+    {
+      "type": 15,
+      "filepath": "data/MODELS/water.x"
+    },
+    {
+      "type": 16,
+      "filepath": "data/MODELS/switch.x"
+    },
+    {
+      "type": 17,
+      "filepath": "data/MODELS/switch_body.x"
+    },
+    {
+      "type": 18,
+      "filepath": "data/MODELS/bridge_01.x"
+    },
+    {
+      "type": 19,
+      "filepath": "data/MODELS/wall_door_parttop.x"
+    },
+    {
+      "type": 20,
+      "filepath": "data/MODELS/wall_door_partleft.x"
+    },
+    {
+      "type": 21,
+      "filepath": "data/MODELS/pillar_001.x"
+    },
+    {
+      "type": 22,
+      "filepath": "data/MODELS/block.x"
+    },
+    {
+      "type": 23,
+      "filepath": "data/MODELS/fence.x"
+    },
+    {
+      "type": 24,
+      "filepath": "data/MODELS/fence_part.x"
+    },
+    {
+      "type": 25,
+      "filepath": "data/MODELS/bridge_02.x"
+    },
+    {
+      "type": 26,
+      "filepath": "data/MODELS/target.x"
+    },
+    {
+      "type": 27,
+      "filepath": "data/MODELS/switch2.x"
+    },
+    {
+      "type": 28,
+      "filepath": "data/MODELS/door_02.x"
+    },
+    {
+      "type": 29,
+      "filepath": "data/MODELS/mask.x"
+    },
+    {
+      "type": 30,
+      "filepath": "data/MODELS/sword.x"
+    },
+    {
+      "type": 31,
+      "filepath": "data/MODELS/switch3.x"
+    },
+    {
+      "type": 32,
+      "filepath": "data/MODELS/bar.x"
+    },
+    {
+      "type": 33,
+      "filepath": "data/MODELS/bridge_03.x"
+    },
+    {
+      "type": 34,
+      "filepath": "data/MODELS/fire_statue.x"
+    },
+    {
+      "type": 35,
+      "filepath": "data/MODELS/wall_05.x"
+    },
+    {
+      "type": 36,
+      "filepath": "data/MODELS/floor_03.x"
+    },
+    {
+      "type": 37,
+      "filepath": "data/MODELS/turn_fire_statue.x"
+    },
+    {
+      "type": 38,
+      "filepath": "data/MODELS/block_01.x"
+    },
+    {
+      "type": 39,
+      "filepath": "data/MODELS/stairs.x"
+    },
+    {
+      "type": 40,
+      "filepath": "data/MODELS/pillar_002.x"
+    },
+    {
+      "type": 41,
+      "filepath": "data/MODELS/block_02.x"
+    },
+    {
+      "type": 42,
+      "filepath": "data/MODELS/floor_04.x"
+    },
+    {
+      "type": 43,
+      "filepath": "data/MODELS/fire_statue.x"
+    },
+    {
+      "type": 44,
+      "filepath": "data/MODELS/torch_02.x"
+    },
+    {
+      "type": 45,
+      "filepath": "data/MODELS/net.x"
+    },
+    {
+      "type": 46,
+      "filepath": "data/MODELS/keyfence.x"
+    },
+    {
+      "type": 47,
+      "filepath": "data/MODELS/key.x"
+    },
+    {
+      "type": 48,
+      "filepath": "data/MODELS/key_pedestal.x"
+    },
+    {
+      "type": 49,
+      "filepath": "data/MODELS/door_03.x"
+    },
+    {
+      "type": 50,
+      "filepath": "data/MODELS/shield.x"
+    },
+    {
+      "type": 51,
+      "filepath": "data/MODELS/statue.x"
+    },
+    {
+      "type": 52,
+      "filepath": "data/MODELS/statue2.x"
+    },
+    {
+      "type": 53,
+      "filepath": "data/MODELS/egg.x"
+    },
+    {
+      "type": 54,
+      "filepath": "data/MODELS/doorTriggerBlock.x"
+    }
+]

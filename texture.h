@@ -138,6 +138,12 @@ private:
 		"data/TEXTURE/notfound.png",
 		"data/TEXTURE/hint.png",
 		"data/TEXTURE/doorTriggerBlock.png",
+		"data/TEXTURE/text.png",
+		"data/TEXTURE/ui_interact.png",
+		"data/TEXTURE/hint2.png",
+		"data/TEXTURE/hint3.png",
+		"data/TEXTURE/hint4.png",
+		"data/TEXTURE/hint5.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

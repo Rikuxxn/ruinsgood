@@ -17,6 +17,7 @@
 #include "blockmanager.h"
 #include "ui.h"
 #include "pausemanager.h"
+#include "hinttext.h"
 
 //*****************************************************************************
 // ゲームクラス
@@ -31,6 +32,7 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
+	void LoadObject(int stageId);
 
 	static CPlayer* GetPlayer(void) { return m_pPlayer; }
 	static CTime* GetTime(void) { return m_pTime; }
@@ -40,6 +42,7 @@ public:
 	static CObjectBillboard* GetBillboard(void) { return m_pBillboard; }
 	static CUi* GetUi(void) { return m_pUi; }
 	static CPauseManager* GetPauseManager(void) { return m_pPauseManager; }
+	static CHintText* GetHintText(void) { return m_pHintText; }
 	static bool GetisPaused(void) { return m_isPaused; };
 	static void SetEnablePause(bool bPause);
 
@@ -53,6 +56,7 @@ private:
 	static CObjectBillboard* m_pBillboard;		// ビルボードへのポインタ
 	static CUi* m_pUi;							// UIへのポインタ
 	static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
+	static CHintText* m_pHintText;				// ヒント壁画へのポインタ
 	static bool m_isPaused;						// trueならポーズ中
 
 };

@@ -19,7 +19,7 @@
 class CObject3D : public CObject
 {
 public:
-	CObject3D(int nPriority = 6);
+	CObject3D(int nPriority = 5);
 	~CObject3D();
 
 	static CObject3D* Create(void);
@@ -29,9 +29,10 @@ public:
 	void Draw(void);
 	D3DXVECTOR3 GetPos(void) { return m_pos; }
 	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
+	void SetRot(D3DXVECTOR3 rot) { m_rot = rot; }
 	void SetWidth(float fWidth) { m_fWidth = fWidth; }
 	void SetHeight(float fHeight) { m_fHeight = fHeight; }
-	void SetDepth(float fDepth) { m_fDepth = fDepth; }
+	void SetCol(D3DXCOLOR col) { m_col = col; }
 
 private:
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;		// 頂点バッファへのポインタ
@@ -41,7 +42,6 @@ private:
 	D3DXMATRIX m_mtxWorld;					// ワールドマトリックス
 	float m_fWidth;							// 幅
 	float m_fHeight;						// 高さ
-	float m_fDepth;							// 奥行き
 };
 
 #endif

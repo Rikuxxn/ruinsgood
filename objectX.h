@@ -26,18 +26,18 @@ public:
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	const char* GetPath(void);
-	D3DXVECTOR3 GetPos(void);
-	D3DXVECTOR3 GetRot(void);
-	D3DXVECTOR3 GetSize(void);		// 拡大率
-	D3DXVECTOR3 GetModelSize(void);	// モデルの元サイズ
-	virtual D3DXCOLOR GetCol(void) const;
+	const char* GetPath(void) { return m_szPath; }
+	D3DXVECTOR3 GetPos(void) { return m_pos; }
+	D3DXVECTOR3 GetRot(void) { return m_rot; }
+	D3DXVECTOR3 GetSize(void) { return m_size; }		// 拡大率
+	D3DXVECTOR3 GetModelSize(void) { return m_modelSize; }	// モデルの元サイズ
+	virtual D3DXCOLOR GetCol(void) const { return D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f); }
 	D3DXCOLOR GetMaterialColor(void) const;
 
-	void SetPath(const char* path);
-	void SetSize(D3DXVECTOR3 size);
-	void SetPos(D3DXVECTOR3 pos);
-	void SetRot(D3DXVECTOR3 rot);
+	void SetPath(const char* path) { strcpy_s(m_szPath, MAX_PATH, path); }
+	void SetSize(D3DXVECTOR3 size) { m_size = size; }
+	void SetPos(D3DXVECTOR3 pos) { m_pos = pos; }
+	void SetRot(D3DXVECTOR3 rot) { m_rot = rot; }
 
 private:
 	int* m_nIdxTexture;

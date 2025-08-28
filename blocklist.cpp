@@ -1278,7 +1278,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }

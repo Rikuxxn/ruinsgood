@@ -11,6 +11,7 @@
 #include "ui.h"
 #include "manager.h"
 #include "result.h"
+#include "game.h"
 
 
 //*****************************************************************************
@@ -93,7 +94,7 @@ void CUi::InitFactory(void)
 	m_UiFactoryMap[CUi::TYPE_RESULT_RANK]		= []() -> CUi* { return new CResultRankUi(); };
 	m_UiFactoryMap[CUi::TYPE_RESULT_GET]		= []() -> CUi* { return new CResultGetUi(); };
 	m_UiFactoryMap[CUi::TYPE_STAGE_NAME]		= []() -> CUi* { return new CStageUi(); };
-
+	m_UiFactoryMap[CUi::TYPE_INTERACT]			= []() -> CUi* { return new CInteractUi(); };
 }
 //=============================================================================
 // 初期化処理
@@ -609,4 +610,67 @@ void CStageUi::Update(void)
 	}
 
 	SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, m_fAlpha));
+}
+
+
+//=============================================================================
+// インタラクトUIのコンストラクタ
+//=============================================================================
+CInteractUi::CInteractUi()
+{
+	// 値のクリア
+	m_isInteract = false;
+}
+//=============================================================================
+// インタラクトUIのデストラクタ
+//=============================================================================
+CInteractUi::~CInteractUi()
+{
+	// なし
+}
+//=============================================================================
+// インタラクトUIの初期化処理
+//=============================================================================
+HRESULT CInteractUi::Init(void)
+{
+	// UIの初期化処理
+	CUi::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// インタラクトUIの更新処理
+//=============================================================================
+void CInteractUi::Update(void)
+{
+	// UIの更新処理
+	CUi::Update();
+
+	CInputMouse* pMouse = CManager::GetInputMouse();
+	CInputJoypad* pJoypad = CManager::GetInputJoypad();
+
+	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
+	D3DXVECTOR3 HintTextPos = CGame::GetHintText()->GetPos();
+
+	D3DXVECTOR3 disPos = playerPos - HintTextPos;
+
+	float distance = D3DXVec3Length(&disPos);
+
+	const float kTriggerDistance = 180.0f; // 反応距離
+
+	if (distance < kTriggerDistance)
+	{
+		if (CManager::GetInputMouse()->GetTrigger(0) || CManager::GetInputJoypad()->GetTriggerR2())
+		{
+			m_isInteract = true;
+		}
+
+		// 通常に戻す
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+	else
+	{
+		// 透明にする
+		SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
+	}
 }

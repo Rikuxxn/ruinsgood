@@ -171,6 +171,7 @@
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="FileDialogUtils.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="hinttext.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imguimaneger.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
@@ -230,6 +231,7 @@
     <ClInclude Include="fade.h" />
     <ClInclude Include="FileDialogUtils.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="hinttext.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imguimaneger.h" />

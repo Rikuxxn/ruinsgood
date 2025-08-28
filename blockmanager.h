@@ -31,6 +31,7 @@ public:
     void SaveToJson(const char* filename);
     void LoadFromJson(const char* filename);
     static bool CheckAllTorches(void);
+    void LoadConfig(const std::string& filename);
 
      //*****************************************************************************
     // ImGuiでの操作関数
@@ -57,7 +58,7 @@ private:
     bool m_hasConsumedPayload ;             // ペイロード生成済みフラグ
     CDebugProc3D* m_pDebug3D;			    // 3Dデバッグ表示へのポインタ
     bool m_autoUpdateColliderSize;
-    static const std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap;
+    static std::unordered_map<CBlock::TYPE, std::string> s_FilePathMap;
     static CBlock* m_selectedBlock;                  // 選択中のブロック
 
 };

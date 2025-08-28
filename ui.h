@@ -37,6 +37,7 @@ public:
 		TYPE_RESULT_RANK,
 		TYPE_RESULT_GET,
 		TYPE_STAGE_NAME,
+		TYPE_INTERACT,
 		TYPE_MAX
 	}TYPE;
 
@@ -196,6 +197,23 @@ private:
 	float m_fTimer;	// 経過時間(秒)
 	float m_fAlpha;	// アルファ値
 	STATE m_state;	// 状態
+};
+
+//*****************************************************************************
+// インタラクトUIクラス
+//*****************************************************************************
+class CInteractUi : public CUi
+{
+public:
+	CInteractUi();
+	~CInteractUi();
+
+	HRESULT Init(void);
+	void Update(void);
+	void SetInteract(bool flag) { m_isInteract = flag; }
+
+private:
+	bool m_isInteract;// インタラクトしたかどうか
 };
 
 #endif

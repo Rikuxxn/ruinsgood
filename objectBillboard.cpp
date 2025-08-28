@@ -363,11 +363,13 @@ void CHintBillboard::Update(void)
 	// ビルボードの更新処理
 	CObjectBillboard::Update();
 
+
+
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 	float distance = D3DXVec3Length(&disPos);
 
-	const float kTriggerDistance = 250.0f; // 表示距離
+	const float kTriggerDistance = 200.0f; // 表示距離
 
 	switch (m_state)
 	{

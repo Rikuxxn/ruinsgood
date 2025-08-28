@@ -24,7 +24,8 @@ CBlockManager* CGame::m_pBlockManager= NULL;	// ブロックマネージャーへのポインタ
 CImGuiManager* CGame::m_pImGuiManager= NULL;	// ImGuiマネージャーへのポインタ
 CObjectBillboard* CGame::m_pBillboard = NULL;	// ビルボードへのポインタ
 CUi* CGame::m_pUi = NULL;						// UIへのポインタ
-CPauseManager* CGame::m_pPauseManager = NULL;
+CPauseManager* CGame::m_pPauseManager = NULL;	// ポーズマネージャーへのポインタ
+CHintText* CGame::m_pHintText = NULL;			// ヒント壁画へのポインタ
 bool CGame::m_isPaused = false;					// trueならポーズ中
 
 //=============================================================================
@@ -55,54 +56,8 @@ HRESULT CGame::Init(void)
 	// ステージIDの取得
 	int stageId = CStageSelect::GetSelectedStage();
 
-	switch (stageId)
-	{
-	case CStage::STAGE_ID_1:
-		// ゲームBGMの再生
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
-
-		// ビルボードの生成
-		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 0.0f);
-		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 0.0f);
-		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 0.0f);
-		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT,"data/TEXTURE/hint.png", D3DXVECTOR3(610.0f, 130.0f, 206.0f), 100.0f, -50.0f);
-
-		// プレイヤーの生成
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-
-		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_01.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
-
-		// JSONの読み込み
-		m_pBlockManager->LoadFromJson("data/stage_01.json");
-
-		break;
-	case CStage::STAGE_ID_2:
-		// ゲームBGMの再生
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM2);
-
-		// プレイヤーの生成
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1542.3f, 360.0f, -850.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-
-		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_02.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
-
-		// JSONの読み込み
-		m_pBlockManager->LoadFromJson("data/stage_02.json");
-
-		break;
-	case CStage::STAGE_ID_3:
-		// プレイヤーの生成
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-
-		// JSONの読み込み
-		m_pBlockManager->LoadFromJson("data/stage_03.json");
-
-		break;
-	case CStage::STAGE_ID_NONE:
-		break;
-	}
+	// ステージごとのオブジェクトの読み込み処理
+	LoadObject(stageId);
 
 	float fTimePosX = 760.0f;
 	float fTimeWidth = 42.0f;
@@ -235,6 +190,79 @@ void CGame::Draw(void)
 	{
 		// ポーズマネージャーの描画処理
 		m_pPauseManager->Draw();
+	}
+}
+//=============================================================================
+// ステージごとのオブジェクトの読み込み処理
+//=============================================================================
+void CGame::LoadObject(int stageId)
+{
+	switch (stageId)
+	{
+	case CStage::STAGE_ID_1:
+		// ゲームBGMの再生
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
+
+		// ヒント壁画の生成
+		m_pHintText = CHintText::Create("data/TEXTURE/text.png", D3DXVECTOR3(-227.0f, 140.0f, 1133.0f), D3DXVECTOR3(0.0f, -90.0f, 0.0f), 110.0f, 40.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/text.png", D3DXVECTOR3(480.0f, 140.0f, 115.0f), D3DXVECTOR3(0.0f, 180.0f, 0.0f), 110.0f, 40.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(2718.0f, -383.0f, -228.5f), D3DXVECTOR3(0.0f, 90.0f, 0.0f), 25.0f, 25.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(2133.0f, -343.0f, -1083.0f), D3DXVECTOR3(0.0f, 180.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(2070.0f, -343.0f, -1020.0f), D3DXVECTOR3(0.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(2220.0f, -383.0f, -1083.0f), D3DXVECTOR3(0.0f, 180.0f, 0.0f), 25.0f, 25.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/text.png", D3DXVECTOR3(2996.0f, -290.0f, 345.5f), D3DXVECTOR3(0.0f, 90.0f, 0.0f), 110.0f, 40.0f);
+
+		// ビルボードの生成
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 0.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 0.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 0.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint.png", D3DXVECTOR3(-152.5f, 150.0f, 1133.0f), 80.0f, -50.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint2.png", D3DXVECTOR3(480.0f, 150.0f, 180.0f), 80.0f, -50.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint5.png", D3DXVECTOR3(2956.0f, -290.0f, 345.5f), 80.0f, -50.0f);
+
+		// プレイヤーの生成
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+		// UIの生成
+		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_01.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
+		//m_pUi = CUi::Create(CUi::TYPE_INTERACT, "data/TEXTURE/ui_interact.png", D3DXVECTOR3(860.0f, 740.0f, 0.0f), 250.0f, 50.0f);
+
+		// JSONの読み込み
+		m_pBlockManager->LoadFromJson("data/stage_01.json");
+
+		break;
+	case CStage::STAGE_ID_2:
+		// ゲームBGMの再生
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM2);
+
+		// ヒント壁画の生成
+		m_pHintText = CHintText::Create("data/TEXTURE/text.png", D3DXVECTOR3(-1736.0f, 308.0f, 723.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 110.0f, 40.0f);
+
+		// ビルボードの生成
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint4.png", D3DXVECTOR3(-1736.0f, 360.0f, 723.0f), 80.0f, -50.0f);
+
+		// プレイヤーの生成
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1542.3f, 360.0f, -850.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_02.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
+
+		// JSONの読み込み
+		m_pBlockManager->LoadFromJson("data/stage_02.json");
+
+		break;
+	case CStage::STAGE_ID_3:
+		// プレイヤーの生成
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+		// JSONの読み込み
+		m_pBlockManager->LoadFromJson("data/stage_03.json");
+
+		break;
+	case CStage::STAGE_ID_NONE:
+		break;
 	}
 }
 //=============================================================================

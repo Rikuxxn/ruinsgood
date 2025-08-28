@@ -24,7 +24,6 @@ CObject3D::CObject3D(int nPriority) : CObject(nPriority)
 	m_mtxWorld = {};		// ワールドマトリックス
 	m_fWidth   = 0.0f;		// 幅
 	m_fHeight  = 0.0f;		// 高さ
-	m_fDepth   = 0.0f;		// 奥行き
 }
 //=============================================================================
 // デストラクタ
@@ -69,17 +68,17 @@ HRESULT CObject3D::Init(void)
 	//頂点バッファをロックし、頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	//頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	// 頂点座標の設定
+	pVtx[0].pos = D3DXVECTOR3(-m_fWidth, +m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fWidth, -m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fWidth, -m_fHeight, 0.0f);
 
 	//各頂点の法線の設定
-	pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	pVtx[0].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[1].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[2].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
+	pVtx[3].nor = D3DXVECTOR3(0.0f, 0.0f, -1.0f);
 
 	// 頂点カラーの設定
 	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -124,10 +123,10 @@ void CObject3D::Update(void)
 	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(-m_fWidth, +m_fHeight, +m_fDepth);
-	pVtx[1].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, +m_fDepth);
-	pVtx[2].pos = D3DXVECTOR3(-m_fWidth, +m_fHeight, -m_fDepth);
-	pVtx[3].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, -m_fDepth);
+	pVtx[0].pos = D3DXVECTOR3(-m_fWidth, +m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fWidth, -m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fWidth, -m_fHeight, 0.0f);
 
 	//頂点カラーの設定
 	pVtx[0].col = m_col;

@@ -26,7 +26,7 @@ std::vector<CBlock*> CBlockManager::m_blocks = {};	// ブロックの情報
 int CBlockManager::m_nNumAll = 0;				// ブロックの総数
 int CBlockManager::m_selectedIdx = 0;			// 選択中のインデックス
 CBlock* CBlockManager::m_draggingBlock = {};
-std::unordered_map<CBlock::TYPE, const char*> s_FilePathMap = {};
+std::unordered_map<CBlock::TYPE, std::string> CBlockManager::s_FilePathMap; 
 CBlock* CBlockManager::m_selectedBlock = {};
 
 //=============================================================================
@@ -70,6 +70,8 @@ CBlock* CBlockManager::CreateBlock(CBlock::TYPE type, D3DXVECTOR3 pos)
 //=============================================================================
 void CBlockManager::Init(void)
 {
+	LoadConfig("data/block_payload.json");
+
 	// 動的配列を空にする (サイズを0にする)
 	m_blocks.clear();
 }
@@ -780,73 +782,32 @@ void CBlockManager::UpdateCollider(CBlock* selectedBlock)
 	}
 }
 //=============================================================================
-// Xファイルパスの設定
+// Xファイルパスの読み込み
 //=============================================================================
-const std::unordered_map<CBlock::TYPE, const char*> CBlockManager::s_FilePathMap =
+void CBlockManager::LoadConfig(const std::string& filename)
 {
-	{ CBlock::TYPE_WOODBOX,			"data/MODELS/woodbox_003.x" },
-	{ CBlock::TYPE_WALL,			"data/MODELS/wall_01.x" },
-	{ CBlock::TYPE_WALL2,			"data/MODELS/wall_02.x" },
-	{ CBlock::TYPE_WALL3,			"data/MODELS/wall_03.x" },
-	{ CBlock::TYPE_WALL4,			"data/MODELS/wall_04.x" },
-	{ CBlock::TYPE_AXE,				"data/MODELS/Axe_01.x" },
-	{ CBlock::TYPE_RAFT,			"data/MODELS/ikada.x" },
-	{ CBlock::TYPE_ROCK,			"data/MODELS/Rock_001.x" },
-	{ CBlock::TYPE_TORCH,			"data/MODELS/torch_01.x" },
-	{ CBlock::TYPE_TORCH2,			"data/MODELS/torch_02.x" },
-	{ CBlock::TYPE_FLOOR,			"data/MODELS/floor_01.x" },
-	{ CBlock::TYPE_FLOOR2,			"data/MODELS/floor_02.x" },
-	{ CBlock::TYPE_DOOR,			"data/MODELS/door_01.x" },
-	{ CBlock::TYPE_CEILING,			"data/MODELS/ceiling_01.x" },
-	{ CBlock::TYPE_CEILING2,		"data/MODELS/ceiling_02.x" },
-	{ CBlock::TYPE_WATER,			"data/MODELS/water.x" },
-	{ CBlock::TYPE_SWITCH,			"data/MODELS/switch.x" },
-	{ CBlock::TYPE_SWITCH_BODY,		"data/MODELS/switch_body.x" },
-	{ CBlock::TYPE_BRIDGE,			"data/MODELS/bridge_01.x" },
-	{ CBlock::TYPE_DOOR_TOP,		"data/MODELS/wall_door_parttop.x" },
-	{ CBlock::TYPE_DOOR_SIDE,		"data/MODELS/wall_door_partleft.x" },
-	{ CBlock::TYPE_PILLAR,			"data/MODELS/pillar_001.x" },
-	{ CBlock::TYPE_BLOCK,			"data/MODELS/block.x" },
-	{ CBlock::TYPE_FENCE,			"data/MODELS/fence.x" },
-	{ CBlock::TYPE_FENCE_PART,		"data/MODELS/fence_part.x" },
-	{ CBlock::TYPE_BRIDGE2,			"data/MODELS/bridge_02.x" },
-	{ CBlock::TYPE_TARGET,			"data/MODELS/target.x" },
-	{ CBlock::TYPE_SWITCH2,			"data/MODELS/switch2.x" },
-	{ CBlock::TYPE_DOOR2,			"data/MODELS/door_02.x" },
-	{ CBlock::TYPE_MASK,			"data/MODELS/mask.x" },
-	{ CBlock::TYPE_SWORD,			"data/MODELS/sword.x" },
-	{ CBlock::TYPE_SWITCH3,			"data/MODELS/switch3.x" },
-	{ CBlock::TYPE_BAR,				"data/MODELS/bar.x" },
-	{ CBlock::TYPE_BRIDGE3,			"data/MODELS/bridge_03.x" },
-	{ CBlock::TYPE_FIRE_STATUE,		"data/MODELS/fire_statue.x" },
-	{ CBlock::TYPE_WALL5,			"data/MODELS/wall_05.x" },
-	{ CBlock::TYPE_FLOOR3,			"data/MODELS/floor_03.x" },
-	{ CBlock::TYPE_TURN_FIRE_STATUE,"data/MODELS/turn_fire_statue.x" },
-	{ CBlock::TYPE_BLOCK2,			"data/MODELS/block_01.x" },
-	{ CBlock::TYPE_STAIRS,			"data/MODELS/stairs.x" },
-	{ CBlock::TYPE_PILLAR2,			"data/MODELS/pillar_002.x" },
-	{ CBlock::TYPE_BLOCK3,			"data/MODELS/block_02.x" },
-	{ CBlock::TYPE_FLOOR4,			"data/MODELS/floor_04.x" },
-	{ CBlock::TYPE_MOVE_FIRE_STATUE,"data/MODELS/fire_statue.x" },
-	{ CBlock::TYPE_TORCH3,			"data/MODELS/torch_02.x" },
-	{ CBlock::TYPE_NETFLOOR,		"data/MODELS/net.x" },
-	{ CBlock::TYPE_KEYFENCE,		"data/MODELS/keyfence.x" },
-	{ CBlock::TYPE_KEY,				"data/MODELS/key.x" },
-	{ CBlock::TYPE_KEY_PEDESTAL,	"data/MODELS/key_pedestal.x" },
-	{ CBlock::TYPE_KEY_DOOR,		"data/MODELS/door_03.x" },
-	{ CBlock::TYPE_SHIELD,			"data/MODELS/shield.x" },
-	{ CBlock::TYPE_STATUE,			"data/MODELS/statue.x" },
-	{ CBlock::TYPE_STATUE2,			"data/MODELS/statue2.x" },
-	{ CBlock::TYPE_EGG,				"data/MODELS/egg.x" },
-	{ CBlock::TYPE_DOOR_TRIGGER,	"data/MODELS/doorTriggerBlock.x" },
-};
+	std::ifstream ifs(filename);
+	if (!ifs) return;
+
+	json j;
+	ifs >> j;
+
+	// j は配列になってるのでループする
+	for (auto& block : j)
+	{
+		int typeInt = block["type"];
+		std::string filepath = block["filepath"];
+
+		s_FilePathMap[(CBlock::TYPE)typeInt] = filepath;
+	}
+}
 //=============================================================================
 // タイプからXファイルパスを取得
 //=============================================================================
 const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 {
 	auto it = s_FilePathMap.find(type);
-	return (it != s_FilePathMap.end()) ? it->second : "";
+	return (it != s_FilePathMap.end()) ? it->second.c_str() : "";
 }
 //=============================================================================
 // ブロック情報の保存処理
@@ -952,50 +913,52 @@ void CBlockManager::LoadFromJson(const char* filename)
 		// タイプからブロック生成
 		CBlock* block = CreateBlock(type, pos);
 
-		if (block)
+		if (!block)
 		{
-			block->SetRot(rot);
-			block->SetSize(size);
+			continue;
+		}
 
-			// 複合コライダーか判定して処理を分ける
-			if (b.contains("collider_handle_size") && b.contains("collider_blade_size"))
-			{
-				ColliderPart handle, blade;
+		block->SetRot(rot);
+		block->SetSize(size);
 
-				handle.size = D3DXVECTOR3(
-					b["collider_handle_size"][0],
-					b["collider_handle_size"][1],
-					b["collider_handle_size"][2]);
+		// 複合コライダーか判定して処理を分ける
+		if (b.contains("collider_handle_size") && b.contains("collider_blade_size"))
+		{
+			ColliderPart handle, blade;
 
-				handle.offset = D3DXVECTOR3(
-					b["collider_handle_offset"][0],
-					b["collider_handle_offset"][1],
-					b["collider_handle_offset"][2]);
+			handle.size = D3DXVECTOR3(
+				b["collider_handle_size"][0],
+				b["collider_handle_size"][1],
+				b["collider_handle_size"][2]);
 
-				blade.size = D3DXVECTOR3(
-					b["collider_blade_size"][0],
-					b["collider_blade_size"][1],
-					b["collider_blade_size"][2]);
+			handle.offset = D3DXVECTOR3(
+				b["collider_handle_offset"][0],
+				b["collider_handle_offset"][1],
+				b["collider_handle_offset"][2]);
 
-				blade.offset = D3DXVECTOR3(
-					b["collider_blade_offset"][0],
-					b["collider_blade_offset"][1],
-					b["collider_blade_offset"][2]);
+			blade.size = D3DXVECTOR3(
+				b["collider_blade_size"][0],
+				b["collider_blade_size"][1],
+				b["collider_blade_size"][2]);
 
-				block->SetColliderHandle(handle);
-				block->SetColliderBlade(blade);
-				block->CreatePhysicsFromParts(); // 複合用再生成
-			}
-			else if (b.contains("collider_size"))
-			{
-				D3DXVECTOR3 colliderSize(
-					b["collider_size"][0],
-					b["collider_size"][1],
-					b["collider_size"][2]);
+			blade.offset = D3DXVECTOR3(
+				b["collider_blade_offset"][0],
+				b["collider_blade_offset"][1],
+				b["collider_blade_offset"][2]);
 
-				block->SetColliderSize(colliderSize);
-				block->UpdateCollider(); // 単一用再生成
-			}
+			block->SetColliderHandle(handle);
+			block->SetColliderBlade(blade);
+			block->CreatePhysicsFromParts(); // 複合用再生成
+		}
+		else if (b.contains("collider_size"))
+		{
+			D3DXVECTOR3 colliderSize(
+				b["collider_size"][0],
+				b["collider_size"][1],
+				b["collider_size"][2]);
+
+			block->SetColliderSize(colliderSize);
+			block->UpdateCollider(); // 単一用再生成
 		}
 	}
 }
