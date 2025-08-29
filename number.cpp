@@ -53,8 +53,7 @@ CNumber* CNumber::Create(float fposX, float fposY, float fWidth, float fHeight)
 HRESULT CNumber::Init(float fposX, float fposY, float fWidth, float fHeight)
 {
 	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	// 値の保存
 	m_pos = D3DXVECTOR3(fposX, fposY, 0.0f);
@@ -147,8 +146,7 @@ void CNumber::Update(void)
 void CNumber::Draw(void)
 {
 	// デバイスの取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));

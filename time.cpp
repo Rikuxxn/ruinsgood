@@ -185,8 +185,7 @@ void CTime::Draw(void)
 		CTexture* pTexture = CManager::GetTexture();
 
 		// デバイスの取得
-		CRenderer* renderer = CManager::GetRenderer();
-		LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+		LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 		for (int nCnt = 0; nCnt < DIGITS; nCnt++)
 		{
@@ -250,8 +249,7 @@ CColon* CColon::Create(D3DXVECTOR3 pos, float fWidth, float fHeight)
 HRESULT CColon::Init(void)
 {
 	// デバイス取得
-	CRenderer* renderer = CManager::GetRenderer();
-	LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 	CTexture* pTexture = CManager::GetTexture();
 	m_nIdxTexture = pTexture->Register("data/TEXTURE/colon.png");
@@ -333,8 +331,7 @@ void CColon::Draw(void)
 		CTexture* pTexture = CManager::GetTexture();
 
 		// デバイスの取得
-		CRenderer* renderer = CManager::GetRenderer();
-		LPDIRECT3DDEVICE9 pDevice = renderer->GetDevice();
+		LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
 		// 頂点バッファをデータストリームに設定
 		pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_2D));
