@@ -101,13 +101,6 @@ void CBlockManager::Update(void)
 #endif
 }
 //=============================================================================
-// 描画処理
-//=============================================================================
-void CBlockManager::Draw(void)
-{
-
-}
-//=============================================================================
 // 情報の更新処理
 //=============================================================================
 void CBlockManager::UpdateInfo(void)
@@ -493,11 +486,6 @@ void CBlockManager::UpdateDraggingBlock(void)
 
 	if (!m_draggingBlock && !m_hasConsumedPayload)
 	{
-		//if (!CGame::GetPlayer())
-		//{
-		//	return;
-		//}
-
 		// ドラッグ＆ドロップ中なら即生成して追従開始
 		if (ctx->DragDropActive && ctx->DragDropPayload.Data && ctx->DragDropPayload.DataSize == sizeof(CBlock::TYPE))
 		{

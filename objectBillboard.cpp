@@ -363,7 +363,10 @@ void CHintBillboard::Update(void)
 	// ビルボードの更新処理
 	CObjectBillboard::Update();
 
-
+	if (!CGame::GetPlayer())
+	{
+		return;
+	}
 
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();

@@ -112,12 +112,10 @@ void CObject::UpdateAll(void)
 
 			if (pObject->m_bDeath)
 			{
-
 				pObject->Destroy();
-
 			}
-			pObject = pObjectNext;// 次のオブジェクトを代入
 
+			pObject = pObjectNext;// 次のオブジェクトを代入
 		}
 	}
 

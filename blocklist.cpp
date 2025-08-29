@@ -261,7 +261,7 @@ void CWaterBlock::ApplyToBlocks(void)
 	D3DXVECTOR3 wtMax = wtPos + wtSize * 0.5f;
 
 	// ブロックの浮力設定
-	const float B_maxLiftSpeed = 20.0f;
+	const float B_maxLiftSpeed = 40.0f;
 
 	// ------------------------
 	// 他のブロックを浮かせる
@@ -301,38 +301,40 @@ void CWaterBlock::ApplyToBlocks(void)
 
 		btRigidBody* pRigid = block->GetRigidBody();
 
-		if (pRigid && block->IsDynamicBlock())
+		if (!pRigid || !block->IsDynamicBlock())
 		{
+			continue;
+		}
+
+		btVector3 velocity = pRigid->getLinearVelocity();
+
+		if (velocity.getY() < B_maxLiftSpeed)
+		{
+			// 浮かばせる目標上向き速度
+			const float targetUpSpeed = 125.0f; // 浮上スピード
+			const float maxUpSpeed = 120.0f;    // 上限速度
+			const float forceScale = 0.12f;		// 差分にかける係数（反応の速さ）
+
 			btVector3 velocity = pRigid->getLinearVelocity();
 
-			if (velocity.getY() < B_maxLiftSpeed)
+			// 水中での摩擦（横方向制限）
+			velocity.setX(velocity.getX() * 0.5f);
+			velocity.setZ(velocity.getZ() * 0.5f);
+
+			// 浮力：現在のY速度との差を補正
+			float diffY = targetUpSpeed - velocity.getY();
+			velocity.setY(velocity.getY() + diffY * forceScale);
+
+			// 最大上昇速度制限
+			if (velocity.getY() > maxUpSpeed)
 			{
-				// 浮かばせる目標上向き速度
-				const float targetUpSpeed = 130.0f; // 浮上スピード
-				const float maxUpSpeed = 120.0f;    // 上限速度
-				const float forceScale = 0.12f;		// 差分にかける係数（反応の速さ）
-
-				btVector3 velocity = pRigid->getLinearVelocity();
-
-				// 水中での摩擦（横方向制限）
-				velocity.setX(velocity.getX() * 0.5f);
-				velocity.setZ(velocity.getZ() * 0.5f);
-
-				// 浮力：現在のY速度との差を補正
-				float diffY = targetUpSpeed - velocity.getY();
-				velocity.setY(velocity.getY() + diffY * forceScale);
-
-				// 最大上昇速度制限
-				if (velocity.getY() > maxUpSpeed)
-				{
-					velocity.setY(maxUpSpeed);
-				}
-
-				pRigid->setLinearVelocity(velocity);
-
-				// 水中では回転を止めて安定させる
-				pRigid->setAngularVelocity(btVector3(0, 0, 0));
+				velocity.setY(maxUpSpeed);
 			}
+
+			pRigid->setLinearVelocity(velocity);
+
+			// 水中では回転を止めて安定させる
+			pRigid->setAngularVelocity(btVector3(0, 0, 0));
 		}
 	}
 }
@@ -1292,7 +1294,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }

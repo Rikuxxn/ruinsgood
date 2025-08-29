@@ -26,7 +26,6 @@ public:
     void Init(void);
     void Uninit(void);
     void Update(void);
-    void Draw(void);
     void UpdateInfo(void); // ImGui‚Å‚Ì‘€ìŠÖ”‚ğ‚±‚±‚ÅŒÄ‚Ô—p
     void SaveToJson(const char* filename);
     void LoadFromJson(const char* filename);

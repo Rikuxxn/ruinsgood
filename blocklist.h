@@ -61,7 +61,7 @@ public:
 class CRaftBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 5.0f; }
+	btScalar GetMass(void) const override { return 7.5f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	float CarryTargetDis(void) { return 80.0f; }
