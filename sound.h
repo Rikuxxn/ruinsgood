@@ -7,7 +7,9 @@
 #ifndef _SOUND_H_// このマクロ定義がされていなかったら
 #define _SOUND_H_// 2重インクルード防止のマクロ定義
 
+//*************************************************************************
 // サウンドクラス
+//*************************************************************************
 class CSound
 {
 public:
@@ -39,6 +41,7 @@ public:
 		SOUND_LABEL_RANK,
 		SOUND_LABEL_GAMEBGM2,
 		SOUND_LABEL_SHINE,
+		SOUND_LABEL_DOOR,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -111,6 +114,7 @@ private:
 		{"data/SE/resultrank.wav", 0},			// リザルトランク表示SE
 		{"data/BGM/gameBGM2.wav", -1},			// ゲームBGM2(ステージ2)
 		{"data/SE/shines.wav", 0},				// ドアが開くときの台座SE
+		{"data/SE/door.wav", 0},				// ドアSE
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

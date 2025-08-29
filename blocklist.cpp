@@ -1026,7 +1026,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(26);
+				SetTimer(34);
 
 				// 演出カメラをONにする
 				CManager::GetCamera()->IsDirection(true);
@@ -3005,6 +3005,7 @@ CKeyDoorBlock::CKeyDoorBlock()
 	m_isGoal = false;	// 目標位置に移動したか
 	m_isSet = false;	// 設置されたか
 	m_deleyTime = 120;	// 開くまでの遅延時間
+	prevIsSet = false;	// 直前に設置したか
 }
 //=============================================================================
 // 鍵ドアブロックのデストラクタ
@@ -3076,6 +3077,16 @@ void CKeyDoorBlock::Update()
 		{
 			return;
 		}
+
+		bool n = m_isSet;
+
+		if (n && !prevIsSet)
+		{// 一回だけ通す
+			// ドアSEの再生
+			CManager::GetSound()->Play(CSound::SOUND_LABEL_DOOR);
+		}
+
+		prevIsSet = n;
 
 		// ドアを開ける
 		const float kOpenRange = 210.0f; // 開く高さ

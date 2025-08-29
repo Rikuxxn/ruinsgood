@@ -1,222 +1,277 @@
 [
     {
       "type": 0,
-      "filepath": "data/MODELS/woodbox_003.x"
+      "filepath": "data/MODELS/woodbox_003.x",
+      "GUItexFilepath": "data/TEXTURE/woodbox.png"
     },
     {
       "type": 1,
-      "filepath": "data/MODELS/wall_01.x"
+      "filepath": "data/MODELS/wall_01.x",
+      "GUItexFilepath": "data/TEXTURE/wall1.png"
     },
     {
       "type": 2,
-      "filepath": "data/MODELS/wall_02.x"
+      "filepath": "data/MODELS/wall_02.x",
+      "GUItexFilepath": "data/TEXTURE/wall2.png"
     },
     {
       "type": 3,
-      "filepath": "data/MODELS/wall_03.x"
+      "filepath": "data/MODELS/wall_03.x",
+      "GUItexFilepath": "data/TEXTURE/wall3.png"
     },
     {
       "type": 4,
-      "filepath": "data/MODELS/wall_04.x"
+      "filepath": "data/MODELS/wall_04.x",
+      "GUItexFilepath": "data/TEXTURE/wall4.png"
     },
     {
       "type": 5,
-      "filepath": "data/MODELS/Axe_01.x"
+      "filepath": "data/MODELS/Axe_01.x",
+      "GUItexFilepath": "data/TEXTURE/Axe.png"
     },
     {
       "type": 6,
-      "filepath": "data/MODELS/ikada.x"
+      "filepath": "data/MODELS/ikada.x",
+      "GUItexFilepath": "data/TEXTURE/ikada.png"
     },
     {
       "type": 7,
-      "filepath": "data/MODELS/Rock_001.x"
+      "filepath": "data/MODELS/Rock_001.x",
+      "GUItexFilepath": "data/TEXTURE/rock.png"
     },
     {
       "type": 8,
-      "filepath": "data/MODELS/torch_01.x"
+      "filepath": "data/MODELS/torch_01.x",
+      "GUItexFilepath": "data/TEXTURE/torch1.png"
     },
     {
       "type": 9,
-      "filepath": "data/MODELS/torch_02.x"
+      "filepath": "data/MODELS/torch_02.x",
+      "GUItexFilepath": "data/TEXTURE/torch2.png"
     },
     {
       "type": 10,
-      "filepath": "data/MODELS/floor_01.x"
+      "filepath": "data/MODELS/floor_01.x",
+      "GUItexFilepath": "data/TEXTURE/floor1.png"
     },
     {
       "type": 11,
-      "filepath": "data/MODELS/floor_02.x"
+      "filepath": "data/MODELS/floor_02.x",
+      "GUItexFilepath": "data/TEXTURE/floor2.png"
     },
     {
       "type": 12,
-      "filepath": "data/MODELS/door_01.x"
+      "filepath": "data/MODELS/door_01.x",
+      "GUItexFilepath": "data/TEXTURE/door1.png"
     },
     {
       "type": 13,
-      "filepath": "data/MODELS/ceiling_01.x"
+      "filepath": "data/MODELS/ceiling_01.x",
+      "GUItexFilepath": "data/TEXTURE/ceiling1.png"
     },
     {
       "type": 14,
-      "filepath": "data/MODELS/ceiling_02.x"
+      "filepath": "data/MODELS/ceiling_02.x",
+      "GUItexFilepath": "data/TEXTURE/ceiling2.png"
     },
     {
       "type": 15,
-      "filepath": "data/MODELS/water.x"
+      "filepath": "data/MODELS/water.x",
+      "GUItexFilepath": "data/TEXTURE/water.png"
     },
     {
       "type": 16,
-      "filepath": "data/MODELS/switch.x"
+      "filepath": "data/MODELS/switch.x",
+      "GUItexFilepath": "data/TEXTURE/switch.png"
     },
     {
       "type": 17,
-      "filepath": "data/MODELS/switch_body.x"
+      "filepath": "data/MODELS/switch_body.x",
+      "GUItexFilepath": "data/TEXTURE/switch_body.png"
     },
     {
       "type": 18,
-      "filepath": "data/MODELS/bridge_01.x"
+      "filepath": "data/MODELS/bridge_01.x",
+      "GUItexFilepath": "data/TEXTURE/bridge.png"
     },
     {
       "type": 19,
-      "filepath": "data/MODELS/wall_door_parttop.x"
+      "filepath": "data/MODELS/wall_door_parttop.x",
+      "GUItexFilepath": "data/TEXTURE/door_top.png"
     },
     {
       "type": 20,
-      "filepath": "data/MODELS/wall_door_partleft.x"
+      "filepath": "data/MODELS/wall_door_partleft.x",
+      "GUItexFilepath": "data/TEXTURE/door_left.png"
     },
     {
       "type": 21,
-      "filepath": "data/MODELS/pillar_001.x"
+      "filepath": "data/MODELS/pillar_001.x",
+      "GUItexFilepath": "data/TEXTURE/pillar.png"
     },
     {
       "type": 22,
-      "filepath": "data/MODELS/block.x"
+      "filepath": "data/MODELS/block.x",
+      "GUItexFilepath": "data/TEXTURE/block.png"
     },
     {
       "type": 23,
-      "filepath": "data/MODELS/fence.x"
+      "filepath": "data/MODELS/fence.x",
+      "GUItexFilepath": "data/TEXTURE/fence.png"
     },
     {
       "type": 24,
-      "filepath": "data/MODELS/fence_part.x"
+      "filepath": "data/MODELS/fence_part.x",
+      "GUItexFilepath": "data/TEXTURE/fence_part.png"
     },
     {
       "type": 25,
-      "filepath": "data/MODELS/bridge_02.x"
+      "filepath": "data/MODELS/bridge_02.x",
+      "GUItexFilepath": "data/TEXTURE/bridge2.png"
     },
     {
       "type": 26,
-      "filepath": "data/MODELS/target.x"
+      "filepath": "data/MODELS/target.x",
+      "GUItexFilepath": "data/TEXTURE/target.png"
     },
     {
       "type": 27,
-      "filepath": "data/MODELS/switch2.x"
+      "filepath": "data/MODELS/switch2.x",
+      "GUItexFilepath": "data/TEXTURE/controlswitch.png"
     },
     {
       "type": 28,
-      "filepath": "data/MODELS/door_02.x"
+      "filepath": "data/MODELS/door_02.x",
+      "GUItexFilepath": "data/TEXTURE/door2.png"
     },
     {
       "type": 29,
-      "filepath": "data/MODELS/mask.x"
+      "filepath": "data/MODELS/mask.x",
+      "GUItexFilepath": "data/TEXTURE/mask.png"
     },
     {
       "type": 30,
-      "filepath": "data/MODELS/sword.x"
+      "filepath": "data/MODELS/sword.x",
+      "GUItexFilepath": "data/TEXTURE/sword.png"
     },
     {
       "type": 31,
-      "filepath": "data/MODELS/switch3.x"
+      "filepath": "data/MODELS/switch3.x",
+      "GUItexFilepath": "data/TEXTURE/controlswitch2.png"
     },
     {
       "type": 32,
-      "filepath": "data/MODELS/bar.x"
+      "filepath": "data/MODELS/bar.x",
+      "GUItexFilepath": "data/TEXTURE/bar.png"
     },
     {
       "type": 33,
-      "filepath": "data/MODELS/bridge_03.x"
+      "filepath": "data/MODELS/bridge_03.x",
+      "GUItexFilepath": "data/TEXTURE/bridge3.png"
     },
     {
       "type": 34,
-      "filepath": "data/MODELS/fire_statue.x"
+      "filepath": "data/MODELS/fire_statue.x",
+      "GUItexFilepath": "data/TEXTURE/fire_statue.png"
     },
     {
       "type": 35,
-      "filepath": "data/MODELS/wall_05.x"
+      "filepath": "data/MODELS/wall_05.x",
+      "GUItexFilepath": "data/TEXTURE/wall5.png"
     },
     {
       "type": 36,
-      "filepath": "data/MODELS/floor_03.x"
+      "filepath": "data/MODELS/floor_03.x",
+      "GUItexFilepath": "data/TEXTURE/floor3.png"
     },
     {
       "type": 37,
-      "filepath": "data/MODELS/turn_fire_statue.x"
+      "filepath": "data/MODELS/turn_fire_statue.x",
+      "GUItexFilepath": "data/TEXTURE/turn_fire_statue.png"
     },
     {
       "type": 38,
-      "filepath": "data/MODELS/block_01.x"
+      "filepath": "data/MODELS/block_01.x",
+      "GUItexFilepath": "data/TEXTURE/block2.png"
     },
     {
       "type": 39,
-      "filepath": "data/MODELS/stairs.x"
+      "filepath": "data/MODELS/stairs.x",
+      "GUItexFilepath": "data/TEXTURE/stairs.png"
     },
     {
       "type": 40,
-      "filepath": "data/MODELS/pillar_002.x"
+      "filepath": "data/MODELS/pillar_002.x",
+      "GUItexFilepath": "data/TEXTURE/pillar2.png"
     },
     {
       "type": 41,
-      "filepath": "data/MODELS/block_02.x"
+      "filepath": "data/MODELS/block_02.x",
+      "GUItexFilepath": "data/TEXTURE/block3.png"
     },
     {
       "type": 42,
-      "filepath": "data/MODELS/floor_04.x"
+      "filepath": "data/MODELS/floor_04.x",
+      "GUItexFilepath": "data/TEXTURE/floor4.png"
     },
     {
       "type": 43,
-      "filepath": "data/MODELS/fire_statue.x"
+      "filepath": "data/MODELS/fire_statue.x",
+      "GUItexFilepath": "data/TEXTURE/fire_statue.png"
     },
     {
       "type": 44,
-      "filepath": "data/MODELS/torch_02.x"
+      "filepath": "data/MODELS/torch_02.x",
+      "GUItexFilepath": "data/TEXTURE/torch2.png"
     },
     {
       "type": 45,
-      "filepath": "data/MODELS/net.x"
+      "filepath": "data/MODELS/net.x",
+      "GUItexFilepath": "data/TEXTURE/netfloor.png"
     },
     {
       "type": 46,
-      "filepath": "data/MODELS/keyfence.x"
+      "filepath": "data/MODELS/keyfence.x",
+      "GUItexFilepath": "data/TEXTURE/keyfence.png"
     },
     {
       "type": 47,
-      "filepath": "data/MODELS/key.x"
+      "filepath": "data/MODELS/key.x",
+      "GUItexFilepath": "data/TEXTURE/key.png"
     },
     {
       "type": 48,
-      "filepath": "data/MODELS/key_pedestal.x"
+      "filepath": "data/MODELS/key_pedestal.x",
+      "GUItexFilepath": "data/TEXTURE/key_pedestal.png"
     },
     {
       "type": 49,
-      "filepath": "data/MODELS/door_03.x"
+      "filepath": "data/MODELS/door_03.x",
+      "GUItexFilepath": "data/TEXTURE/keydoor.png"
     },
     {
       "type": 50,
-      "filepath": "data/MODELS/shield.x"
+      "filepath": "data/MODELS/shield.x",
+      "GUItexFilepath": "data/TEXTURE/shield.png"
     },
     {
       "type": 51,
-      "filepath": "data/MODELS/statue.x"
+      "filepath": "data/MODELS/statue.x",
+      "GUItexFilepath": "data/TEXTURE/statue.png"
     },
     {
       "type": 52,
-      "filepath": "data/MODELS/statue2.x"
+      "filepath": "data/MODELS/statue2.x",
+      "GUItexFilepath": "data/TEXTURE/statue2.png"
     },
     {
       "type": 53,
-      "filepath": "data/MODELS/egg.x"
+      "filepath": "data/MODELS/egg.x",
+      "GUItexFilepath": "data/TEXTURE/egg.png"
     },
     {
       "type": 54,
-      "filepath": "data/MODELS/doorTriggerBlock.x"
+      "filepath": "data/MODELS/doorTriggerBlock.x",
+      "GUItexFilepath": "data/TEXTURE/doorTriggerBlock.png"
     }
 ]

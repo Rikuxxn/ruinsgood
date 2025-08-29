@@ -19,7 +19,6 @@
 // 静的メンバ変数宣言
 //*****************************************************************************
 std::unordered_map<CBlock::TYPE, BlockCreateFunc> CBlock::m_BlockFactoryMap = {};
-std::unordered_map<CBlock::TYPE, const char*> s_TexturePathMap = {};
 
 using namespace std;
 
@@ -37,7 +36,6 @@ CBlock::CBlock(int nPriority) : CObjectX(nPriority)
 	m_col			 = INIT_XCOL;				// 色
 	m_baseCol		 = INIT_XCOL;				// ベースの色
 	m_bSelected		 = false;					// 選択フラグ
-	m_nIdxTexture	 = 0;						// テクスチャインデックス
 	m_pDebug3D		 = NULL;					// 3Dデバッグ表示へのポインタ
 	m_prevSize		 = INIT_VEC3;				// 前回のサイズ
 	m_colliderSize	 = INIT_VEC3;				// コライダーサイズ
@@ -161,10 +159,6 @@ HRESULT CBlock::Init(void)
 	// ====刃の初期コライダー====
 	m_colliderBlade.size = D3DXVECTOR3(304.0f, 127.0f, 24.5f);
 	m_colliderBlade.offset = D3DXVECTOR3(0.0f, -307.0f, 0.0f);
-
-	// テクスチャ割り当て
-	CTexture* pTexture = CManager::GetTexture();
-	m_nIdxTexture = pTexture->Register(GetTexPathFromType(m_Type));
 
 	return S_OK;
 }
@@ -353,80 +347,6 @@ D3DXCOLOR CBlock::GetCol(void) const
 		return D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f); 
 	}
 }
-//=============================================================================
-// 画像表示用テクスチャパスの取得
-//=============================================================================
-const char* CBlock::GetTexPathFromType(TYPE type)
-{
-	auto it = s_TexturePathMap.find(type);
-	if (it != s_TexturePathMap.end())
-	{
-		return it->second;
-	}
-
-	return "";
-}
-//=============================================================================
-// 画像表示用テクスチャパス
-//=============================================================================
-const std::unordered_map<CBlock::TYPE, const char*> CBlock::s_TexturePathMap = 
-{
-	{ TYPE_WOODBOX,			"data/TEXTURE/woodbox.png" },
-	{ TYPE_WALL,			"data/TEXTURE/wall1.png" },
-	{ TYPE_WALL2,			"data/TEXTURE/wall2.png" },
-	{ TYPE_WALL3,			"data/TEXTURE/wall3.png" },
-	{ TYPE_WALL4,			"data/TEXTURE/wall4.png" },
-	{ TYPE_AXE,				"data/TEXTURE/Axe.png" },
-	{ TYPE_RAFT,			"data/TEXTURE/ikada.png" },
-	{ TYPE_ROCK,			"data/TEXTURE/rock.png" },
-	{ TYPE_TORCH,			"data/TEXTURE/torch1.png" },
-	{ TYPE_TORCH2,			"data/TEXTURE/torch2.png" },
-	{ TYPE_FLOOR,			"data/TEXTURE/floor1.png" },
-	{ TYPE_FLOOR2,			"data/TEXTURE/floor2.png" },
-	{ TYPE_DOOR,			"data/TEXTURE/door1.png" },
-	{ TYPE_CEILING,			"data/TEXTURE/ceiling1.png" },
-	{ TYPE_CEILING2,		"data/TEXTURE/ceiling2.png" },
-	{ TYPE_WATER,			"data/TEXTURE/water.png" },
-	{ TYPE_SWITCH,			"data/TEXTURE/switch.png" },
-	{ TYPE_SWITCH_BODY,		"data/TEXTURE/switch_body.png" },
-	{ TYPE_BRIDGE,			"data/TEXTURE/bridge.png" },
-	{ TYPE_DOOR_TOP,		"data/TEXTURE/door_top.png" },
-	{ TYPE_DOOR_SIDE,		"data/TEXTURE/door_left.png" },
-	{ TYPE_PILLAR,			"data/TEXTURE/pillar.png" },
-	{ TYPE_BLOCK,			"data/TEXTURE/block.png" },
-	{ TYPE_FENCE,			"data/TEXTURE/fence.png" },
-	{ TYPE_FENCE_PART,		"data/TEXTURE/fence_part.png" },
-	{ TYPE_BRIDGE2,			"data/TEXTURE/bridge2.png" },
-	{ TYPE_TARGET,			"data/TEXTURE/target.png" },
-	{ TYPE_SWITCH2,			"data/TEXTURE/controlswitch.png" },
-	{ TYPE_DOOR2,			"data/TEXTURE/door2.png" },
-	{ TYPE_MASK,			"data/TEXTURE/mask.png" },
-	{ TYPE_SWORD,			"data/TEXTURE/sword.png" },
-	{ TYPE_SWITCH3,			"data/TEXTURE/controlswitch2.png" },
-	{ TYPE_BAR,				"data/TEXTURE/bar.png" },
-	{ TYPE_BRIDGE3,			"data/TEXTURE/bridge3.png" },
-	{ TYPE_FIRE_STATUE,		"data/TEXTURE/fire_statue.png" },
-	{ TYPE_WALL5,			"data/TEXTURE/wall5.png" },
-	{ TYPE_FLOOR3,			"data/TEXTURE/floor3.png" },
-	{ TYPE_TURN_FIRE_STATUE,"data/TEXTURE/turn_fire_statue.png" },
-	{ TYPE_BLOCK2,			"data/TEXTURE/block2.png" },
-	{ TYPE_STAIRS,			"data/TEXTURE/stairs.png" },
-	{ TYPE_PILLAR2,			"data/TEXTURE/pillar2.png" },
-	{ TYPE_BLOCK3,			"data/TEXTURE/block3.png" },
-	{ TYPE_FLOOR4,			"data/TEXTURE/floor4.png" },
-	{ TYPE_MOVE_FIRE_STATUE,"data/TEXTURE/fire_statue.png" },
-	{ TYPE_TORCH3,			"data/TEXTURE/torch2.png" },
-	{ TYPE_NETFLOOR,		"data/TEXTURE/netfloor.png" },
-	{ TYPE_KEYFENCE,		"data/TEXTURE/keyfence.png" },
-	{ TYPE_KEY,				"data/TEXTURE/key.png" },
-	{ TYPE_KEY_PEDESTAL,	"data/TEXTURE/key_pedestal.png" },
-	{ TYPE_KEY_DOOR,		"data/TEXTURE/keydoor.png" },
-	{ TYPE_SHIELD,			"data/TEXTURE/shield.png" },
-	{ TYPE_STATUE,			"data/TEXTURE/statue.png" },
-	{ TYPE_STATUE2,			"data/TEXTURE/statue2.png" },
-	{ TYPE_EGG,				"data/TEXTURE/egg.png" },
-	{ TYPE_DOOR_TRIGGER,	"data/TEXTURE/doorTriggerBlock.png" },
-};
 //=============================================================================
 // 当たり判定の生成処理
 //=============================================================================

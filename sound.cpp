@@ -23,6 +23,7 @@ CSound::CSound()
 	m_pXAudio2 = NULL;
 	m_pMasteringVoice = NULL;
 	m_Listener = {};					// リスナーの位置
+	m_nextInstanceId = 0;
 }
 //=============================================================================
 // デストラクタ

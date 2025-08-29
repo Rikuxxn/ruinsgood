@@ -136,7 +136,6 @@ public:
 	//*****************************************************************************
 	virtual D3DXCOLOR GetCol(void) const override;										// カラーの取得
 	TYPE GetType(void) const { return m_Type; }											// タイプの取得
-	static const char* GetTexPathFromType(TYPE type);									// タイプでテクスチャを取得
 	btRigidBody* GetRigidBody(void) const { return m_pRigidBody; }						// RigidBodyの取得
 	D3DXVECTOR3 GetColliderSize(void) const { return m_colliderSize; }					// コライダーサイズの取得
 	D3DXVECTOR3 GetColliderOffset(void) const { return m_colliderOffset; }				// コライダーのオフセットの取得
@@ -155,7 +154,6 @@ private:
 	D3DXCOLOR m_col;				// アルファ値
 	D3DXCOLOR m_baseCol;			// ベースのアルファ値
 	bool m_bSelected;				// 選択フラグ
-	int m_nIdxTexture;				// テクスチャインデックス
 	btRigidBody* m_pRigidBody;		// 剛体へのポインタ
 	btCollisionShape* m_pShape;		// 当たり判定の形へのポインタ
 	CDebugProc3D* m_pDebug3D;		// 3Dデバッグ表示へのポインタ
@@ -167,7 +165,6 @@ private:
 	ColliderPart m_colliderBlade;   // 刃の部分
 	std::vector<btCollisionShape*> m_childShapes;
 	static std::unordered_map<TYPE, BlockCreateFunc> m_BlockFactoryMap;
-	static const std::unordered_map<TYPE, const char*> s_TexturePathMap;
 };
 
 //*****************************************************************************

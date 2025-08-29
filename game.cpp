@@ -226,7 +226,6 @@ void CGame::LoadObject(int stageId)
 
 		// UIの生成
 		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_01.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
-		//m_pUi = CUi::Create(CUi::TYPE_INTERACT, "data/TEXTURE/ui_interact.png", D3DXVECTOR3(860.0f, 740.0f, 0.0f), 250.0f, 50.0f);
 
 		// JSONの読み込み
 		m_pBlockManager->LoadFromJson("data/stage_01.json");
@@ -238,13 +237,20 @@ void CGame::LoadObject(int stageId)
 
 		// ヒント壁画の生成
 		m_pHintText = CHintText::Create("data/TEXTURE/text.png", D3DXVECTOR3(-1736.0f, 308.0f, 723.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 110.0f, 40.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(1422.0f, 308.0f, 940.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(1742.0f, 308.0f, 940.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(1422.0f, 308.0f, 510.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(1320.0f, 308.0f, 0.6f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(1760.0f, 308.0f, -154.6f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/hint3.png", D3DXVECTOR3(1554.3f, 308.0f, -622.3f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
+		m_pHintText = CHintText::Create("data/TEXTURE/text.png", D3DXVECTOR3(1252.0f, 308.0f, 723.0f), D3DXVECTOR3(90.0f, 90.0f, 0.0f), 110.0f, 40.0f);
 
 		// ビルボードの生成
 		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint4.png", D3DXVECTOR3(-1736.0f, 360.0f, 723.0f), 80.0f, -50.0f);
+		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint6.png", D3DXVECTOR3(1252.0f, 360.0f, 723.0f), 80.0f, -50.0f);
 
 		// プレイヤーの生成
 		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1542.3f, 360.0f, -850.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_02.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);

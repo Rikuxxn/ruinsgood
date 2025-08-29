@@ -45,6 +45,7 @@ public:
     //*****************************************************************************
     bool GetUpdateCollider(void) { return m_autoUpdateColliderSize; }
     static const char* GetFilePathFromType(CBlock::TYPE type);
+    const char* GetTexPathFromType(CBlock::TYPE type);
     static const std::vector<CBlock*>& GetAllBlocks(void);
     static CBlock* GetSelectedBlock(void) { return m_selectedBlock; }
 
@@ -58,6 +59,7 @@ private:
     CDebugProc3D* m_pDebug3D;			    // 3Dデバッグ表示へのポインタ
     bool m_autoUpdateColliderSize;
     static std::unordered_map<CBlock::TYPE, std::string> s_FilePathMap;
+    static std::unordered_map<CBlock::TYPE, std::string> s_texFilePathMap;
     static CBlock* m_selectedBlock;                  // 選択中のブロック
 
 };

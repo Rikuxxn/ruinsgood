@@ -27,6 +27,7 @@ int CBlockManager::m_nNumAll = 0;				// ブロックの総数
 int CBlockManager::m_selectedIdx = 0;			// 選択中のインデックス
 CBlock* CBlockManager::m_draggingBlock = {};
 std::unordered_map<CBlock::TYPE, std::string> CBlockManager::s_FilePathMap; 
+std::unordered_map<CBlock::TYPE, std::string> CBlockManager::s_texFilePathMap;
 CBlock* CBlockManager::m_selectedBlock = {};
 
 //=============================================================================
@@ -180,7 +181,7 @@ void CBlockManager::UpdateInfo(void)
 			CBlock::TYPE type = static_cast<CBlock::TYPE>(typeInt);
 
 			// テクスチャ取得
-			const char* texPath = CBlock::GetTexPathFromType(type);
+			const char* texPath = CBlockManager::GetTexPathFromType(type);
 			int texIdx = CManager::GetTexture()->Register(texPath);
 
 			LPDIRECT3DTEXTURE9 tex = CManager::GetTexture()->GetAddress(texIdx);
@@ -790,8 +791,10 @@ void CBlockManager::LoadConfig(const std::string& filename)
 	{
 		int typeInt = block["type"];
 		std::string filepath = block["filepath"];
+		std::string texFilepath = block["GUItexFilepath"];
 
 		s_FilePathMap[(CBlock::TYPE)typeInt] = filepath;
+		s_texFilePathMap[(CBlock::TYPE)typeInt] = texFilepath;
 	}
 }
 //=============================================================================
@@ -801,6 +804,14 @@ const char* CBlockManager::GetFilePathFromType(CBlock::TYPE type)
 {
 	auto it = s_FilePathMap.find(type);
 	return (it != s_FilePathMap.end()) ? it->second.c_str() : "";
+}
+//=============================================================================
+// タイプからGUIテクスチャファイルパスを取得
+//=============================================================================
+const char* CBlockManager::GetTexPathFromType(CBlock::TYPE type)
+{
+	auto it = s_texFilePathMap.find(type);
+	return (it != s_texFilePathMap.end()) ? it->second.c_str() : "";
 }
 //=============================================================================
 // ブロック情報の保存処理
