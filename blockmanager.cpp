@@ -282,7 +282,7 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 
 		if (isEditMode)
 		{
-			selectedBlock->SetEditMode(true);  // 中でKinematic化
+			selectedBlock->SetEditMode(true);  // チェックでKinematic化
 		}
 		else
 		{

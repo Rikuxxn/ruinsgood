@@ -51,6 +51,7 @@ CPlayer::CPlayer(int nPriority) : CObject(nPriority)
 	m_jumpFrame			= 0;							// ジャンプしてから何フレーム経過したか
 	m_pCarryingBlock	= NULL;							// 運んでいるブロック
 	m_particleTimer		= 0;							// タイマー
+	m_isEditMode		= false;						// 編集中かどうか
 	for (int nCnt = 0; nCnt < MAX_PARTS; nCnt++)
 	{
 		m_apModel[nCnt] = {};						// モデル(パーツ)へのポインタ
@@ -147,7 +148,6 @@ HRESULT CPlayer::Init(void)
 	m_pRigidBody->setAngularFactor(btVector3(0, 0, 0));
 	m_pRigidBody->setFriction(0.0f);// 摩擦
 	m_pRigidBody->setRollingFriction(0.0f);// 転がり摩擦
-	//m_pRigidBody->setGravity(btVector3(0, -139.8f, 0)); // 重力
 
 	m_pRigidBody->setUserPointer(this);
 	m_pRigidBody->setActivationState(DISABLE_DEACTIVATION);// スリープ状態にしない
@@ -263,7 +263,6 @@ void CPlayer::Update(void)
 
 	m_rot.y += (m_rotDest.y - m_rot.y) * 0.09f;
 
-
 	// 現在位置を物理ワールドから取得して m_pos に反映
 	btTransform trans;
 	m_pRigidBody->getMotionState()->getWorldTransform(trans);
@@ -295,6 +294,21 @@ void CPlayer::UpdateInfo(void)
 {
 	if (ImGui::TreeNode("Player Info"))
 	{
+		//ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
+
+		//bool isEditMode = IsEditMode();
+
+		//ImGui::Checkbox("Edit Block", &isEditMode);
+
+		//if (isEditMode)
+		//{
+		//	SetEditMode(true);  // チェックでKinematic化
+		//}
+		//else
+		//{
+		//	SetEditMode(false); // 通常に戻す
+		//}
+
 		ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
 
 		//*********************************************************************
@@ -1054,6 +1068,29 @@ D3DXVECTOR3 CPlayer::GetNearestRespawnPoint(void) const
 	}
 
 	return nearest;
+}
+//=============================================================================
+// エディター中かどうかでキネマティックにするか判定する処理
+//=============================================================================
+void CPlayer::SetEditMode(bool enable)
+{
+	m_isEditMode = enable;
+
+	if (!m_pRigidBody)
+	{
+		return;
+	}
+
+	if (enable)
+	{
+		m_pRigidBody->setCollisionFlags(m_pRigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+		m_pRigidBody->setActivationState(DISABLE_DEACTIVATION);
+	}
+	else
+	{
+		m_pRigidBody->setCollisionFlags(m_pRigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
+		m_pRigidBody->setActivationState(ACTIVE_TAG);
+	}
 }
 //=============================================================================
 // 補間関数

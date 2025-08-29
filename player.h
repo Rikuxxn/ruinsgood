@@ -50,6 +50,7 @@ public:
 	btScalar GetHeight(void) const { return m_height; }
 	btRigidBody* GetRigidBody(void) const { return m_pRigidBody; }						// RigidBodyの取得
 	bool GetPlayerUse(void) const { return m_playerUse; }
+	bool IsEditMode(void) const { return m_isEditMode; }
 	bool OnGround(btDiscreteDynamicsWorld* world, btRigidBody* playerBody, float rayLength);
 	void ReleasePhysics(void);														// Physics破棄用
 	void HoldBlock(void);
@@ -61,6 +62,7 @@ public:
 	void AddRespawnPoint(const D3DXVECTOR3& pos);
 	D3DXVECTOR3 GetNearestRespawnPoint(void) const;
 	D3DXVECTOR3 Lerp(const D3DXVECTOR3& a, const D3DXVECTOR3& b, float t);
+	void SetEditMode(bool enable);
 
 private:
 	D3DXVECTOR3 m_pos;					// 位置
@@ -93,6 +95,7 @@ private:
 	int m_particleTimer;				// タイマー
 	const int JUMP_HOLD_FRAMES = 60;	// このフレーム数まではジャンプ中とみなす
 	const int DASH_PARTICLE_INTERVAL = 5; // パーティクル発生間隔（フレーム数）
+	bool m_isEditMode;					// 編集中かどうか
 };
 
 #endif
