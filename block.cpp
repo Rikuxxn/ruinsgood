@@ -448,7 +448,7 @@ void CBlock::CreatePhysics(const D3DXVECTOR3& pos, const D3DXVECTOR3& size)
 	}
 
 	m_pRigidBody->setAngularFactor(GetAngularFactor());
-	m_pRigidBody->setFriction(1.0f);		// –€ŽC
+	m_pRigidBody->setFriction(GetFriction());		// –€ŽC
 	m_pRigidBody->setRollingFriction(GetRollingFriction());	// “]‚ª‚è–€ŽC
 	m_pRigidBody->setDamping(0.1f, 0.5f);	// linearDamping, angularDamping
 

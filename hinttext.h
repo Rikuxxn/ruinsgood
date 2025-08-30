@@ -21,6 +21,15 @@ public:
 	CHintText();
 	~CHintText();
 
+	// 状態
+	typedef enum
+	{
+		STATE_COLORINC = 0,
+		STATE_NORMAL,
+		STATE_COLORDEC,
+		STATE_MAX
+	}STATE;
+
 	static CHintText* Create(const char* filepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight);
 	HRESULT Init(void);
 	void Uninit(void);
@@ -33,6 +42,5 @@ private:
 	char m_szPath[MAX_PATH];			// ファイルパス
 
 };
-
 #endif
 

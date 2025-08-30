@@ -454,6 +454,7 @@ public:
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
+	btScalar GetFriction(void) const { return 2.0f; }
 	float CarryTargetDis(void) { return 100.0f; }
 
 private:

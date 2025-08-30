@@ -10,6 +10,7 @@
 //*****************************************************************************
 #include "hinttext.h"
 #include "manager.h"
+#include "game.h"
 
 //=============================================================================
 // コンストラクタ
@@ -30,7 +31,7 @@ CHintText::~CHintText()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CHintText* CHintText::Create(const char* filepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot, 
+CHintText* CHintText::Create(const char* filepath, D3DXVECTOR3 pos, D3DXVECTOR3 rot,
 	float fWidth, float fHeight)
 {
 	// オブジェクトの生成

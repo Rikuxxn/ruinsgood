@@ -78,6 +78,8 @@ HRESULT CGame::Init(void)
 	// ポーズマネージャーの初期化
 	m_pPauseManager->Init();
 
+	CResult::SetGet(false);
+
 	return S_OK;
 }
 //=============================================================================

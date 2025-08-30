@@ -51,7 +51,6 @@ CPlayer::CPlayer(int nPriority) : CObject(nPriority)
 	m_jumpFrame			= 0;							// ジャンプしてから何フレーム経過したか
 	m_pCarryingBlock	= NULL;							// 運んでいるブロック
 	m_particleTimer		= 0;							// タイマー
-	m_isEditMode		= false;						// 編集中かどうか
 	for (int nCnt = 0; nCnt < MAX_PARTS; nCnt++)
 	{
 		m_apModel[nCnt] = {};						// モデル(パーツ)へのポインタ
@@ -163,6 +162,12 @@ HRESULT CPlayer::Init(void)
 	// ステンシルシャドウの生成
 	m_pShadowS = CShadowS::Create("data/MODELS/stencilshadow.x",m_pos);
 
+	// 初期化時にこのインスタンスのポインタを渡す
+	m_stateMachine.Start(this);
+
+	// 初期状態のステートをセット
+	m_stateMachine.ChangeState<CPlayer_StandState>();
+
 	return S_OK;
 }
 //=============================================================================
@@ -196,11 +201,14 @@ void CPlayer::Uninit(void)
 //=============================================================================
 void CPlayer::Update(void)
 {
-	m_bIsMoving = false;
-	m_bIsSideMoving = false;
+	// カメラの取得
+	CCamera* pCamera = CManager::GetCamera();
 
-	// コントロール処理
-	Controll();
+	// カメラの角度の取得
+	D3DXVECTOR3 CamRot = pCamera->GetRot();
+
+	// カメラモードの取得
+	CCamera::MODE camMode = pCamera->GetMode();
 
 	if (CManager::GetCamera()->GetMode() != CCamera::MODE_DIRECTION)
 	{
@@ -208,48 +216,17 @@ void CPlayer::Update(void)
 		HoldBlock();
 	}
 
-	// モーション切り替え
-	if (m_isJumping)
+	if (!m_isJumping)
 	{
-		m_jumpFrame++;
-
-		if (m_jumpFrame > JUMP_HOLD_FRAMES && m_bOnGround)
-		{
-			m_isJumping = false;
-
-			m_pMotion->StartBlendMotion(m_pMotion->TYPE_NEUTRAL, 10);
-			m_currentMotion = m_pMotion->TYPE_NEUTRAL;
-		}
+		// 接地判定
+		m_bOnGround = OnGround(CManager::GetPhysicsWorld(), m_pRigidBody, 55.0f);
 	}
-	else
-	{
-		if (m_bIsSideMoving)
-		{
-			if (m_currentMotion != m_pMotion->TYPE_BESIDEMOVE)
-			{
-				m_pMotion->StartBlendMotion(m_pMotion->TYPE_BESIDEMOVE, 10);
-				m_currentMotion = m_pMotion->TYPE_BESIDEMOVE;
-			}
-		}
-		else if (m_bIsMoving)
-		{
-			//pParticle = CParticle::Create(m_pos, D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.3f), 30, CParticle::TYPE_DUSH, 1);
 
-			if (m_currentMotion != m_pMotion->TYPE_MOVE)
-			{
-				m_pMotion->StartBlendMotion(m_pMotion->TYPE_MOVE, 10);
-				m_currentMotion = m_pMotion->TYPE_MOVE;
-			}
-		}
-		else
-		{
-			if (m_currentMotion != m_pMotion->TYPE_NEUTRAL)
-			{
-				m_pMotion->StartBlendMotion(m_pMotion->TYPE_NEUTRAL, 20);
-				m_currentMotion = m_pMotion->TYPE_NEUTRAL;
-			}
-		}
-	}
+	// 入力判定の取得
+	InputData input = GatherInput();
+
+	// ステートマシン更新
+	m_stateMachine.Update();
 
 	// 向きの正規化
 	if (m_rotDest.y - m_rot.y > D3DX_PI)
@@ -263,12 +240,51 @@ void CPlayer::Update(void)
 
 	m_rot.y += (m_rotDest.y - m_rot.y) * 0.09f;
 
+	// 向き更新
+	if (camMode == CCamera::MODE_EDIT)
+	{
+		// 移動入力があればプレイヤー向きを入力方向に
+		if (input.moveDir.x != 0.0f || input.moveDir.z != 0.0f ||
+			input.sideMoveDir.x != 0.0f || input.sideMoveDir.z != 0.0f)
+		{
+			m_rotDest.y = atan2f(-input.moveDir.x - input.sideMoveDir.x,
+				-input.moveDir.z - input.sideMoveDir.z);
+		}
+	}
+	else
+	{
+		// カメラ方向に固定
+		m_rotDest.y = CamRot.y;
+	}
+
 	// 現在位置を物理ワールドから取得して m_pos に反映
 	btTransform trans;
 	m_pRigidBody->getMotionState()->getWorldTransform(trans);
 	btVector3 pos = trans.getOrigin();
 	m_colliderPos = D3DXVECTOR3(pos.getX(), pos.getY(), pos.getZ());
 	m_pos = m_colliderPos - D3DXVECTOR3(0, 50.0f, 0); // 足元へのオフセット
+
+	if (m_bIsMoving && !m_isJumping && m_bOnGround && !m_bIsSideMoving)
+	{
+		m_particleTimer++;
+
+		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
+		{
+			m_particleTimer = 0;
+
+			// パーティクルの生成
+			CParticle::Create(INIT_VEC3,
+				m_pos,
+				D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.4f),
+				25,                    // 寿命
+				CParticle::TYPE_MOVE,  // パーティクルタイプ
+				1);                    // 数
+		}
+	}
+	else
+	{
+		m_particleTimer = 0; // 停止時はリセット
+	}
 
 	if (m_pos.y < -480.0f)
 	{
@@ -294,21 +310,6 @@ void CPlayer::UpdateInfo(void)
 {
 	if (ImGui::TreeNode("Player Info"))
 	{
-		//ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
-
-		//bool isEditMode = IsEditMode();
-
-		//ImGui::Checkbox("Edit Block", &isEditMode);
-
-		//if (isEditMode)
-		//{
-		//	SetEditMode(true);  // チェックでKinematic化
-		//}
-		//else
-		//{
-		//	SetEditMode(false); // 通常に戻す
-		//}
-
 		ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
 
 		//*********************************************************************
@@ -487,19 +488,13 @@ void CPlayer::Draw(void)
 
 }
 //=============================================================================
-// 位置の取得
-//=============================================================================
-D3DXVECTOR3 CPlayer::GetPos(void)
-{
-	return m_pos;
-}
-//=============================================================================
 // レイによる接触判定
 //=============================================================================
 bool CPlayer::OnGround(btDiscreteDynamicsWorld* world, btRigidBody* playerBody, float rayLength)
 {
 	btTransform trans;
 	playerBody->getMotionState()->getWorldTransform(trans);
+
 	btVector3 start = trans.getOrigin();
 	btVector3 end = start - btVector3(0, rayLength, 0);
 
@@ -549,6 +544,8 @@ void CPlayer::HoldBlock(void)
 
 	// ジョイパッドの取得
 	CInputJoypad* pInputJoypad = CManager::GetInputJoypad();
+
+	CParticle* pParticle = NULL;
 
 	if (pInputMouse->GetPress(0) || pInputJoypad->GetPressR2())
 	{
@@ -619,7 +616,7 @@ void CPlayer::HoldBlock(void)
 			if (distance > maxCarryDistance || currentPos <= playerPos)
 			{
 				// 離す
-				m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
+				//m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
 				m_pCarryingBlock = NULL;
 				return;
 			}
@@ -642,6 +639,9 @@ void CPlayer::HoldBlock(void)
 				// 通常は前方に持ち上げる
 				targetPos = playerPos + GetForward() * ftargetDis;
 				targetPos.y = GetPos().y + 70.0f; // 通常は持ち上げる
+
+				// パーティクル生成
+				pParticle = CParticle::Create(INIT_VEC3, targetPos, D3DXCOLOR(0.6f, 1.0f, 0.4f, 1.0f), 50, CParticle::TYPE_FLOATING, 1);
 			}
 
 			// Bullet用の差分
@@ -752,222 +752,6 @@ CBlock* CPlayer::FindFrontBlockByRaycast(float rayLength)
 	return NULL;
 }
 //=============================================================================
-// コントロール処理
-//=============================================================================
-void CPlayer::Controll(void)
-{
-	// キーボードの取得
-	CInputKeyboard* pInputKeyboard = CManager::GetInputKeyboard();
-
-	// ジョイパッドの取得
-	CInputJoypad* pInputJoypad = CManager::GetInputJoypad();
-
-	// ジョイスティック情報の取得
-	XINPUT_STATE* pStick = CInputJoypad::GetStickAngle();
-
-	// カメラの取得
-	CCamera* pCamera = CManager::GetCamera();
-
-	// カメラの角度の取得
-	D3DXVECTOR3 CamRot = pCamera->GetRot();
-
-	// カメラモードの取得
-	CCamera::MODE camMode = pCamera->GetMode();
-
-	// 入力方向ベクトル
-	D3DXVECTOR3 inputDir = { 0.0f, 0.0f, 0.0f };
-
-	// ---------------------------
-	// ゲームパッド入力
-	// ---------------------------
-	if (pInputJoypad->GetStick() == true && pStick != NULL)
-	{
-		float stickX = pStick->Gamepad.sThumbLX;
-		float stickY = pStick->Gamepad.sThumbLY;
-
-		float magnitude = sqrtf(stickX * stickX + stickY * stickY);
-
-		const float DEADZONE = 10922.0f;
-
-		if (magnitude >= DEADZONE)
-		{
-			// 正規化
-			stickX /= magnitude;
-			stickY /= magnitude;
-
-			float normalizedMagnitude = (magnitude - DEADZONE) / (32767.0f - DEADZONE);
-			normalizedMagnitude = std::min(normalizedMagnitude, 1.0f);
-
-			stickX *= normalizedMagnitude;
-			stickY *= normalizedMagnitude;
-
-			float cameraYaw = CamRot.y;
-
-			// カメラ向きで回転した移動ベクトル
-			inputDir.x += -(stickX * cosf(cameraYaw) + stickY * sinf(cameraYaw));
-			inputDir.z += stickX * sinf(-cameraYaw) + stickY * cosf(cameraYaw);
-
-			// 回転補正（Z軸反転）
-			inputDir.z = -inputDir.z;
-
-			// 向き更新
-			if (camMode == pCamera->MODE_EDIT)
-			{
-				m_rotDest.y = atan2f(-inputDir.x, -inputDir.z);
-			}
-			else
-			{
-				m_rotDest.y = CamRot.y;
-			}
-
-			// 横移動だけなら m_bIsSideMoving を立てる
-			if (fabsf(stickX) > 0.5f && fabsf(stickY) < 0.3f)
-			{
-				m_bIsSideMoving = true;
-			}
-			else
-			{
-				// フラグ
-				m_bIsMoving = true;
-			}
-		}
-	}
-
-	// ---------------------------
-	// キーボード入力
-	// ---------------------------
-	bool pressW = pInputKeyboard->GetPress(DIK_W);
-	bool pressS = pInputKeyboard->GetPress(DIK_S);
-	bool pressA = pInputKeyboard->GetPress(DIK_A);
-	bool pressD = pInputKeyboard->GetPress(DIK_D);
-
-	// 入力方向加算
-	if (pressW)
-	{
-		inputDir += D3DXVECTOR3(-sinf(CamRot.y), 0, -cosf(CamRot.y));
-	}
-	if (pressS)
-	{
-		inputDir += D3DXVECTOR3(sinf(CamRot.y), 0, cosf(CamRot.y));
-	}
-	if (pressA)
-	{
-		inputDir += D3DXVECTOR3(cosf(CamRot.y), 0, -sinf(CamRot.y));
-	}
-	if (pressD)
-	{
-		inputDir += D3DXVECTOR3(-cosf(CamRot.y), 0, sinf(CamRot.y));
-	}
-
-	// フラグ判定（斜めはm_bIsMovingを優先）
-	if ((pressW || pressS))
-	{
-		m_bIsMoving = true;
-	}
-	else if ((pressA || pressD) && !(pressW || pressS))
-	{
-		m_bIsSideMoving = true;
-	}
-
-	if (inputDir.x != 0.0f || inputDir.z != 0.0f)
-	{
-		D3DXVec3Normalize(&inputDir, &inputDir);
-	}
-
-	// RayCastで接地チェック
-	m_bOnGround = OnGround(CManager::GetPhysicsWorld(), m_pRigidBody, 65.0f);
-
-	if (m_bIsMoving && !m_isJumping && m_bOnGround && !m_bIsSideMoving)
-	{
-		m_particleTimer++;
-
-		if (m_particleTimer >= DASH_PARTICLE_INTERVAL)
-		{
-			m_particleTimer = 0;
-
-			// パーティクルの生成
-			CParticle::Create(INIT_VEC3,
-				m_pos,
-				D3DXCOLOR(0.6f, 0.6f, 0.6f, 0.4f),
-				25,                    // 寿命
-				CParticle::TYPE_MOVE,  // パーティクルタイプ
-				1);                    // 数
-		}
-	}
-	else
-	{
-		m_particleTimer = 0; // 停止時はリセット
-	}
-
-	// ジャンプ入力があって、かつ地面に立っている時だけジャンプ
-	if (!m_isJumping &&
-		(pInputKeyboard->GetTrigger(DIK_SPACE) || pInputJoypad->GetTrigger(pInputJoypad->JOYKEY_A)) &&
-		m_bOnGround)
-	{
-		m_isJumping = true;
-		m_jumpFrame = 0;
-
-		// ジャンプインパルスをY方向に加える
-		btVector3 jumpImpulse(0, MAX_JUMP_POWER, 0);
-		m_pRigidBody->applyCentralImpulse(jumpImpulse);
-
-		// ジャンプモーション
-		m_pMotion->StartBlendMotion(m_pMotion->TYPE_JUMP, 10);
-		m_currentMotion = m_pMotion->TYPE_JUMP;
-	}
-
-	// 現在の速度を取得
-	btVector3 velocity = m_pRigidBody->getLinearVelocity();
-
-	// ---------------------------
-	// 横移動の目標速度を計算
-	// ---------------------------
-	if (m_bIsMoving || m_bIsSideMoving)
-	{
-		float moveSpeed = PLAYER_SPEED;
-
-		// 横移動だけならスピード落とす
-		if (m_bIsSideMoving && !m_bIsMoving && !camMode == pCamera->MODE_EDIT)
-		{
-			moveSpeed = SIDE_MOVE_SPEED;
-		}
-
-		m_targetMove = inputDir * moveSpeed;
-
-		// 加速度補間（イージング）
-		const float accelRate = 0.15f; // 数値を上げると早く加速する
-		m_currentMove.x += (m_targetMove.x - m_currentMove.x) * accelRate;
-		m_currentMove.z += (m_targetMove.z - m_currentMove.z) * accelRate;
-	}
-	else
-	{
-		// 移動しないときは徐々に減速
-		m_targetMove = D3DXVECTOR3(0, 0, 0);
-		m_currentMove *= 0.95f;
-	}
-
-	// 速度を設定
-	velocity.setX(m_currentMove.x);
-	velocity.setZ(m_currentMove.z);
-
-	// 速度を物理エンジンにセット
-	m_pRigidBody->setLinearVelocity(velocity);
-
-	if (camMode == pCamera->MODE_EDIT)
-	{
-		// プレイヤーの向き更新
-		if (m_bIsMoving || m_bIsSideMoving)
-		{
-			m_rotDest.y = atan2f(-inputDir.x, -inputDir.z);
-		}
-	}
-	else
-	{
-		// プレイヤーの向き更新
-		m_rotDest.y = CamRot.y;
-	}
-}
-//=============================================================================
 // リスポーン(一番近い位置)処理
 //=============================================================================
 void CPlayer::RespawnToCheckpoint(void)
@@ -1070,32 +854,111 @@ D3DXVECTOR3 CPlayer::GetNearestRespawnPoint(void) const
 	return nearest;
 }
 //=============================================================================
-// エディター中かどうかでキネマティックにするか判定する処理
-//=============================================================================
-void CPlayer::SetEditMode(bool enable)
-{
-	m_isEditMode = enable;
-
-	if (!m_pRigidBody)
-	{
-		return;
-	}
-
-	if (enable)
-	{
-		m_pRigidBody->setCollisionFlags(m_pRigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-		m_pRigidBody->setActivationState(DISABLE_DEACTIVATION);
-	}
-	else
-	{
-		m_pRigidBody->setCollisionFlags(m_pRigidBody->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
-		m_pRigidBody->setActivationState(ACTIVE_TAG);
-	}
-}
-//=============================================================================
 // 補間関数
 //=============================================================================
 D3DXVECTOR3 CPlayer::Lerp(const D3DXVECTOR3& a, const D3DXVECTOR3& b, float t)
 {
 	return a + (b - a) * t;
 }
+//=============================================================================
+// モーションの設定処理
+//=============================================================================
+void CPlayer::SetMotion(CMotion::TYPE type, int nBlendFrame)
+{
+	m_pMotion->StartBlendMotion(type, nBlendFrame);
+	m_currentMotion = type;
+}
+//=============================================================================
+// 入力判定取得関数
+//=============================================================================
+InputData CPlayer::GatherInput(void)
+{
+	InputData input{};
+	input.moveDir = D3DXVECTOR3(0, 0, 0);
+	input.sideMoveDir = D3DXVECTOR3(0, 0, 0);
+	input.jump = false;
+
+	CInputKeyboard* pKeyboard = CManager::GetInputKeyboard();	// キーボードの取得
+	CInputJoypad* pJoypad = CManager::GetInputJoypad();			// ジョイパッドの取得
+	XINPUT_STATE* pStick = CInputJoypad::GetStickAngle();		// スティックの取得
+	CCamera* pCamera = CManager::GetCamera();					// カメラの取得
+	D3DXVECTOR3 CamRot = pCamera->GetRot();						// カメラ角度の取得
+
+	// ---------------------------
+	// ジャンプ入力
+	// ---------------------------
+	if (pKeyboard->GetTrigger(DIK_SPACE) || pJoypad->GetTrigger(pJoypad->JOYKEY_A))
+	{
+		input.jump = true;
+	}
+
+	// ---------------------------
+	// ゲームパッド入力
+	// ---------------------------
+	if (pJoypad->GetStick() && pStick)
+	{
+		float stickX = pStick->Gamepad.sThumbLX;
+		float stickY = pStick->Gamepad.sThumbLY;
+		float magnitude = sqrtf(stickX * stickX + stickY * stickY);
+		const float DEADZONE = 10922.0f;
+
+		if (magnitude >= DEADZONE)
+		{
+			stickX /= magnitude;
+			stickY /= magnitude;
+			float normMag = std::min((magnitude - DEADZONE) / (32767.0f - DEADZONE), 1.0f);
+			stickX *= normMag;
+			stickY *= normMag;
+
+			D3DXVECTOR3 dir;
+			float yaw = CamRot.y;
+
+			dir.x = -(stickX * cosf(yaw) + stickY * sinf(yaw));
+			dir.z = stickX * sinf(-yaw) + stickY * cosf(yaw);
+			dir.z = -dir.z;
+
+			if (fabsf(stickX) > 0.5f && fabsf(stickY) < 0.3f)
+			{
+				input.sideMoveDir += D3DXVECTOR3(dir.x, 0, dir.z);
+			}
+			else
+			{
+				input.moveDir += D3DXVECTOR3(dir.x, 0, dir.z);
+			}
+		}
+	}
+
+	// ---------------------------
+	// キーボード入力
+	// ---------------------------
+	if (pKeyboard->GetPress(DIK_W))
+	{
+		input.moveDir += D3DXVECTOR3(-sinf(CamRot.y), 0, -cosf(CamRot.y));
+	}
+	if (pKeyboard->GetPress(DIK_S))
+	{
+		input.moveDir += D3DXVECTOR3(sinf(CamRot.y), 0, cosf(CamRot.y));
+	}
+	if (pKeyboard->GetPress(DIK_A))
+	{
+		input.sideMoveDir += D3DXVECTOR3(cosf(CamRot.y), 0, -sinf(CamRot.y));
+	}
+	if (pKeyboard->GetPress(DIK_D))
+	{
+		input.sideMoveDir += D3DXVECTOR3(-cosf(CamRot.y), 0, sinf(CamRot.y));
+	}
+
+	// 正規化
+	if (input.moveDir.x != 0.0f || input.moveDir.z != 0.0f)
+	{
+		D3DXVec3Normalize(&input.moveDir, &input.moveDir);
+	}
+
+	if (input.sideMoveDir.x != 0.0f || input.sideMoveDir.z != 0.0f)
+	{
+		D3DXVec3Normalize(&input.sideMoveDir, &input.sideMoveDir);
+	}
+
+	return input;
+}
+

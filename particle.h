@@ -38,6 +38,7 @@ public:
 		TYPE_AURA,
 		TYPE_AURA2,
 		TYPE_MOVE,
+		TYPE_FLOATING,
 		TYPE_MAX
 	}TYPE;
 
@@ -169,6 +170,22 @@ class CMoveParticle : public CParticle
 public:
 	CMoveParticle();
 	~CMoveParticle();
+
+	HRESULT Init(void);
+	void Update(void);
+
+private:
+
+};
+
+//*****************************************************************************
+// 浮遊パーティクルクラス
+//*****************************************************************************
+class CFloatingParticle : public CParticle
+{
+public:
+	CFloatingParticle();
+	~CFloatingParticle();
 
 	HRESULT Init(void);
 	void Update(void);
