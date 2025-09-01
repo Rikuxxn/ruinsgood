@@ -273,5 +273,25 @@
       "type": 54,
       "filepath": "data/MODELS/doorTriggerBlock.x",
       "GUItexFilepath": "data/TEXTURE/doorTriggerBlock.png"
+    },
+    {
+      "type": 55,
+      "filepath": "data/MODELS/massBlock_red.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_red.png"
+    },
+    {
+      "type": 56,
+      "filepath": "data/MODELS/massBlock_blue.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_blue.png"
+    },
+    {
+      "type": 57,
+      "filepath": "data/MODELS/massBlock_yellow.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_yellow.png"
+    },
+    {
+      "type": 58,
+      "filepath": "data/MODELS/massBlock_green.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_green.png"
     }
 ]

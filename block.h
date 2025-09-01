@@ -94,6 +94,10 @@ public:
 		TYPE_STATUE2,
 		TYPE_EGG,
 		TYPE_DOOR_TRIGGER,
+		TYPE_MASSBLOCK_RED,
+		TYPE_MASSBLOCK_BLUE,
+		TYPE_MASSBLOCK_YELLOW,
+		TYPE_MASSBLOCK_GREEN,
 		TYPE_MAX
 	}TYPE;
 
@@ -130,6 +134,7 @@ public:
 	void SetColliderHandle(const ColliderPart& handle) { m_colliderHandle = handle; }
 	void SetColliderBlade(const ColliderPart& blade) { m_colliderBlade = blade; }
 	void SetEditMode(bool enable);
+	void SetMass(btScalar mass) { m_mass = mass; }
 
 	//*****************************************************************************
 	// getter関数
@@ -142,7 +147,7 @@ public:
 	const ColliderPart& GetColliderHandle(void) const { return m_colliderHandle; }
 	const ColliderPart& GetColliderBlade(void) const { return m_colliderBlade; }
 	bool IsEditMode(void) const { return m_isEditMode; }
-	virtual btScalar GetMass(void) const { return 2.0f; }  // デフォルト質量
+	btScalar GetMass(void) const { return m_mass; }  // 質量の取得
 	D3DXMATRIX GetWorldMatrix(void);
 	virtual btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	virtual btScalar GetRollingFriction(void) const { return 0.7f; }
@@ -166,6 +171,7 @@ private:
 	ColliderPart m_colliderBlade;   // 刃の部分
 	std::vector<btCollisionShape*> m_childShapes;
 	static std::unordered_map<TYPE, BlockCreateFunc> m_BlockFactoryMap;
+	btScalar m_mass;				// 質量
 };
 
 //*****************************************************************************

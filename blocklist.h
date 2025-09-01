@@ -25,7 +25,6 @@ public:
 	void Update(void);
 	void Respawn(void);
 	void Set(D3DXVECTOR3 pos);
-	btScalar GetMass(void) const override { return 4.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 
@@ -39,7 +38,9 @@ private:
 class CPillarBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 55.0f; }
+	CPillarBlock();
+	~CPillarBlock();
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 1.0f); }
 };
@@ -50,7 +51,9 @@ public:
 class CWoodBridgeBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 8.0f; }
+	CWoodBridgeBlock();
+	~CWoodBridgeBlock();
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 };
@@ -61,7 +64,9 @@ public:
 class CRaftBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 7.5f; }
+	CRaftBlock();
+	~CRaftBlock();
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	float CarryTargetDis(void) { return 80.0f; }
@@ -73,7 +78,9 @@ public:
 class CBoxRockBlock : public CBlock
 {
 public:
-	btScalar GetMass(void) const override { return 7.0f; }
+	CBoxRockBlock();
+	~CBoxRockBlock();
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
@@ -228,7 +235,6 @@ public:
 	void Update(void);
 	void Swing(void);
 	void IsPlayerHit(void);
-	btScalar GetMass(void) const override { return 80.0f; }
 
 private:
 	int m_nSwingCounter;		// フレームカウンター
@@ -255,7 +261,6 @@ public:
 	void MoveToTarget(void);					// 転がし処理
 	void IsPlayerHit(void);						// プレイヤーとの接触判定
 	void UseBridgeSwitch(bool enable) { m_isBridgeSwitchOn = enable; }
-	btScalar GetMass(void) const override { return 100.0f; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
 
@@ -330,7 +335,6 @@ public:
 	~CTorch2Block();
 
 	void Update(void);
-	btScalar GetMass(void) const override { return 6.0f; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
 
@@ -450,7 +454,6 @@ public:
 	void Update(void);
 	void SetParticle(void);
 
-	btScalar GetMass(void) const override { return 7.0f; }
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
@@ -508,7 +511,6 @@ public:
 	void Respawn(void);
 	void Set(D3DXVECTOR3 pos);
 
-	btScalar GetMass(void) const override { return 6.0f; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
 
@@ -648,5 +650,76 @@ private:
 	int m_nDeleyTime;	// カメラ移行までの遅延時間
 };
 
+//*****************************************************************************
+// 質量ブロック(赤)クラス
+//*****************************************************************************
+class CRedMassBlock : public CBlock
+{
+public:
+	CRedMassBlock();
+	~CRedMassBlock();
+
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
+	btScalar GetRollingFriction(void) const { return 5.7f; }
+	float CarryTargetDis(void) { return 80.0f; }
+
+private:
+
+};
+
+//*****************************************************************************
+// 質量ブロック(青)クラス
+//*****************************************************************************
+class CBlueMassBlock : public CBlock
+{
+public:
+	CBlueMassBlock();
+	~CBlueMassBlock();
+
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
+	btScalar GetRollingFriction(void) const { return 5.7f; }
+	float CarryTargetDis(void) { return 80.0f; }
+
+private:
+
+};
+
+//*****************************************************************************
+// 質量ブロック(黄)クラス
+//*****************************************************************************
+class CYellowMassBlock : public CBlock
+{
+public:
+	CYellowMassBlock();
+	~CYellowMassBlock();
+
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
+	btScalar GetRollingFriction(void) const { return 5.7f; }
+	float CarryTargetDis(void) { return 80.0f; }
+
+private:
+
+};
+
+//*****************************************************************************
+// 質量ブロック(緑)クラス
+//*****************************************************************************
+class CGreenMassBlock : public CBlock
+{
+public:
+	CGreenMassBlock();
+	~CGreenMassBlock();
+
+	bool IsDynamicBlock(void) const override { return true; }
+	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
+	btScalar GetRollingFriction(void) const { return 5.7f; }
+	float CarryTargetDis(void) { return 80.0f; }
+
+private:
+
+};
 
 #endif

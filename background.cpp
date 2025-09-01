@@ -51,9 +51,6 @@ CBackground* CBackground::Create(D3DXVECTOR3 pos, float fWidth, float fHeight, c
 //=============================================================================
 HRESULT CBackground::Init(void)
 {
-	// デバイスの取得
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
-
 	// テクスチャの取得
 	m_nIdxTexture = CManager::GetTexture()->Register(m_szPath);
 

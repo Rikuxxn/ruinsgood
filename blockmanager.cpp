@@ -264,6 +264,7 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 		D3DXVECTOR3 pos = selectedBlock->GetPos();	// 選択中のブロックの位置の取得
 		D3DXVECTOR3 rot = selectedBlock->GetRot();	// 選択中のブロックの向きの取得
 		D3DXVECTOR3 size = selectedBlock->GetSize();// 選択中のブロックのサイズの取得
+		btScalar mass = selectedBlock->GetMass();	// 選択中のブロックの質量の取得
 
 		// ラジアン→角度に一時変換（静的変数で保持し操作中のみ更新）
 		static D3DXVECTOR3 degRot = D3DXToDegree(rot);
@@ -374,6 +375,19 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 		// サイズ変更チェック
 		bool isSizeChanged = (size != prevSize);
 
+		//*********************************************************************
+		// 質量 の調整
+		//*********************************************************************
+
+		ImGui::Dummy(ImVec2(0.0f, 10.0f)); // 空白を空ける
+
+		// ラベル
+		ImGui::Text("MASS"); ImGui::SameLine(60); // ラベルの位置ちょっと調整
+
+		// スライダー（範囲: 0.0f ～ 80.0f）
+		ImGui::SliderFloat("##MassSlider", &mass, 0.0f, 80.0f, "%.2f");
+
+
 		// 角度→ラジアンに戻す
 		D3DXVECTOR3 rotRad = D3DXToRadian(degRot);
 
@@ -382,6 +396,9 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 
 		// サイズの設定
 		selectedBlock->SetSize(size);
+
+		// 質量の設定
+		selectedBlock->SetMass(mass);
 
 		// サイズ(拡大率)が変わったときだけ呼ぶ
 		if (m_autoUpdateColliderSize == true && isSizeChanged)
@@ -832,6 +849,7 @@ void CBlockManager::SaveToJson(const char* filename)
 		b["pos"] = { block->GetPos().x, block->GetPos().y, block->GetPos().z };		// 位置
 		b["rot"] = { degRot.x, degRot.y, degRot.z };								// 向き
 		b["size"] = { block->GetSize().x, block->GetSize().y, block->GetSize().z };	// サイズ
+		//b["mass"] = { block->GetMass() };											// 質量
 
 		// 複合コライダーなら、それぞれ保存
 		if (block->IsCompoundCollider())
@@ -912,6 +930,19 @@ void CBlockManager::LoadFromJson(const char* filename)
 		D3DXVECTOR3 degRot(b["rot"][0], b["rot"][1], b["rot"][2]);
 		D3DXVECTOR3 size(b["size"][0], b["size"][1], b["size"][2]);
 
+		//btScalar mass(b["mass"]);
+		//if (b.contains("mass"))
+		//{
+		//	if (b["mass"].is_string())
+		//	{
+		//		mass = std::stof(b["mass"].get<std::string>());
+		//	}
+		//	else if (b["mass"].is_number_float() || b["mass"].is_number_integer())
+		//	{
+		//		mass = b["mass"].get<btScalar>();
+		//	}
+		//}
+
 		D3DXVECTOR3 rot = D3DXToRadian(degRot); // 度→ラジアンに変換
 
 		// タイプからブロック生成
@@ -924,6 +955,7 @@ void CBlockManager::LoadFromJson(const char* filename)
 
 		block->SetRot(rot);
 		block->SetSize(size);
+		//block->SetMass(mass);
 
 		// 複合コライダーか判定して処理を分ける
 		if (b.contains("collider_handle_size") && b.contains("collider_blade_size"))

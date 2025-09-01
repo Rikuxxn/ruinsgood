@@ -101,9 +101,6 @@ void CUi::InitFactory(void)
 //=============================================================================
 HRESULT CUi::Init(void)
 {
-	// デバイスの取得
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
-
 	// テクスチャの取得
 	m_nIdxTexture = CManager::GetTexture()->Register(m_szPath);
 
@@ -645,9 +642,6 @@ void CInteractUi::Update(void)
 {
 	// UIの更新処理
 	CUi::Update();
-
-	CInputMouse* pMouse = CManager::GetInputMouse();
-	CInputJoypad* pJoypad = CManager::GetInputJoypad();
 
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 HintTextPos = CGame::GetHintText()->GetPos();
