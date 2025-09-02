@@ -577,7 +577,7 @@ void CPlayer::HoldBlock(void)
 			}
 
 			int stageId = CStageSelect::GetSelectedStage();
-			if (stageId == 0 && target->GetType() == CBlock::TYPE_BLOCK3)
+			if (stageId == 0 && (target->GetType() == CBlock::TYPE_BLOCK3 || target->GetType() == CBlock::TYPE_TORCH2))
 			{
 				return;
 			}

@@ -332,7 +332,7 @@ public:
 	void Update(void);
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
-	btScalar GetMass(void) const { return 8.0f; }  // ¿—Ê‚Ìæ“¾
+	btScalar GetMass(void) const { return 7.0f; }  // ¿—Ê‚Ìæ“¾
 
 private:
 	int m_playedSoundID;// Ä¶’†‚Ì‰¹ID

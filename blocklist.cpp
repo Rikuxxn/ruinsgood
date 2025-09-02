@@ -1092,7 +1092,7 @@ void CBarSwitchBlock::Update(void)
 				m_isSwitchOn = true;
 
 				// タイムを設定
-				SetTimer(34);
+				SetTimer(12);
 
 				// 演出カメラをONにする
 				CManager::GetCamera()->IsDirection(true);
@@ -1456,9 +1456,9 @@ void CRockBlock::MoveToTarget(void)
 			CParticle::Create(INIT_VEC3,
 				D3DXVECTOR3(GetPos().x, GetPos().y - 200.0f, GetPos().z),
 				D3DXCOLOR(0.4f, 0.4f, 0.4f, 0.4f),
-				30,                    // 寿命
+				30,						// 寿命
 				CParticle::TYPE_WATER,  // パーティクルタイプ
-				5);                    // 数
+				5);						// 数
 		}
 	}
 
