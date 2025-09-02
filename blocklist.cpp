@@ -24,9 +24,6 @@ using namespace std;
 //=============================================================================
 CWoodBoxBlock::CWoodBoxBlock()
 {
-	// 質量の設定
-	SetMass(4.0f);
-
 	// 値のクリア
 	m_ResPos = INIT_VEC3;
 }
@@ -116,74 +113,6 @@ void CWoodBoxBlock::Set(D3DXVECTOR3 pos)
 
 	// コライダーの更新
 	UpdateCollider();
-}
-
-
-//=============================================================================
-// 柱ブロックのコンストラクタ
-//=============================================================================
-CPillarBlock::CPillarBlock()
-{
-	// 質量の設定
-	SetMass(55.0f);
-}
-//=============================================================================
-// 柱ブロックのデストラクタ
-//=============================================================================
-CPillarBlock::~CPillarBlock()
-{
-	// なし
-}
-
-
-//=============================================================================
-// 木の橋ブロックのコンストラクタ
-//=============================================================================
-CWoodBridgeBlock::CWoodBridgeBlock()
-{
-	// 質量の設定
-	SetMass(8.0f);
-}
-//=============================================================================
-// 木の橋ブロックのデストラクタ
-//=============================================================================
-CWoodBridgeBlock::~CWoodBridgeBlock()
-{
-	// なし
-}
-
-
-//=============================================================================
-// 筏ブロックのコンストラクタ
-//=============================================================================
-CRaftBlock::CRaftBlock()
-{
-	// 質量の設定
-	SetMass(7.5f);
-}
-//=============================================================================
-// 木の橋ブロックのデストラクタ
-//=============================================================================
-CRaftBlock::~CRaftBlock()
-{
-	// なし
-}
-
-
-//=============================================================================
-// 四角い岩ブロックのコンストラクタ
-//=============================================================================
-CBoxRockBlock::CBoxRockBlock()
-{
-	// 質量の設定
-	SetMass(7.0f);
-}
-//=============================================================================
-// 四角い岩ブロックのデストラクタ
-//=============================================================================
-CBoxRockBlock::~CBoxRockBlock()
-{
-	// なし
 }
 
 
@@ -936,10 +865,8 @@ void CBridgeSwitchBlock::Update(void)
 
 			if (isOverlap)
 			{
-				btScalar invMass = block->GetRigidBody()->getInvMass();
-				float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
-
-				totalMass += mass;
+				// 基点のブロックから積み上げ分を再帰的に調べる
+				totalMass += CalcStackMass(block);
 			}
 		}
 	}
@@ -1000,6 +927,74 @@ void CBridgeSwitchBlock::Update(void)
 
 	// フラグを更新して次のフレームに備える
 	m_prevSwitchOn = n;
+}
+//=============================================================================
+// 積み上げ質量計算
+//=============================================================================
+float CBridgeSwitchBlock::CalcStackMass(CBlock* base)
+{
+	// ブロックの質量の取得
+	float mass = base->GetMass();
+
+	for (CBlock* other : CBlockManager::GetAllBlocks())
+	{
+		if (other == base)
+		{
+			continue;
+		}
+
+		// other が base の上に物理的に乗っているかどうか判定
+		if (IsOnTop(base, other))
+		{
+			mass += CalcStackMass(other);
+			return mass;
+		}
+	}
+	return 0.0f;
+}
+//=============================================================================
+// baseの上にotherがあるか判定
+//=============================================================================
+bool CBridgeSwitchBlock::IsOnTop(CBlock* base, CBlock* other)
+{
+	// モデル本来のサイズ
+	D3DXVECTOR3 baseModelSize = base->GetModelSize();
+	D3DXVECTOR3 otherModelSize = other->GetModelSize();
+
+	// 拡大率
+	D3DXVECTOR3 baseScale = base->GetSize();
+	D3DXVECTOR3 otherScale = other->GetSize();
+
+	// 実際の大きさ（スケーリング後）
+	D3DXVECTOR3 baseSize = D3DXVECTOR3(baseModelSize.x * baseScale.x,
+		baseModelSize.y * baseScale.y,
+		baseModelSize.z * baseScale.z);
+
+	D3DXVECTOR3 otherSize = D3DXVECTOR3(otherModelSize.x * otherScale.x,
+		otherModelSize.y * otherScale.y,
+		otherModelSize.z * otherScale.z);
+
+	D3DXVECTOR3 baseMin = base->GetPos() - baseSize * 0.5f;
+	D3DXVECTOR3 baseMax = base->GetPos() + baseSize * 0.5f;
+
+	D3DXVECTOR3 otherMin = other->GetPos() - otherSize * 0.5f;
+	D3DXVECTOR3 otherMax = other->GetPos() + otherSize * 0.5f;
+
+	// --- XZ が重なっているか ---
+	bool overlapXZ =
+		(baseMin.x <= otherMax.x && baseMax.x >= otherMin.x) &&
+		(baseMin.z <= otherMax.z && baseMax.z >= otherMin.z);
+
+	if (!overlapXZ) return false;
+
+	// --- other が base の上にあるか (少しだけ隙間許容) ---
+	float epsilon = 1.0f;
+	if (otherMin.y >= baseMax.y - epsilon)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -1164,9 +1159,6 @@ void CBarSwitchBlock::Update(void)
 //=============================================================================
 CAxeBlock::CAxeBlock()
 {
-	// 質量の設定
-	SetMass(80.0f);
-
 	// 値のクリア
 	m_nSwingCounter = 0;					// フレームカウンター
 	m_swingAmplitude = D3DXToRadian(75.0f);	// ±振れ角
@@ -1220,8 +1212,6 @@ void CAxeBlock::Swing(void)
 	float angle = m_swingAmplitude * sinf((2.0f * D3DX_PI * m_nSwingCounter) / m_swingPeriod);
 
 	SetRot(D3DXVECTOR3(0.0f, 0.0f, angle)); // Z軸スイング
-
-	UpdateCollider();
 
 	// オフセット
 	D3DXVECTOR3 localOffset(0.0f, -100.0f, 0.0f);
@@ -1330,9 +1320,6 @@ void CAxeBlock::IsPlayerHit(void)
 //=============================================================================
 CRockBlock::CRockBlock()
 {
-	// 質量の設定
-	SetMass(100.0f);
-
 	// 値のクリア
 	m_pathPoints = {};
 	m_currentTargetIndex = 0;
@@ -1871,9 +1858,6 @@ void CTorchBlock::Update(void)
 //=============================================================================
 CTorch2Block::CTorch2Block()
 {
-	// 質量の設定
-	SetMass(8.0f);
-
 	// 値のクリア
 	m_playedSoundID = -1;
 }
@@ -2576,9 +2560,6 @@ void CFireStatueBlock::SetParticle(void)
 //=============================================================================
 CMoveFireStatueBlock::CMoveFireStatueBlock()
 {
-	// 質量の設定
-	SetMass(7.0f);
-
 	// 値のクリア
 	m_playedSoundID = -1;
 }
@@ -2921,9 +2902,6 @@ void CKeyFenceBlock::Update()
 //=============================================================================
 CKeyBlock::CKeyBlock()
 {
-	// 質量の設定
-	SetMass(6.0f);
-
 	// 値のクリア
 	m_ResPos = INIT_VEC3;
 }
@@ -3721,72 +3699,3 @@ void CDoorTriggerBlock::Update()
 		m_prevIsSet = n;
 	}
 }
-
-
-//=============================================================================
-// 質量ブロック(赤)のコンストラクタ
-//=============================================================================
-CRedMassBlock::CRedMassBlock()
-{
-	// 質量の設定
-	SetMass(1.0f);
-}
-//=============================================================================
-//質量ブロック(赤)ブロックのデストラクタ
-//=============================================================================
-CRedMassBlock::~CRedMassBlock()
-{
-	// なし
-}
-
-
-//=============================================================================
-// 質量ブロック(青)のコンストラクタ
-//=============================================================================
-CBlueMassBlock::CBlueMassBlock()
-{
-	// 質量の設定
-	SetMass(2.0f);
-}
-//=============================================================================
-//質量ブロック(青)ブロックのデストラクタ
-//=============================================================================
-CBlueMassBlock::~CBlueMassBlock()
-{
-	// なし
-}
-
-
-//=============================================================================
-// 質量ブロック(黄)のコンストラクタ
-//=============================================================================
-CYellowMassBlock::CYellowMassBlock()
-{
-	// 質量の設定
-	SetMass(3.0f);
-}
-//=============================================================================
-//質量ブロック(黄)ブロックのデストラクタ
-//=============================================================================
-CYellowMassBlock::~CYellowMassBlock()
-{
-	// なし
-}
-
-
-//=============================================================================
-// 質量ブロック(緑)のコンストラクタ
-//=============================================================================
-CGreenMassBlock::CGreenMassBlock()
-{
-	// 質量の設定
-	SetMass(4.0f);
-}
-//=============================================================================
-//質量ブロック(緑)ブロックのデストラクタ
-//=============================================================================
-CGreenMassBlock::~CGreenMassBlock()
-{
-	// なし
-}
-

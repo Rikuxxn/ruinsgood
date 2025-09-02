@@ -27,6 +27,7 @@ public:
 	void Set(D3DXVECTOR3 pos);
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	btScalar GetMass(void) const { return 4.0f; }  // 質量の取得
 
 private:
 	D3DXVECTOR3 m_ResPos;	// リスポーン位置
@@ -38,11 +39,9 @@ private:
 class CPillarBlock : public CBlock
 {
 public:
-	CPillarBlock();
-	~CPillarBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 1.0f); }
+	btScalar GetMass(void) const { return 55.0f; }  // 質量の取得
 };
 
 //*****************************************************************************
@@ -51,11 +50,9 @@ public:
 class CWoodBridgeBlock : public CBlock
 {
 public:
-	CWoodBridgeBlock();
-	~CWoodBridgeBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
+	btScalar GetMass(void) const { return 8.0f; }  // 質量の取得
 };
 
 //*****************************************************************************
@@ -64,12 +61,10 @@ public:
 class CRaftBlock : public CBlock
 {
 public:
-	CRaftBlock();
-	~CRaftBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	float CarryTargetDis(void) { return 80.0f; }
+	btScalar GetMass(void) const { return 7.5f; }  // 質量の取得
 };
 
 //*****************************************************************************
@@ -78,15 +73,11 @@ public:
 class CBoxRockBlock : public CBlock
 {
 public:
-	CBoxRockBlock();
-	~CBoxRockBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
-
-private:
+	btScalar GetMass(void) const { return 7.0f; }  // 質量の取得
 
 };
 
@@ -193,6 +184,8 @@ public:
 
 	HRESULT Init(void);
 	void Update(void);
+	float CalcStackMass(CBlock* base);
+	bool IsOnTop(CBlock* base, CBlock* other);
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
 
 private:
@@ -235,6 +228,7 @@ public:
 	void Update(void);
 	void Swing(void);
 	void IsPlayerHit(void);
+	btScalar GetMass(void) const { return 80.0f; }  // 質量の取得
 
 private:
 	int m_nSwingCounter;		// フレームカウンター
@@ -263,6 +257,7 @@ public:
 	void UseBridgeSwitch(bool enable) { m_isBridgeSwitchOn = enable; }
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
+	btScalar GetMass(void) const { return 100.0f; }  // 質量の取得
 
 private:
 	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列 (代入用)
@@ -337,6 +332,7 @@ public:
 	void Update(void);
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
+	btScalar GetMass(void) const { return 8.0f; }  // 質量の取得
 
 private:
 	int m_playedSoundID;// 再生中の音ID
@@ -459,6 +455,7 @@ public:
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	btScalar GetFriction(void) const { return 2.0f; }
 	float CarryTargetDis(void) { return 100.0f; }
+	btScalar GetMass(void) const { return 7.0f; }  // 質量の取得
 
 private:
 	int m_playedSoundID;					// 再生中の音ID
@@ -513,6 +510,7 @@ public:
 
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
+	btScalar GetMass(void) const { return 6.0f; }  // 質量の取得
 
 private:
 	D3DXVECTOR3 m_ResPos;
@@ -656,15 +654,11 @@ private:
 class CRedMassBlock : public CBlock
 {
 public:
-	CRedMassBlock();
-	~CRedMassBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
-
-private:
+	btScalar GetMass(void) const { return 1.0f; }  // 質量の取得
 
 };
 
@@ -674,15 +668,11 @@ private:
 class CBlueMassBlock : public CBlock
 {
 public:
-	CBlueMassBlock();
-	~CBlueMassBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
-
-private:
+	btScalar GetMass(void) const { return 2.0f; }  // 質量の取得
 
 };
 
@@ -692,15 +682,11 @@ private:
 class CYellowMassBlock : public CBlock
 {
 public:
-	CYellowMassBlock();
-	~CYellowMassBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
-
-private:
+	btScalar GetMass(void) const { return 3.0f; }  // 質量の取得
 
 };
 
@@ -710,15 +696,11 @@ private:
 class CGreenMassBlock : public CBlock
 {
 public:
-	CGreenMassBlock();
-	~CGreenMassBlock();
-
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
-
-private:
+	btScalar GetMass(void) const { return 4.0f; }  // 質量の取得
 
 };
 

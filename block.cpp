@@ -33,7 +33,6 @@ CBlock::CBlock(int nPriority) : CObjectX(nPriority)
 		m_szPath[nCnt] = NULL;					// ファイルパス
 	}
 
-	m_mass			 = 1.0f;					// 質量
 	m_col			 = INIT_XCOL;				// 色
 	m_baseCol		 = INIT_XCOL;				// ベースの色
 	m_bSelected		 = false;					// 選択フラグ
@@ -318,16 +317,6 @@ void CBlock::Draw(void)
 {
 	// オブジェクトXの描画処理
 	CObjectX::Draw();
-
-#ifdef _DEBUG
-
-	//CBlock* pSelectBlock = CBlockManager::GetSelectedBlock();
-
-	//// 当たり判定の描画処理
-	//pSelectBlock->DrawCollider();
-
-#endif
-
 }
 //=============================================================================
 // 当たり判定描画処理

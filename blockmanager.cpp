@@ -102,6 +102,19 @@ void CBlockManager::Update(void)
 #endif
 }
 //=============================================================================
+// 描画処理
+//=============================================================================
+void CBlockManager::Draw(void)
+{
+#ifdef _DEBUG
+	//// 選択中のブロックだけコライダー描画
+	//if (CBlock* pSelectBlock = GetSelectedBlock())
+	//{
+	//	pSelectBlock->DrawCollider();
+	//}
+#endif
+}
+//=============================================================================
 // 情報の更新処理
 //=============================================================================
 void CBlockManager::UpdateInfo(void)
@@ -397,8 +410,8 @@ void CBlockManager::UpdateTransform(CBlock* selectedBlock)
 		// サイズの設定
 		selectedBlock->SetSize(size);
 
-		// 質量の設定
-		selectedBlock->SetMass(mass);
+		//// 質量の設定
+		//selectedBlock->SetMass(mass);
 
 		// サイズ(拡大率)が変わったときだけ呼ぶ
 		if (m_autoUpdateColliderSize == true && isSizeChanged)

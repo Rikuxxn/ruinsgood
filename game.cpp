@@ -187,6 +187,9 @@ void CGame::Update(void)
 //=============================================================================
 void CGame::Draw(void)
 {
+	// ブロックマネージャーの描画処理
+	m_pBlockManager->Draw();
+
 	// ポーズ中だったら
 	if (m_isPaused)
 	{
