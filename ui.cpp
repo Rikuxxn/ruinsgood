@@ -12,6 +12,7 @@
 #include "manager.h"
 #include "result.h"
 #include "game.h"
+#include "stageselect.h"
 
 
 //*****************************************************************************
@@ -571,13 +572,16 @@ void CStageUi::Update(void)
 	// UIの更新処理
 	CUi::Update();
 
-	// 時間経過
-	m_fTimer++; // 毎フレームの経過時間を加算
+	if (m_state == STATE_SHOW)
+	{
+		// 時間経過
+		m_fTimer++; // 毎フレームの経過時間を加算
+	}
 
 	switch (m_state)
 	{
 	case STATE_FADEIN:
-		m_fAlpha += 0.005f; // 1秒でアルファ0になる速さ
+		m_fAlpha += 0.005f;
 
 		if (m_fAlpha >= 1.0f)
 		{
@@ -603,6 +607,8 @@ void CStageUi::Update(void)
 		}
 	case STATE_END:
 		// 何もしない
+		break;
+	case STATE_NONE:
 		break;
 	}
 

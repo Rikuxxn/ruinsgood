@@ -187,11 +187,15 @@ public:
 	float CalcStackMass(CBlock* base);
 	bool IsOnTop(CBlock* base, CBlock* other);
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
+	bool IsSinkOn(void) { return m_isSinkOn; }
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
 	bool m_prevSwitchOn;			// 直前のスイッチ状態
 	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
+	int m_OnCnt;					// 押された後のカウンター
+	bool m_isSinkOn;				// 沈んでいるか
+	bool m_prevSinkOn;				// 直前に沈んでいたか
 };
 
 //*****************************************************************************
@@ -505,8 +509,8 @@ public:
 
 	HRESULT Init(void);
 	void Update(void);
-	void Respawn(void);
 	void Set(D3DXVECTOR3 pos);
+	D3DXVECTOR3 GetResPos(void)const { return m_ResPos; }
 
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	bool IsDynamicBlock(void) const override { return true; }
@@ -654,11 +658,20 @@ private:
 class CRedMassBlock : public CBlock
 {
 public:
+	CRedMassBlock();
+	~CRedMassBlock();
+
+	HRESULT Init(void);
+	void Update(void);
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
 	btScalar GetMass(void) const { return 1.0f; }  // 質量の取得
+
+private:
+	D3DXVECTOR3 m_ResPos;// リスポーン位置
 
 };
 
@@ -668,11 +681,20 @@ public:
 class CBlueMassBlock : public CBlock
 {
 public:
+	CBlueMassBlock();
+	~CBlueMassBlock();
+
+	HRESULT Init(void);
+	void Update(void);
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
 	btScalar GetMass(void) const { return 2.0f; }  // 質量の取得
+
+private:
+	D3DXVECTOR3 m_ResPos;// リスポーン位置
 
 };
 
@@ -682,11 +704,20 @@ public:
 class CYellowMassBlock : public CBlock
 {
 public:
+	CYellowMassBlock();
+	~CYellowMassBlock();
+
+	HRESULT Init(void);
+	void Update(void);
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
 	btScalar GetMass(void) const { return 3.0f; }  // 質量の取得
+
+private:
+	D3DXVECTOR3 m_ResPos;// リスポーン位置
 
 };
 
@@ -696,11 +727,20 @@ public:
 class CGreenMassBlock : public CBlock
 {
 public:
+	CGreenMassBlock();
+	~CGreenMassBlock();
+
+	HRESULT Init(void);
+	void Update(void);
+
 	bool IsDynamicBlock(void) const override { return true; }
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
 	btScalar GetMass(void) const { return 4.0f; }  // 質量の取得
+
+private:
+	D3DXVECTOR3 m_ResPos;// リスポーン位置
 
 };
 
@@ -714,6 +754,39 @@ public:
 	~CRespawnBlock();
 
 	void Update(void);
+};
+
+//*****************************************************************************
+// 水車ブロッククラス
+//*****************************************************************************
+class CWaterWheelBlock : public CBlock
+{
+public:
+	CWaterWheelBlock();
+	~CWaterWheelBlock();
+
+	void Update(void);
+	void Rotation(void);
+
+private:
+	int m_playedSoundID;// 再生中の音ID
+	bool m_isRotation;	// 回転しているか
+};
+
+//*****************************************************************************
+// パイプブロッククラス
+//*****************************************************************************
+class CPipeBlock : public CBlock
+{
+public:
+	CPipeBlock();
+	~CPipeBlock();
+
+	void Update(void);
+
+private:
+	int m_playedSoundID;// 再生中の音ID
+	bool m_isOn;
 };
 
 #endif

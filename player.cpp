@@ -79,6 +79,7 @@ CPlayer* CPlayer::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 	pPlayer->AddRespawnPoint(D3DXVECTOR3(427.0f, 30.0f, 1110.0f));
 	pPlayer->AddRespawnPoint(D3DXVECTOR3(-1327.0f, 30.0f, -4586.0f));
 	pPlayer->AddRespawnPoint(D3DXVECTOR3(2810.0f, 30.0f, -1518.0f));
+	pPlayer->AddRespawnPoint(D3DXVECTOR3(-1380.0f, 30.0f, -6861.7f));
 	pPlayer->AddRespawnPoint(D3DXVECTOR3(-1132.0f, 310.0f, 724.5f));
 	pPlayer->AddRespawnPoint(D3DXVECTOR3(1132.0f, 310.0f, 724.5f));
 	pPlayer->AddRespawnPoint(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f));

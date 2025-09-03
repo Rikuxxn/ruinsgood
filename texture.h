@@ -157,6 +157,8 @@ private:
 		"data/TEXTURE/hint12.png",
 		"data/TEXTURE/push.png",
 		"data/TEXTURE/respawnBlock.png",
+		"data/TEXTURE/waterWheel.png",
+		"data/TEXTURE/pipe.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

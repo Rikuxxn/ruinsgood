@@ -39,4 +39,5 @@ private:
 	int m_nIdxTexture;						// テクスチャインデックス
 
 };
+
 #endif

@@ -128,6 +128,8 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_YELLOW]	= []() -> CBlock* { return new CYellowMassBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_GREEN]		= []() -> CBlock* { return new CGreenMassBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_RESPAWNBLOCK]		= []() -> CBlock* { return new CRespawnBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_WATERWHEEL]			= []() -> CBlock* { return new CWaterWheelBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_PIPE]				= []() -> CBlock* { return new CPipeBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();
@@ -659,4 +661,31 @@ D3DXMATRIX CBlock::GetWorldMatrix(void)
 	D3DXMATRIX world = matScale * matRot * matTrans;
 
 	return world;
+}
+//=============================================================================
+// リスポーン処理
+//=============================================================================
+void CBlock::Respawn(D3DXVECTOR3 resPos)
+{
+	// 動かすためにキネマティックにする
+	SetEditMode(true);
+
+	// ブロックの位置を取得
+	D3DXVECTOR3 Pos = GetPos();
+	D3DXVECTOR3 Rot = GetRot();
+
+	D3DXVECTOR3 respawnPos(resPos);// リスポーン位置
+	D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
+
+	Pos = respawnPos;
+	Rot = rot;
+
+	SetPos(Pos);
+	SetRot(Rot);
+
+	// コライダーの更新
+	UpdateCollider();
+
+	// 動的に戻す
+	SetEditMode(false);
 }

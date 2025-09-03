@@ -298,5 +298,15 @@
       "type": 59,
       "filepath": "data/MODELS/respawnBlock.x",
       "GUItexFilepath": "data/TEXTURE/respawnBlock.png"
+    },
+    {
+      "type": 60,
+      "filepath": "data/MODELS/waterWheel.x",
+      "GUItexFilepath": "data/TEXTURE/waterWheel.png"
+    },
+    {
+      "type": 61,
+      "filepath": "data/MODELS/pipe.x",
+      "GUItexFilepath": "data/TEXTURE/pipe.png"
     }
 ]

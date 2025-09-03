@@ -94,6 +94,7 @@ void CParticle::InitFactory(void)
 	m_ParticleFactoryMap[CParticle::TYPE_AURA2]			= []() -> CParticle* { return new CAura2Particle(); };
 	m_ParticleFactoryMap[CParticle::TYPE_MOVE]			= []() -> CParticle* { return new CMoveParticle(); };
 	m_ParticleFactoryMap[CParticle::TYPE_FLOATING]		= []() -> CParticle* { return new CFloatingParticle(); };
+	m_ParticleFactoryMap[CParticle::TYPE_WATERFLOW] = []() -> CParticle* { return new CWaterFlowParticle(); };
 }
 //=============================================================================
 // 初期化処理
@@ -156,37 +157,35 @@ HRESULT CFireParticle::Init(void)
 //=============================================================================
 void CFireParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/smoke.jpg";
+		const char* texPath = "data/TEXTURE/smoke.jpg";
 
 		// 位置の設定
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// 移動量の設定
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;//角度
 
 		float speed = (rand() % 10) / 30.0f + 0.2f;//移動量
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 		move.y = 0.5f + (rand() % 300) / 100.0f;
 
 		// 色の設定
-		col = GetCol();
+		D3DXCOLOR col = GetCol();
 
 		// 半径の設定
-		fRadius = 10.0f;
+		float fRadius = 10.0f;
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
@@ -228,27 +227,22 @@ HRESULT CStatueFireParticle::Init(void)
 //=============================================================================
 void CStatueFireParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/smoke.jpg";
+		const char*  texPath = "data/TEXTURE/smoke.jpg";
 
 		// 位置の設定
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// 移動量の設定
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;	//角度
 		float speed = (rand() % 10) / 30.0f + 0.2f;			//移動量
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 
@@ -257,10 +251,13 @@ void CStatueFireParticle::Update(void)
 		move.y = baseY + randY * 1.5f;			// 1.0～2.5くらいで上昇
 
 		// 色の設定
-		col = GetCol();
+		D3DXCOLOR col = GetCol();
 
 		// 半径の設定
-		fRadius = 25.0f;
+		float fRadius = 25.0f;
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
@@ -303,25 +300,16 @@ HRESULT CFlamethrowerParticle::Init(void)
 //=============================================================================
 void CFlamethrowerParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXVECTOR3 dir = GetDir();
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
-
-	float speedBase = 10.0f;
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/smoke.jpg";
+		const char*  texPath = "data/TEXTURE/smoke.jpg";
 
 		// 位置の設定
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// 移動量の設定
 		// Dir に少しランダムな揺らぎを足す
@@ -332,22 +320,28 @@ void CFlamethrowerParticle::Update(void)
 			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f)
 		);
 
+		D3DXVECTOR3 dir = GetDir();
 		D3DXVECTOR3 finalDir = dir + randOffset;
 		D3DXVec3Normalize(&finalDir, &finalDir);
 
+		float speedBase = 10.0f;// ベース速度
 		float speed = speedBase + (rand() % 11); // ベース速度 + ランダム
 		speed *= m_speedScale;                    // 速度倍率をかける
 
+		D3DXVECTOR3 move;
 		move = finalDir * speed;
 
 		// 上方向成分も少し強めに（火炎っぽく）
 		move.y += 0.3f;
 
 		// 色の設定
-		col = GetCol();
+		D3DXCOLOR col = GetCol();
 
 		// 半径の設定
-		fRadius = 20.0f;
+		float fRadius = 20.0f;
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
@@ -389,39 +383,37 @@ HRESULT CWaterParticle::Init(void)
 //=============================================================================
 void CWaterParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/smoke.jpg";
+		const char* texPath = "data/TEXTURE/smoke.jpg";
 
 		// 位置
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// ランダムな角度で横に広がる
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
 		float speed = (rand() % 150) / 30.0f + 0.2f;
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 		move.y = (rand() % 10) / 50.0f + 0.05f; // 少しだけ上方向
 
-		// 色
-		col = GetCol();
+		// 色の設定
+		D3DXCOLOR col = GetCol();
 
-		// 半径
-		fRadius = 15.0f + (rand() % 15);
+		// 半径の設定
+		float fRadius = 15.0f + (rand() % 15);
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
-		CEffect::Create(texPath,pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
 	}
 
 	// パーティクルの更新処理
@@ -460,39 +452,37 @@ HRESULT CAuraParticle::Init(void)
 //=============================================================================
 void CAuraParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/treasure_effect.png";
+		const char*  texPath = "data/TEXTURE/treasure_effect.png";
 
 		// 位置
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// ランダムな角度で横に広がる
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
 		float speed = (rand() % 150) / 300.0f + 0.2f;
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 		move.y = (rand() % 300) / 100.0f + 0.9f; // 上方向
 
-		// 色
-		col = GetCol();
+		// 色の設定
+		D3DXCOLOR col = GetCol();
 
-		// 半径
-		fRadius = 35.0f + (rand() % 40);
+		// 半径の設定
+		float fRadius = 35.0f + (rand() % 40);
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
-		CEffect::Create(texPath,pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
 	}
 
 	// パーティクルの更新処理
@@ -531,36 +521,34 @@ HRESULT CAura2Particle::Init(void)
 //=============================================================================
 void CAura2Particle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/effect000.jpg";
+		const char*  texPath = "data/TEXTURE/effect000.jpg";
 
 		// 位置
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// ランダムな角度で横に広がる
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
 		float speed = (rand() % 150) / 300.0f + 0.2f;
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 		move.y = (rand() % 300) / 100.0f + 0.9f; // 上方向
 
-		// 色
-		col = GetCol();
+		// 色の設定
+		D3DXCOLOR col = GetCol();
 
-		// 半径
-		fRadius = 35.0f + (rand() % 40);
+		// 半径の設定
+		float fRadius = 35.0f + (rand() % 40);
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
@@ -602,36 +590,34 @@ HRESULT CMoveParticle::Init(void)
 //=============================================================================
 void CMoveParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/smoke.jpg";
+		const char* texPath = "data/TEXTURE/smoke.jpg";
 
 		// 位置
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// ランダムな角度で横に広がる
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
 		float speed = (rand() % 150) / 300.0f + 0.2f;
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 		move.y = (rand() % 30) / 50.0f + 0.05f; // 少しだけ上方向
 
-		// 色
-		col = GetCol();
+		// 色の設定
+		D3DXCOLOR col = GetCol();
 
-		// 半径
-		fRadius = 15.0f + (rand() % 10);
+		// 半径の設定
+		float fRadius = 15.0f + (rand() % 10);
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
@@ -673,36 +659,115 @@ HRESULT CFloatingParticle::Init(void)
 //=============================================================================
 void CFloatingParticle::Update(void)
 {
-	D3DXVECTOR3 pos;
-	D3DXVECTOR3 move;
-	D3DXCOLOR col;
-	float fRadius;
-	const char* texPath;
 	int nMaxParticle = GetMaxParticle();
-	int nLife = GetLife();
 
 	// パーティクル生成
 	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
 	{
 		// テクスチャの指定
-		texPath = "data/TEXTURE/smoke.jpg";
+		const char* texPath = "data/TEXTURE/smoke.jpg";
 
 		// 位置
-		pos = GetPos();
+		D3DXVECTOR3 pos = GetPos();
 
 		// ランダムな角度で横に広がる
 		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
 		float speed = (rand() % 150) / 300.0f + 0.2f;
 
+		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
 		move.y = -((rand() % 300) / 100.0f + 0.9f); // 上方向
 
-		// 色
-		col = GetCol();
+		// 色の設定
+		D3DXCOLOR col = GetCol();
 
-		// 半径
-		fRadius = 5.0f + (rand() % 30);
+		// 半径の設定
+		float fRadius = 5.0f + (rand() % 30);
+
+		// 寿命の設定
+		int nLife = GetLife();
+
+		// エフェクトの設定
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+	}
+
+	// パーティクルの更新処理
+	CParticle::Update();
+}
+
+
+//=============================================================================
+// 水流パーティクルのコンストラクタ
+//=============================================================================
+CWaterFlowParticle::CWaterFlowParticle()
+{
+	// 値のクリア
+}
+//=============================================================================
+// 水流パーティクルのデストラクタ
+//=============================================================================
+CWaterFlowParticle::~CWaterFlowParticle()
+{
+	// なし
+}
+//=============================================================================
+// 水流パーティクルの初期化処理
+//=============================================================================
+HRESULT CWaterFlowParticle::Init(void)
+{
+	SetPath("data/TEXTURE/smoke.jpg");
+
+	// パーティクルの初期化処理
+	CParticle::Init();
+
+	return S_OK;
+}
+//=============================================================================
+// 水流パーティクルの更新処理
+//=============================================================================
+void CWaterFlowParticle::Update(void)
+{
+	int nMaxParticle = GetMaxParticle();
+
+	// パーティクル生成
+	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
+	{
+		// テクスチャの指定
+		const char* texPath = "data/TEXTURE/smoke.jpg";
+
+		// 位置の設定
+		D3DXVECTOR3 pos = GetPos();
+
+		// 移動量の設定
+		// Dir に少しランダムな揺らぎを足す
+		float spread = 0.08f; // ばらつきの最大幅
+		D3DXVECTOR3 randOffset(
+			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f),
+			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f),
+			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f)
+		);
+
+		D3DXVECTOR3 dir = GetDir();
+		D3DXVECTOR3 finalDir = dir + randOffset;
+		D3DXVec3Normalize(&finalDir, &finalDir);
+
+		float speedBase = 8.0f;					// ベース速度
+		float speed = speedBase + (rand() % 11);	// ベース速度 + ランダム
+
+		D3DXVECTOR3 move;
+		move.x = finalDir.x * speed;
+		move.y = finalDir.y * speed;
+		move.z = finalDir.z * speed;
+
+		// 色の設定
+		D3DXCOLOR col = GetCol();
+
+		// 半径の設定
+		float fRadius = 20.0f;
+
+		// 寿命の設定
+		int nLife = GetLife();
 
 		// エフェクトの設定
 		CEffect::Create(texPath, pos, move, col, fRadius, nLife);

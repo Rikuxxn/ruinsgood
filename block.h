@@ -99,6 +99,8 @@ public:
 		TYPE_MASSBLOCK_YELLOW,
 		TYPE_MASSBLOCK_GREEN,
 		TYPE_RESPAWNBLOCK,
+		TYPE_WATERWHEEL,
+		TYPE_PIPE,
 		TYPE_MAX
 	}TYPE;
 
@@ -114,6 +116,7 @@ public:
 	void DrawCollider(void);
 	void ReleasePhysics(void);															// Physicsîjä¸óp
 	void CreatePhysicsFromParts(void);
+	void Respawn(D3DXVECTOR3 resPos);
 
 	//*****************************************************************************
 	// flagmentä÷êî

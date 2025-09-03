@@ -42,6 +42,7 @@ public:
 		SOUND_LABEL_GAMEBGM2,
 		SOUND_LABEL_SHINE,
 		SOUND_LABEL_DOOR,
+		SOUND_LABEL_WATERWHEEL,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -115,6 +116,7 @@ private:
 		{"data/BGM/gameBGM2.wav", -1},			// ゲームBGM2(ステージ2)
 		{"data/SE/shines.wav", 0},				// ドアが開くときの台座SE
 		{"data/SE/door.wav", 0},				// ドアSE
+		{"data/SE/waterWheel.wav", -1},			// 歯車SE(ループ)
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

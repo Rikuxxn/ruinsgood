@@ -39,6 +39,7 @@ public:
 		TYPE_AURA2,
 		TYPE_MOVE,
 		TYPE_FLOATING,
+		TYPE_WATERFLOW,
 		TYPE_MAX
 	}TYPE;
 
@@ -186,6 +187,22 @@ class CFloatingParticle : public CParticle
 public:
 	CFloatingParticle();
 	~CFloatingParticle();
+
+	HRESULT Init(void);
+	void Update(void);
+
+private:
+
+};
+
+//*****************************************************************************
+// 水流(排水)パーティクルクラス
+//*****************************************************************************
+class CWaterFlowParticle : public CParticle
+{
+public:
+	CWaterFlowParticle();
+	~CWaterFlowParticle();
 
 	HRESULT Init(void);
 	void Update(void);
