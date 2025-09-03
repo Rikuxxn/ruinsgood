@@ -3699,3 +3699,73 @@ void CDoorTriggerBlock::Update()
 		m_prevIsSet = n;
 	}
 }
+
+
+//=============================================================================
+// リスポーンブロックのコンストラクタ
+//=============================================================================
+CRespawnBlock::CRespawnBlock()
+{
+	// 値のクリア
+}
+//=============================================================================
+// リスポーンブロックのデストラクタ
+//=============================================================================
+CRespawnBlock::~CRespawnBlock()
+{
+	// なし
+}
+//=============================================================================
+// リスポーンブロックの更新処理
+//=============================================================================
+void CRespawnBlock::Update(void)
+{
+	// ブロックの更新処理
+	CBlock::Update();
+
+	// ブロックの AABB を取得
+	D3DXVECTOR3 blockPos = GetPos();
+	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
+	D3DXVECTOR3 scale = GetSize();// 拡大率
+
+	// 拡大率を適用する
+	D3DXVECTOR3 blockSize;
+	blockSize.x = modelSize.x * scale.x;
+	blockSize.y = modelSize.y * scale.y;
+	blockSize.z = modelSize.z * scale.z;
+
+	D3DXVECTOR3 blockMin = blockPos - blockSize * 0.5f;
+	D3DXVECTOR3 blockMax = blockPos + blockSize * 0.5f;
+
+	// --- プレイヤー接触判定 ---
+	CPlayer* pPlayer = CGame::GetPlayer();
+
+	if (pPlayer)
+	{
+		D3DXVECTOR3 pPos = pPlayer->GetColliderPos(); // カプセルコライダー中心位置
+
+		// カプセルコライダーのサイズからAABBサイズを計算
+		float radius = pPlayer->GetRadius();
+		float height = pPlayer->GetHeight();
+
+		D3DXVECTOR3 pSize;
+		pSize.x = radius * 2.0f;
+		pSize.z = radius * 2.0f;
+		pSize.y = height + radius * 2.0f;
+
+		// AABB計算
+		D3DXVECTOR3 pMin = pPos - pSize * 0.5f;
+		D3DXVECTOR3 pMax = pPos + pSize * 0.5f;
+
+		bool isOverlap =
+			blockMin.x <= pMax.x && blockMax.x >= pMin.x &&
+			blockMin.y <= pMax.y && blockMax.y >= pMin.y &&
+			blockMin.z <= pMax.z && blockMax.z >= pMin.z;
+
+		if (isOverlap)
+		{
+			// プレイヤーのリスポーン処理
+			CGame::GetPlayer()->RespawnToCheckpoint(D3DXVECTOR3(2810.0f, 100.0f, -1518.0f));
+		}
+	}
+}

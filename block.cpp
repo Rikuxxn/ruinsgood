@@ -127,6 +127,7 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_BLUE]		= []() -> CBlock* { return new CBlueMassBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_YELLOW]	= []() -> CBlock* { return new CYellowMassBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_GREEN]		= []() -> CBlock* { return new CGreenMassBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_RESPAWNBLOCK]		= []() -> CBlock* { return new CRespawnBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();

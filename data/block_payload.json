@@ -293,5 +293,10 @@
       "type": 58,
       "filepath": "data/MODELS/massBlock_green.x",
       "GUItexFilepath": "data/TEXTURE/massBlock_green.png"
+    },
+    {
+      "type": 59,
+      "filepath": "data/MODELS/respawnBlock.x",
+      "GUItexFilepath": "data/TEXTURE/respawnBlock.png"
     }
 ]

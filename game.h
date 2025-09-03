@@ -42,7 +42,7 @@ public:
 	static CObjectBillboard* GetBillboard(void) { return m_pBillboard; }
 	static CUi* GetUi(void) { return m_pUi; }
 	static CPauseManager* GetPauseManager(void) { return m_pPauseManager; }
-	static CHintText* GetHintText(void) { return m_pHintText; }
+	static CHintText* GetHintText(void) { return m_pHint; }
 	static bool GetisPaused(void) { return m_isPaused; };
 	static void SetEnablePause(bool bPause);
 
@@ -56,7 +56,7 @@ private:
 	static CObjectBillboard* m_pBillboard;		// ビルボードへのポインタ
 	static CUi* m_pUi;							// UIへのポインタ
 	static CPauseManager* m_pPauseManager;		// ポーズマネージャーへのポインタ
-	static CHintText* m_pHintText;				// ヒント壁画へのポインタ
+	static CHintText* m_pHint;					// ヒント壁画へのポインタ
 	static bool m_isPaused;						// trueならポーズ中
 
 };
