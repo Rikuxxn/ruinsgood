@@ -15,7 +15,7 @@
 //*****************************************************************************
 // É}ÉNÉçíËã`
 //*****************************************************************************
-#define MAX_TEXTURE (128)
+#define MAX_TEXTURE (256)
 
 
 //*****************************************************************************
@@ -145,10 +145,10 @@ private:
 		"data/TEXTURE/hint5.png",
 		"data/TEXTURE/pillar2.png",
 		"data/TEXTURE/hint6.png",
-		"data/TEXTURE/massBlock_red.png",
-		"data/TEXTURE/massBlock_blue.png",
-		"data/TEXTURE/massBlock_yellow.png",
-		"data/TEXTURE/massBlock_green.png",
+		"data/TEXTURE/massBlock_circle.png",
+		"data/TEXTURE/massBlock_triangle.png",
+		"data/TEXTURE/massBlock_square.png",
+		"data/TEXTURE/massBlock_star.png",
 		"data/TEXTURE/hint7.png",
 		"data/TEXTURE/hint8.png",
 		"data/TEXTURE/hint9.png",
@@ -159,6 +159,10 @@ private:
 		"data/TEXTURE/respawnBlock.png",
 		"data/TEXTURE/waterWheel.png",
 		"data/TEXTURE/pipe.png",
+		"data/TEXTURE/circle.png",
+		"data/TEXTURE/triangle.png",
+		"data/TEXTURE/square.png",
+		"data/TEXTURE/star.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

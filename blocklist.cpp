@@ -16,6 +16,7 @@
 #include "particle.h"
 #include <algorithm>
 #include "collisionUtils.h"
+#include "stageselect.h"
 
 using namespace std;
 
@@ -175,7 +176,7 @@ void CLavaBlock::Update(void)
 		if (isOverlap)
 		{// 当たってたら
 			// リスポーン
-			Respawn(pKey->GetResPos());
+			pKey->Respawn();
 		}
 	}
 
@@ -472,7 +473,7 @@ void CWaterBlock::AddWaterStayTime(void)
 				return;
 			}
 
-			pPlayer->RespawnToCheckpoint(D3DXVECTOR3(427.0f, 30.0f, 1110.0f)); // リスポーン
+			pPlayer->RespawnToCheckpoint(); // リスポーン
 			m_waterStayTime = 0;
 		}
 	}
@@ -851,8 +852,8 @@ void CBridgeSwitchBlock::Update(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block->GetType() == TYPE_MASSBLOCK_RED || block->GetType() == TYPE_MASSBLOCK_BLUE || 
-			block->GetType() == TYPE_MASSBLOCK_YELLOW || block->GetType() == TYPE_MASSBLOCK_GREEN)
+		if (block->GetType() == TYPE_MASSBLOCK_CIRCLE || block->GetType() == TYPE_MASSBLOCK_TRIANGLE || 
+			block->GetType() == TYPE_MASSBLOCK_SQUARE || block->GetType() == TYPE_MASSBLOCK_STAR)
 		{
 			// ブロックの AABB を取得
 			D3DXVECTOR3 pos = block->GetPos();
@@ -2975,6 +2976,33 @@ void CKeyBlock::Set(D3DXVECTOR3 pos)
 	// コライダーの更新
 	UpdateCollider();
 }
+//=============================================================================
+// リスポーン処理
+//=============================================================================
+void CKeyBlock::Respawn(void)
+{
+	// 動かすためにキネマティックにする
+	SetEditMode(true);
+
+	// ブロックの位置を取得
+	D3DXVECTOR3 Pos = GetPos();
+	D3DXVECTOR3 Rot = GetRot();
+
+	D3DXVECTOR3 respawnPos(m_ResPos);// リスポーン位置
+	D3DXVECTOR3 rot(0.0f, 0.0f, 0.0f);// 向きをリセット
+
+	Pos = respawnPos;
+	Rot = rot;
+
+	SetPos(Pos);
+	SetRot(Rot);
+
+	// コライダーの更新
+	UpdateCollider();
+
+	// 動的に戻す
+	SetEditMode(false);
+}
 
 
 //=============================================================================
@@ -3751,35 +3779,48 @@ void CRespawnBlock::Update(void)
 			blockMin.y <= pMax.y && blockMax.y >= pMin.y &&
 			blockMin.z <= pMax.z && blockMax.z >= pMin.z;
 
-		// 当たっている
-		if (isOverlap)
+		// 当たっていなかったら
+		if (!isOverlap)
+		{
+			return;
+		}
+
+		// ステージIDの取得
+		int stageId = CStageSelect::GetSelectedStage();
+
+		if (stageId == 0)
 		{
 			// プレイヤーのリスポーン処理
 			CGame::GetPlayer()->RespawnToCheckpoint(D3DXVECTOR3(2810.0f, 100.0f, -1518.0f));
+		}
+		else if (stageId == 1)
+		{
+			// プレイヤーのリスポーン処理
+			CGame::GetPlayer()->RespawnToCheckpoint(D3DXVECTOR3(1540.0f, 420.0f, -990.0f));
 		}
 	}
 }
 
 
 //=============================================================================
-// 質量ブロック(赤)ブロックのコンストラクタ
+// 質量ブロック(〇)ブロックのコンストラクタ
 //=============================================================================
-CRedMassBlock::CRedMassBlock()
+CCircleMassBlock::CCircleMassBlock()
 {
 	// 値のクリア
 	m_ResPos = INIT_VEC3;
 }
 //=============================================================================
-// 質量ブロック(赤)ブロックのデストラクタ
+// 質量ブロック(〇)ブロックのデストラクタ
 //=============================================================================
-CRedMassBlock::~CRedMassBlock()
+CCircleMassBlock::~CCircleMassBlock()
 {
 	// なし
 }
 //=============================================================================
-// 質量ブロック(赤)ブロックの初期化処理
+// 質量ブロック(〇)ブロックの初期化処理
 //=============================================================================
-HRESULT CRedMassBlock::Init(void)
+HRESULT CCircleMassBlock::Init(void)
 {
 	// ブロックの初期化処理
 	CBlock::Init();
@@ -3792,9 +3833,9 @@ HRESULT CRedMassBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// 質量ブロック(赤)ブロックの更新処理
+// 質量ブロック(〇)ブロックの更新処理
 //=============================================================================
-void CRedMassBlock::Update(void)
+void CCircleMassBlock::Update(void)
 {
 	// ブロックの更新処理
 	CBlock::Update();
@@ -3807,24 +3848,24 @@ void CRedMassBlock::Update(void)
 }
 
 //=============================================================================
-// 質量ブロック(青)ブロックのコンストラクタ
+// 質量ブロック(△)ブロックのコンストラクタ
 //=============================================================================
-CBlueMassBlock::CBlueMassBlock()
+CTriangleMassBlock::CTriangleMassBlock()
 {
 	// 値のクリア
 	m_ResPos = INIT_VEC3;
 }
 //=============================================================================
-// 質量ブロック(青)ブロックのデストラクタ
+// 質量ブロック(△)ブロックのデストラクタ
 //=============================================================================
-CBlueMassBlock::~CBlueMassBlock()
+CTriangleMassBlock::~CTriangleMassBlock()
 {
 	// なし
 }
 //=============================================================================
-// 質量ブロック(青)ブロックの初期化処理
+// 質量ブロック(△)ブロックの初期化処理
 //=============================================================================
-HRESULT CBlueMassBlock::Init(void)
+HRESULT CTriangleMassBlock::Init(void)
 {
 	// ブロックの初期化処理
 	CBlock::Init();
@@ -3837,55 +3878,9 @@ HRESULT CBlueMassBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// 質量ブロック(青)ブロックの更新処理
+// 質量ブロック(△)ブロックの更新処理
 //=============================================================================
-void CBlueMassBlock::Update(void)
-{
-	// ブロックの更新処理
-	CBlock::Update();
-
-	if (GetPos().y <= -410.0f)
-	{
-		// リスポーン処理
-		Respawn(m_ResPos);
-	}
-}
-
-
-//=============================================================================
-// 質量ブロック(黄)ブロックのコンストラクタ
-//=============================================================================
-CYellowMassBlock::CYellowMassBlock()
-{
-	// 値のクリア
-	m_ResPos = INIT_VEC3;
-}
-//=============================================================================
-// 質量ブロック(黄)ブロックのデストラクタ
-//=============================================================================
-CYellowMassBlock::~CYellowMassBlock()
-{
-	// なし
-}
-//=============================================================================
-// 質量ブロック(黄)ブロックの初期化処理
-//=============================================================================
-HRESULT CYellowMassBlock::Init(void)
-{
-	// ブロックの初期化処理
-	CBlock::Init();
-
-	m_ResPos = GetPos();
-
-	// 動的に戻す
-	SetEditMode(false);
-
-	return S_OK;
-}
-//=============================================================================
-// 質量ブロック(黄)ブロックの更新処理
-//=============================================================================
-void CYellowMassBlock::Update(void)
+void CTriangleMassBlock::Update(void)
 {
 	// ブロックの更新処理
 	CBlock::Update();
@@ -3899,24 +3894,24 @@ void CYellowMassBlock::Update(void)
 
 
 //=============================================================================
-// 質量ブロック(緑)ブロックのコンストラクタ
+// 質量ブロック(□)ブロックのコンストラクタ
 //=============================================================================
-CGreenMassBlock::CGreenMassBlock()
+CSquareMassBlock::CSquareMassBlock()
 {
 	// 値のクリア
 	m_ResPos = INIT_VEC3;
 }
 //=============================================================================
-// 質量ブロック(緑)ブロックのデストラクタ
+// 質量ブロック(□)ブロックのデストラクタ
 //=============================================================================
-CGreenMassBlock::~CGreenMassBlock()
+CSquareMassBlock::~CSquareMassBlock()
 {
 	// なし
 }
 //=============================================================================
-// 質量ブロック(緑)ブロックの初期化処理
+// 質量ブロック(□)ブロックの初期化処理
 //=============================================================================
-HRESULT CGreenMassBlock::Init(void)
+HRESULT CSquareMassBlock::Init(void)
 {
 	// ブロックの初期化処理
 	CBlock::Init();
@@ -3929,9 +3924,55 @@ HRESULT CGreenMassBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// 質量ブロック(緑)ブロックの更新処理
+// 質量ブロック(□)ブロックの更新処理
 //=============================================================================
-void CGreenMassBlock::Update(void)
+void CSquareMassBlock::Update(void)
+{
+	// ブロックの更新処理
+	CBlock::Update();
+
+	if (GetPos().y <= -410.0f)
+	{
+		// リスポーン処理
+		Respawn(m_ResPos);
+	}
+}
+
+
+//=============================================================================
+// 質量ブロック(☆)ブロックのコンストラクタ
+//=============================================================================
+CStarMassBlock::CStarMassBlock()
+{
+	// 値のクリア
+	m_ResPos = INIT_VEC3;
+}
+//=============================================================================
+// 質量ブロック(☆)ブロックのデストラクタ
+//=============================================================================
+CStarMassBlock::~CStarMassBlock()
+{
+	// なし
+}
+//=============================================================================
+// 質量ブロック(☆)ブロックの初期化処理
+//=============================================================================
+HRESULT CStarMassBlock::Init(void)
+{
+	// ブロックの初期化処理
+	CBlock::Init();
+
+	m_ResPos = GetPos();
+
+	// 動的に戻す
+	SetEditMode(false);
+
+	return S_OK;
+}
+//=============================================================================
+// 質量ブロック(☆)ブロックの更新処理
+//=============================================================================
+void CStarMassBlock::Update(void)
 {
 	// ブロックの更新処理
 	CBlock::Update();
@@ -3967,6 +4008,7 @@ void CWaterWheelBlock::Update(void)
 {
 	CBlock::Update();// 共通処理
 
+	// 回転
 	Rotation();
 }
 //=============================================================================
@@ -3998,6 +4040,16 @@ void CWaterWheelBlock::Rotation(void)
 
 		rot.z += 0.02f;
 
+		// 正規化
+		if (rot.z > D3DX_PI)
+		{
+			rot.z -= D3DX_PI * 2.0f;
+		}
+		else if (rot.z <= -D3DX_PI)
+		{
+			rot.z += D3DX_PI * 2.0f;
+		}
+
 		// 向きの設定
 		SetRot(rot);
 	}
@@ -4010,7 +4062,7 @@ void CWaterWheelBlock::Rotation(void)
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();
 	float distance = D3DXVec3Length(&disPos);
-	const float kTriggerDistance = 880.0f; // 反応距離
+	const float kTriggerDistance = 980.0f; // 反応距離
 
 	if (distance < kTriggerDistance)
 	{
@@ -4020,9 +4072,8 @@ void CWaterWheelBlock::Rotation(void)
 			CManager::GetSound()->Stop(m_playedSoundID);
 
 			// 3Dサウンド再生してIDを保持
-			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_WATERWHEEL, GetPos(), 150.0f, kTriggerDistance);
+			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_WATERWHEEL, GetPos(), 350.0f, kTriggerDistance);
 		}
-
 	}
 	else
 	{
@@ -4098,7 +4149,7 @@ void CPipeBlock::Update(void)
 	float distance = D3DXVec3Length(&disPos);
 
 	// オフセット
-	D3DXVECTOR3 localOffset(0.0f, 140.0f, 50.0f); // 松明の先端（ローカル）
+	D3DXVECTOR3 localOffset(0.0f, 130.0f, 70.0f); // 松明の先端（ローカル）
 	D3DXVECTOR3 worldOffset;
 
 	// ブロックのワールドマトリックスを取得
@@ -4113,35 +4164,38 @@ void CPipeBlock::Update(void)
 	D3DXVec3Normalize(&forward, &forward);
 
 	// パーティクル生成
-	pParticle = CParticle::Create(forward, worldOffset, D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 50, CParticle::TYPE_WATERFLOW, 10);
+	pParticle = CParticle::Create(forward, worldOffset, D3DXCOLOR(0.4f, 0.6f, 1.0f, 0.7f), 0, CParticle::TYPE_WATERFLOW, 5);
+
+	// 水しぶきパーティクル生成
+	pParticle = CParticle::Create(INIT_VEC3, D3DXVECTOR3(worldOffset.x, worldOffset.y - 90.0f, worldOffset.z + 50.0f), 
+		D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 20, CParticle::TYPE_WATER, 5);
 
 	const float kTriggerDistance = 1180.0f; // 反応距離
 
 	if (distance < kTriggerDistance)
 	{
-
-		//if (m_playedSoundID == -1) // 再生していなければ再生開始
-		//{
-		//	// 前の音を止める（念のため）
-		//	CManager::GetSound()->Stop(m_playedSoundID);
-
-		//	// 3Dサウンド再生してIDを保持
-		//	m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_FIRE, GetPos(), 150.0f, kTriggerDistance);
-		//}
+		if (m_playedSoundID == -1) // 再生していなければ再生開始
+		{
+			// 前の音を止める（念のため）
+			CManager::GetSound()->Stop(m_playedSoundID);
+		
+			// 3Dサウンド再生してIDを保持
+			m_playedSoundID = CManager::GetSound()->Play3D(CSound::SOUND_LABEL_WATERFLOW, worldOffset, 250.0f, kTriggerDistance);
+		}
 	}
-	//else
-	//{
-	//	// 離れたら音停止してIDリセット
-	//	if (m_playedSoundID != -1)
-	//	{
-	//		CManager::GetSound()->Stop(m_playedSoundID);
-	//		m_playedSoundID = -1;
-	//	}
-	//}
+	else
+	{
+		// 離れたら音停止してIDリセット
+		if (m_playedSoundID != -1)
+		{
+			CManager::GetSound()->Stop(m_playedSoundID);
+			m_playedSoundID = -1;
+		}
+	}
 
-	//// 音源の位置更新はIDを使う
-	//if (m_playedSoundID != -1)
-	//{
-	//	CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, worldOffset);
-	//}
+	// 音源の位置更新はIDを使う
+	if (m_playedSoundID != -1)
+	{
+		CManager::GetSound()->UpdateSoundPosition(m_playedSoundID, worldOffset);
+	}
 }

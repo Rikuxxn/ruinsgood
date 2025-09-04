@@ -43,6 +43,7 @@ public:
 		SOUND_LABEL_SHINE,
 		SOUND_LABEL_DOOR,
 		SOUND_LABEL_WATERWHEEL,
+		SOUND_LABEL_WATERFLOW,
 		SOUND_LABEL_MAX,
 	} SOUND_LABEL;
 
@@ -117,6 +118,7 @@ private:
 		{"data/SE/shines.wav", 0},				// ドアが開くときの台座SE
 		{"data/SE/door.wav", 0},				// ドアSE
 		{"data/SE/waterWheel.wav", -1},			// 歯車SE(ループ)
+		{"data/SE/waterrise.wav", -1},			// 水流SE(ループ)
 	};
 
 	SoundData m_SoundData[SOUND_LABEL_MAX];

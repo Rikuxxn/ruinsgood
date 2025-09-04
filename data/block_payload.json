@@ -276,23 +276,23 @@
     },
     {
       "type": 55,
-      "filepath": "data/MODELS/massBlock_red.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_red.png"
+      "filepath": "data/MODELS/massBlock_circle.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_circle.png"
     },
     {
       "type": 56,
-      "filepath": "data/MODELS/massBlock_blue.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_blue.png"
+      "filepath": "data/MODELS/massBlock_triangle.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_triangle.png"
     },
     {
       "type": 57,
-      "filepath": "data/MODELS/massBlock_yellow.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_yellow.png"
+      "filepath": "data/MODELS/massBlock_square.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_square.png"
     },
     {
       "type": 58,
-      "filepath": "data/MODELS/massBlock_green.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_green.png"
+      "filepath": "data/MODELS/massBlock_star.x",
+      "GUItexFilepath": "data/TEXTURE/massBlock_star.png"
     },
     {
       "type": 59,

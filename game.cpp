@@ -228,8 +228,8 @@ void CGame::LoadObject(int stageId)
 		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint12.png", D3DXVECTOR3(-1508.3f, 40.0f, -6980.0f), 80.0f, -50.0f);
 
 		// プレイヤーの生成
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(-660.0f, 100.0f, -3898.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		// UIの生成
 		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_01.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
@@ -247,9 +247,6 @@ void CGame::LoadObject(int stageId)
 		m_pHint = CHintText::Create(CHintText::TYPE_NORMAL,"data/TEXTURE/hint3.png", D3DXVECTOR3(1422.0f, 308.0f, 940.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
 		m_pHint = CHintText::Create(CHintText::TYPE_NORMAL,"data/TEXTURE/hint3.png", D3DXVECTOR3(1742.0f, 308.0f, 940.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
 		m_pHint = CHintText::Create(CHintText::TYPE_NORMAL,"data/TEXTURE/hint3.png", D3DXVECTOR3(1422.0f, 308.0f, 510.0f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
-		m_pHint = CHintText::Create(CHintText::TYPE_NORMAL,"data/TEXTURE/hint3.png", D3DXVECTOR3(1320.0f, 308.0f, 0.6f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
-		m_pHint = CHintText::Create(CHintText::TYPE_NORMAL,"data/TEXTURE/hint3.png", D3DXVECTOR3(1760.0f, 308.0f, -154.6f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
-		m_pHint = CHintText::Create(CHintText::TYPE_NORMAL,"data/TEXTURE/hint3.png", D3DXVECTOR3(1554.3f, 308.0f, -622.3f), D3DXVECTOR3(90.0f, -90.0f, 0.0f), 65.0f, 65.0f);
 		m_pHint = CHintText::Create(CHintText::TYPE_TEXT, "data/TEXTURE/text.png", D3DXVECTOR3(1252.0f, 308.0f, 723.0f), D3DXVECTOR3(90.0f, 90.0f, 0.0f), 110.0f, 40.0f);
 
 		// ビルボードの生成
@@ -257,8 +254,8 @@ void CGame::LoadObject(int stageId)
 		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint6.png", D3DXVECTOR3(1252.0f, 360.0f, 723.0f), 80.0f, -50.0f);
 
 		// プレイヤーの生成
-		m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+		m_pPlayer = CPlayer::Create(D3DXVECTOR3(1540.0f, 420.0f, -1296.5f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 		m_pUi = CUi::Create(CUi::TYPE_STAGE_NAME, "data/TEXTURE/stage_02.png", D3DXVECTOR3(860.0f, 480.0f, 0.0f), 230.0f, 50.0f);
 

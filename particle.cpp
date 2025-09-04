@@ -168,27 +168,32 @@ void CFireParticle::Update(void)
 		// 位置の設定
 		D3DXVECTOR3 pos = GetPos();
 
-		// 移動量の設定
-		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;//角度
-
-		float speed = (rand() % 10) / 30.0f + 0.2f;//移動量
+		// ランダムな角度で横に広がる
+		float angle = ((rand() % 360) / 180.0f) * D3DX_PI;
+		float speed = (rand() % 150) / 300.0f + 0.2f;
 
 		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
-		move.y = 0.5f + (rand() % 300) / 100.0f;
+		move.y = (rand() % 300) / 100.0f + 0.9f; // 上方向
 
 		// 色の設定
 		D3DXCOLOR col = GetCol();
 
 		// 半径の設定
-		float fRadius = 10.0f;
+		float fRadius = 5.0f + (rand() % 8);
 
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = -0.1f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.5f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -259,8 +264,14 @@ void CStatueFireParticle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.0f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.5f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -324,7 +335,7 @@ void CFlamethrowerParticle::Update(void)
 		D3DXVECTOR3 finalDir = dir + randOffset;
 		D3DXVec3Normalize(&finalDir, &finalDir);
 
-		float speedBase = 10.0f;// ベース速度
+		float speedBase = 9.0f;// ベース速度
 		float speed = speedBase + (rand() % 11); // ベース速度 + ランダム
 		speed *= m_speedScale;                    // 速度倍率をかける
 
@@ -343,8 +354,14 @@ void CFlamethrowerParticle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.0f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.5f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -412,8 +429,14 @@ void CWaterParticle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.4f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.0f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -481,8 +504,14 @@ void CAuraParticle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.0f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.5f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -550,8 +579,14 @@ void CAura2Particle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.0f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.5f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -619,8 +654,14 @@ void CMoveParticle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.0f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 1.5f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -677,7 +718,7 @@ void CFloatingParticle::Update(void)
 		D3DXVECTOR3 move;
 		move.x = cosf(angle) * speed;
 		move.z = sinf(angle) * speed;
-		move.y = -((rand() % 300) / 100.0f + 0.9f); // 上方向
+		move.y = -((rand() % 300) / 100.0f + 0.9f); // 下方向
 
 		// 色の設定
 		D3DXCOLOR col = GetCol();
@@ -688,8 +729,14 @@ void CFloatingParticle::Update(void)
 		// 寿命の設定
 		int nLife = GetLife();
 
+		// 重力の設定
+		float fGravity = 0.0f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 0.8f;
+
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理
@@ -731,7 +778,7 @@ void CWaterFlowParticle::Update(void)
 	int nMaxParticle = GetMaxParticle();
 
 	// パーティクル生成
-	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)//発生させたい粒子の数
+	for (int nCnt = 0; nCnt < nMaxParticle; nCnt++)// 発生させたい粒子の数
 	{
 		// テクスチャの指定
 		const char* texPath = "data/TEXTURE/smoke.jpg";
@@ -739,38 +786,46 @@ void CWaterFlowParticle::Update(void)
 		// 位置の設定
 		D3DXVECTOR3 pos = GetPos();
 
-		// 移動量の設定
-		// Dir に少しランダムな揺らぎを足す
-		float spread = 0.08f; // ばらつきの最大幅
-		D3DXVECTOR3 randOffset(
-			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f),
-			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f),
-			((rand() % 200) - 100) / 1000.0f * (spread / 0.1f)
-		);
+		// 扇状にランダムで拡散させる
+		float angleRange = D3DXToRadian(15.0f); // 拡散角度
+		float randAngleX = (((rand() % 200) - 100) / 100.0f) * angleRange;
+		float randAngleY = (((rand() % 200) - 100) / 100.0f) * angleRange;
+		float randAngleZ = (((rand() % 200) - 100) / 100.0f) * angleRange;
 
 		D3DXVECTOR3 dir = GetDir();
-		D3DXVECTOR3 finalDir = dir + randOffset;
-		D3DXVec3Normalize(&finalDir, &finalDir);
 
-		float speedBase = 8.0f;					// ベース速度
-		float speed = speedBase + (rand() % 11);	// ベース速度 + ランダム
+		// ランダム回転を加える
+		D3DXMATRIX matRotX, matRotY, matRotZ, matRot;
+		D3DXMatrixRotationX(&matRotX, randAngleX);
+		D3DXMatrixRotationY(&matRotY, randAngleY);
+		D3DXMatrixRotationZ(&matRotZ, randAngleZ);
+		matRot = matRotY * matRotZ;
+		D3DXVec3TransformNormal(&dir, &dir, &matRot);
 
-		D3DXVECTOR3 move;
-		move.x = finalDir.x * speed;
-		move.y = finalDir.y * speed;
-		move.z = finalDir.z * speed;
+		D3DXVec3Normalize(&dir, &dir);
+
+		// 速度
+		float speed = 2.2f + (rand() % 2); // 横に吹き出す
+
+		D3DXVECTOR3 move = dir * speed;
 
 		// 色の設定
 		D3DXCOLOR col = GetCol();
 
 		// 半径の設定
-		float fRadius = 20.0f;
+		float fRadius = 5.0f + (rand() % 30);
 
 		// 寿命の設定
-		int nLife = GetLife();
+		int nLife = 20 + (rand() % 20);
+
+		// 重力の設定
+		float fGravity = 0.5f;
+
+		// 半径の減衰量の設定
+		float fDecRadius = 0.3f;
 
 		// エフェクトの設定
-		CEffect::Create(texPath, pos, move, col, fRadius, nLife);
+		CEffect::Create(texPath, pos, move, col, fRadius, nLife, fGravity, fDecRadius);
 	}
 
 	// パーティクルの更新処理

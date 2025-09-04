@@ -123,10 +123,10 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_STATUE2]				= []() -> CBlock* { return new CStatueBlock2(); };
 	m_BlockFactoryMap[CBlock::TYPE_EGG]					= []() -> CBlock* { return new CEggBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_DOOR_TRIGGER]		= []() -> CBlock* { return new CDoorTriggerBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_RED]		= []() -> CBlock* { return new CRedMassBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_BLUE]		= []() -> CBlock* { return new CBlueMassBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_YELLOW]	= []() -> CBlock* { return new CYellowMassBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_GREEN]		= []() -> CBlock* { return new CGreenMassBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_CIRCLE]	= []() -> CBlock* { return new CCircleMassBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_TRIANGLE]	= []() -> CBlock* { return new CTriangleMassBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_SQUARE]	= []() -> CBlock* { return new CSquareMassBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_STAR]		= []() -> CBlock* { return new CStarMassBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_RESPAWNBLOCK]		= []() -> CBlock* { return new CRespawnBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_WATERWHEEL]			= []() -> CBlock* { return new CWaterWheelBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_PIPE]				= []() -> CBlock* { return new CPipeBlock(); };

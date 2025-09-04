@@ -22,6 +22,7 @@ CEffect::CEffect(int nPriority) : CObjectBillboard(nPriority)
 	m_fRadius = 0.0f;	// 半径
 	m_nLife = 0;		// 寿命
 	m_nIdxTexture = 0;	// テクスチャインデックス
+	m_fGravity = 0.0f;	// 重力
 }
 //=============================================================================
 // デストラクタ
@@ -33,7 +34,7 @@ CEffect::~CEffect()
 //=============================================================================
 // 生成処理
 //=============================================================================
-CEffect* CEffect::Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife)
+CEffect* CEffect::Create(const char* path, D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fRadius, int nLife, float fGravity, float fDecRad)
 {
 	CEffect* pEffect;
 
@@ -50,6 +51,8 @@ CEffect* CEffect::Create(const char* path,D3DXVECTOR3 pos, D3DXVECTOR3 move, D3D
 	pEffect->SetCol(col);
 	pEffect->SetRadius(fRadius);
 	pEffect->SetLife(nLife);
+	pEffect->SetGravity(fGravity);
+	pEffect->SetDecRadius(fDecRad);
 
 	return pEffect;
 }
@@ -79,19 +82,19 @@ void CEffect::Update(void)
 	// ビルボードオブジェクトの更新処理
 	CObjectBillboard::Update();
 
+	m_move.y -= m_fGravity; // 重力加速度
+
 	// 位置の取得
 	D3DXVECTOR3 Pos = GetPos();
 
 	// 位置を更新
-	Pos.x += m_move.x;
-	Pos.y += m_move.y;
-	Pos.z += m_move.z;
+	Pos += m_move;
 
 	// 位置の設定
 	SetPos(Pos);
 	SetSize(m_fRadius);
 
-	m_fRadius -= 1.5f;
+	m_fRadius -= m_fDecRadius;
 
 	if (m_fRadius <= 0.0f)
 	{

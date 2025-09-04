@@ -510,6 +510,7 @@ public:
 	HRESULT Init(void);
 	void Update(void);
 	void Set(D3DXVECTOR3 pos);
+	void Respawn(void);
 	D3DXVECTOR3 GetResPos(void)const { return m_ResPos; }
 
 	btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
@@ -653,13 +654,13 @@ private:
 };
 
 //*****************************************************************************
-// 質量ブロック(赤)クラス
+// 質量ブロック(〇)クラス
 //*****************************************************************************
-class CRedMassBlock : public CBlock
+class CCircleMassBlock : public CBlock
 {
 public:
-	CRedMassBlock();
-	~CRedMassBlock();
+	CCircleMassBlock();
+	~CCircleMassBlock();
 
 	HRESULT Init(void);
 	void Update(void);
@@ -676,13 +677,13 @@ private:
 };
 
 //*****************************************************************************
-// 質量ブロック(青)クラス
+// 質量ブロック(△)クラス
 //*****************************************************************************
-class CBlueMassBlock : public CBlock
+class CTriangleMassBlock : public CBlock
 {
 public:
-	CBlueMassBlock();
-	~CBlueMassBlock();
+	CTriangleMassBlock();
+	~CTriangleMassBlock();
 
 	HRESULT Init(void);
 	void Update(void);
@@ -699,13 +700,13 @@ private:
 };
 
 //*****************************************************************************
-// 質量ブロック(黄)クラス
+// 質量ブロック(□)クラス
 //*****************************************************************************
-class CYellowMassBlock : public CBlock
+class CSquareMassBlock : public CBlock
 {
 public:
-	CYellowMassBlock();
-	~CYellowMassBlock();
+	CSquareMassBlock();
+	~CSquareMassBlock();
 
 	HRESULT Init(void);
 	void Update(void);
@@ -722,13 +723,13 @@ private:
 };
 
 //*****************************************************************************
-// 質量ブロック(緑)クラス
+// 質量ブロック(☆)クラス
 //*****************************************************************************
-class CGreenMassBlock : public CBlock
+class CStarMassBlock : public CBlock
 {
 public:
-	CGreenMassBlock();
-	~CGreenMassBlock();
+	CStarMassBlock();
+	~CStarMassBlock();
 
 	HRESULT Init(void);
 	void Update(void);
