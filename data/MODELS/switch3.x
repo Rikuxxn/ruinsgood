@@ -191,7 +191,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "data/TEXTURE/switch3.png";
+    "data/TEXTURE/switch_tex3.png";
    }
   }
  }

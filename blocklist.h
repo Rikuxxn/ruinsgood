@@ -156,7 +156,7 @@ private:
 };
 
 //*****************************************************************************
-// スイッチブロッククラス
+// 水位上昇スイッチブロッククラス
 //*****************************************************************************
 class CSwitchBlock : public CBlock
 {
@@ -199,25 +199,24 @@ private:
 };
 
 //*****************************************************************************
-// 格子と足場制御スイッチブロッククラス
+// ドアスイッチブロッククラス
 //*****************************************************************************
-class CBarSwitchBlock : public CBlock
+class CDoorSwitchBlock : public CBlock
 {
 public:
-	CBarSwitchBlock();
-	~CBarSwitchBlock();
+	CDoorSwitchBlock();
+	~CDoorSwitchBlock();
 
 	HRESULT Init(void);
 	void Update(void);
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
-	void SetTimer(int nTimer) { m_Timer = nTimer * 60; }
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
 	bool m_prevSwitchOn;			// 直前のスイッチ状態
 	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
-	int m_timerCnt;
-	int m_Timer;
+	bool m_isSetCam;				// カメラを設定したか
+	int m_nDeleyTime;				// カメラ移行までの遅延時間
 };
 
 //*****************************************************************************

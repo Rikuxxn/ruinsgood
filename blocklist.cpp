@@ -644,7 +644,7 @@ void CBigDoorBlock::Update(void)
 
 
 //=============================================================================
-// スイッチブロックのコンストラクタ
+// 水位上昇スイッチブロックのコンストラクタ
 //=============================================================================
 CSwitchBlock::CSwitchBlock()
 {
@@ -654,14 +654,14 @@ CSwitchBlock::CSwitchBlock()
 	m_prevSwitchOn = false;
 }
 //=============================================================================
-// スイッチブロックのデストラクタ
+// 水位上昇スイッチブロックのデストラクタ
 //=============================================================================
 CSwitchBlock::~CSwitchBlock()
 {
 	// なし
 }
 //=============================================================================
-// スイッチブロックの初期化処理
+// 水位上昇スイッチブロックの初期化処理
 //=============================================================================
 HRESULT CSwitchBlock::Init(void)
 {
@@ -673,7 +673,7 @@ HRESULT CSwitchBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// スイッチブロックの更新処理
+// 水位上昇スイッチブロックの更新処理
 //=============================================================================
 void CSwitchBlock::Update(void)
 {
@@ -746,8 +746,6 @@ void CSwitchBlock::Update(void)
 		pos.y = max(pos.y - 1.0f, targetY);
 		SetPos(pos);
 	}
-
-	SetEditMode(true); // 動かすためにキネマティック
 
 	bool n = m_isSwitchOn;
 
@@ -1016,28 +1014,28 @@ bool CBridgeSwitchBlock::IsOnTop(CBlock* base, CBlock* other)
 
 
 //=============================================================================
-// 格子制御ブロックのコンストラクタ
+// ドアスイッチブロックのコンストラクタ
 //=============================================================================
-CBarSwitchBlock::CBarSwitchBlock()
+CDoorSwitchBlock::CDoorSwitchBlock()
 {
 	// 値のクリア
+	m_isSwitchOn = false;				// 押されたかどうか
+	m_prevSwitchOn = false;				// 直前のスイッチ状態
 	m_closedPos = INIT_VEC3;
-	m_isSwitchOn = false;
-	m_prevSwitchOn = false;
-	m_timerCnt = 0;
-	m_Timer = 0;
+	m_isSetCam = false;
+	m_nDeleyTime = 120;					// カメラ移行までの遅延時間
 }
 //=============================================================================
-// 格子制御ブロックのデストラクタ
+// ドアスイッチブロックのデストラクタ
 //=============================================================================
-CBarSwitchBlock::~CBarSwitchBlock()
+CDoorSwitchBlock::~CDoorSwitchBlock()
 {
 	// なし
 }
 //=============================================================================
-// 格子制御ブロックの初期化処理
+// ドアスイッチブロックの初期化処理
 //=============================================================================
-HRESULT CBarSwitchBlock::Init(void)
+HRESULT CDoorSwitchBlock::Init(void)
 {
 	// ブロックの初期化処理
 	CBlock::Init();
@@ -1047,11 +1045,27 @@ HRESULT CBarSwitchBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// 格子制御ブロックの更新処理
+// ドアスイッチブロックの更新処理
 //=============================================================================
-void CBarSwitchBlock::Update(void)
+void CDoorSwitchBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
+
+	if (m_isSwitchOn)
+	{
+		m_nDeleyTime--;
+	}
+
+	if (m_nDeleyTime <= 0 && !m_isSetCam)
+	{
+		// 演出カメラにする
+		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(1405.0f, 170.0f, 300.0f),
+			D3DXVECTOR3(1894.0f, 93.0f, 297.0f),
+			D3DXVECTOR3(0.16f, -1.57f, 0.0f));
+
+		m_nDeleyTime = 0;
+		m_isSetCam = true;
+	}
 
 	// スイッチの AABB を取得
 	D3DXVECTOR3 swPos = GetPos();
@@ -1067,54 +1081,41 @@ void CBarSwitchBlock::Update(void)
 	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
 	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
 
-	// --- スイッチ押下判定（プレイヤー接触時） ---
-	CPlayer* pPlayer = CGame::GetPlayer();
+	float totalMass = 0.0f;
 
-	if (pPlayer)
+	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		D3DXVECTOR3 pPos = pPlayer->GetColliderPos(); // カプセルコライダー中心位置
-
-		// カプセルコライダーのサイズからAABBサイズを計算
-		float radius = pPlayer->GetRadius();
-		float height = pPlayer->GetHeight();
-
-		D3DXVECTOR3 pSize;
-		pSize.x = radius * 2.0f;
-		pSize.z = radius * 2.0f;
-		pSize.y = height + radius * 2.0f;
-
-		// AABB計算
-		D3DXVECTOR3 pMin = pPos - pSize * 0.5f;
-		D3DXVECTOR3 pMax = pPos + pSize * 0.5f;
-
-		bool isOverlap =
-			swMin.x <= pMax.x && swMax.x >= pMin.x &&
-			swMin.y <= pMax.y && swMax.y >= pMin.y &&
-			swMin.z <= pMax.z && swMax.z >= pMin.z;
-
-		// 制御スイッチが存在するか確認
-		std::vector<CBlock*> blocks = CBlockManager::GetAllBlocks();
-
-		for (CBlock* block : blocks)
+		if (block == this || !block->IsDynamicBlock() || block->GetType() == TYPE_ROCK)
 		{
-			if (block->GetType() != TYPE_BRIDGE3)
-			{
-				continue;
-			}
-
-			CFootingBlock* pFooting = dynamic_cast<CFootingBlock*>(block);
-
-			if (isOverlap && !pFooting->GetMove())
-			{
-				m_isSwitchOn = true;
-
-				// タイムを設定
-				SetTimer(12);
-
-				// 演出カメラをONにする
-				CManager::GetCamera()->IsDirection(true);
-			}
+			continue; // 自分 or 静的ブロックは無視
 		}
+
+		// ブロックの AABB を取得
+		D3DXVECTOR3 pos = block->GetPos();
+		D3DXVECTOR3 size = block->GetModelSize();
+		D3DXVECTOR3 min = pos - size * 0.5f;
+		D3DXVECTOR3 max = pos + size * 0.5f;
+
+		// AABB同士の交差チェック
+		bool isOverlap =
+			swMin.x <= max.x && swMax.x >= min.x &&
+			swMin.y <= max.y && swMax.y >= min.y &&
+			swMin.z <= max.z && swMax.z >= min.z;
+
+		if (isOverlap)
+		{
+			btScalar invMass = block->GetRigidBody()->getInvMass();
+			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
+			totalMass += mass;
+		}
+	}
+
+	// 質量のしきい値を超えていたら沈む
+	const float massThreshold = 8.0f;
+
+	if (totalMass >= massThreshold)
+	{
+		m_isSwitchOn = true;
 	}
 
 	if (!m_isSwitchOn)
@@ -1122,35 +1123,21 @@ void CBarSwitchBlock::Update(void)
 		return;
 	}
 
-	if (m_isSwitchOn && !CManager::GetCamera()->GetDirection())
+	// 押されている → 閉じた位置から少し下げる
+	const float kPressDepth = 8.0f; // 下がる深さ
+
+	float targetY = m_closedPos.y - kPressDepth;
+
+	D3DXVECTOR3 pos = GetPos();
+	if (pos.y > targetY)
 	{
-		if (m_timerCnt == 0)
-		{
-			// タイマーSE
-			CManager::GetSound()->Play(CSound::SOUND_LABEL_TIMER);
-		}
+		pos.y = max(pos.y - 1.0f, targetY);
+		SetPos(pos);
+	}
 
-		m_timerCnt++;
-
-		// 押されている → 閉じた位置から少し下げる
-		const float kPressDepth = 8.0f; // 下がる深さ
-
-		float targetY = m_closedPos.y - kPressDepth;
-
-		D3DXVECTOR3 pos = GetPos();
-		if (pos.y > targetY)
-		{
-			pos.y = max(pos.y - 1.0f, targetY);
-			SetPos(pos);
-		}
-
-		if (m_timerCnt >= m_Timer)
-		{// 指定時間を経過したら
-			m_isSwitchOn = false;
-			m_timerCnt = 0;
-
-			SetPos(m_closedPos); // 元の高さに戻す
-		}
+	if (!m_isSwitchOn)
+	{
+		return;
 	}
 
 	bool n = m_isSwitchOn;
@@ -1159,11 +1146,6 @@ void CBarSwitchBlock::Update(void)
 	{
 		// スイッチSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
-
-		// 演出カメラにする
-		CManager::GetCamera()->SetCamMode(3, D3DXVECTOR3(2572.5f, 218.7f, -76.0f),
-			D3DXVECTOR3(3158.0f, -29.0f, -562.0f),
-			D3DXVECTOR3(0.32f, -0.90f, 0.0f));
 	}
 
 	// フラグを更新して次のフレームに備える
@@ -1375,7 +1357,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -2248,7 +2230,7 @@ void CBarBlock::Update(void)
 				continue;
 			}
 
-			CBarSwitchBlock* pBarSwitch = dynamic_cast<CBarSwitchBlock*>(block);
+			CDoorSwitchBlock* pBarSwitch = dynamic_cast<CDoorSwitchBlock*>(block);
 
 			// 押されていたら
 			if (pBarSwitch && pBarSwitch->IsSwitchOn())
@@ -2321,7 +2303,7 @@ void CFootingBlock::Update(void)
 			continue;
 		}
 
-		CBarSwitchBlock* pSwitch = dynamic_cast<CBarSwitchBlock*>(block);
+		CDoorSwitchBlock* pSwitch = dynamic_cast<CDoorSwitchBlock*>(block);
 
 		if (!pSwitch)
 		{
@@ -3137,14 +3119,14 @@ void CKeyDoorBlock::Update()
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block->GetType() != TYPE_DOOR_TRIGGER)
+		if (block->GetType() != TYPE_SWITCH3)
 		{// トリガーブロックじゃなかったら
 			continue;
 		}
 
-		CDoorTriggerBlock* pTrigger = dynamic_cast<CDoorTriggerBlock*>(block);
+		CDoorSwitchBlock* pTrigger = dynamic_cast<CDoorSwitchBlock*>(block);
 
-		if (pTrigger->IsSet())
+		if (pTrigger->IsSwitchOn())
 		{// 設置されていたら
 			m_isSet = true;
 		}
@@ -4157,7 +4139,7 @@ void CPipeBlock::Update(void)
 
 	D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
-	// ==== 前方向ベクトル（Z軸）====
+	// 前方向ベクトル（Z軸)
 	D3DXVECTOR3 localForward(0.0f, 0.0f, 1.0f);
 	D3DXVECTOR3 forward;
 	D3DXVec3TransformNormal(&forward, &localForward, &worldMtx);

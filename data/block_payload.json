@@ -137,7 +137,7 @@
     {
       "type": 27,
       "filepath": "data/MODELS/switch2.x",
-      "GUItexFilepath": "data/TEXTURE/controlswitch.png"
+      "GUItexFilepath": "data/TEXTURE/switch2.png"
     },
     {
       "type": 28,
@@ -157,7 +157,7 @@
     {
       "type": 31,
       "filepath": "data/MODELS/switch3.x",
-      "GUItexFilepath": "data/TEXTURE/controlswitch2.png"
+      "GUItexFilepath": "data/TEXTURE/switch3.png"
     },
     {
       "type": 32,
