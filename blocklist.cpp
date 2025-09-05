@@ -703,10 +703,19 @@ void CSwitchBlock::Update(void)
 		}
 
 		// ブロックの AABB を取得
-		D3DXVECTOR3 pos = block->GetPos();
-		D3DXVECTOR3 size = block->GetModelSize();
-		D3DXVECTOR3 min = pos - size * 0.5f;
-		D3DXVECTOR3 max = pos + size * 0.5f;
+		D3DXVECTOR3 blockpos = block->GetPos();
+		D3DXVECTOR3 blockModelSize = block->GetModelSize();
+		D3DXVECTOR3 blockScale = block->GetSize();// 拡大率
+
+		// 拡大率を適応する
+		D3DXVECTOR3 blockSize;
+		blockSize.x = blockModelSize.x * blockScale.x;
+		blockSize.y = blockModelSize.y * blockScale.y;
+		blockSize.z = blockModelSize.z * blockScale.z;
+
+		// 最大値と最小値を求める
+		D3DXVECTOR3 min = blockpos - blockSize * 0.5f;
+		D3DXVECTOR3 max = blockpos + blockSize * 0.5f;
 
 		// AABB同士の交差チェック
 		bool isOverlap =
@@ -848,46 +857,54 @@ void CBridgeSwitchBlock::Update(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block->GetType() == TYPE_MASSBLOCK)
+		if (block == this || !block->IsDynamicBlock())
 		{
-			// ブロックの AABB を取得
-			D3DXVECTOR3 pos = block->GetPos();
-			D3DXVECTOR3 size = block->GetModelSize();
-			D3DXVECTOR3 min = pos - size * 0.5f;
-			D3DXVECTOR3 max = pos + size * 0.5f;
+			continue; // 自分 or 静的ブロックは無視
+		}
 
-			// AABB同士の交差チェック
-			bool isOverlap =
-				swMin.x <= max.x && swMax.x >= min.x &&
-				swMin.y <= max.y && swMax.y >= min.y &&
-				swMin.z <= max.z && swMax.z >= min.z;
+		// ブロックの AABB を取得
+		D3DXVECTOR3 blockpos = block->GetPos();
+		D3DXVECTOR3 blockModelSize = block->GetModelSize();
+		D3DXVECTOR3 blockScale = block->GetSize();// 拡大率
 
-			if (isOverlap)
-			{
-				btScalar invMass = block->GetRigidBody()->getInvMass();
-				float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
-				totalMass += mass;
-			}
+		// 拡大率を適応する
+		D3DXVECTOR3 blockSize;
+		blockSize.x = blockModelSize.x * blockScale.x;
+		blockSize.y = blockModelSize.y * blockScale.y;
+		blockSize.z = blockModelSize.z * blockScale.z;
+
+		// 最大値と最小値を求める
+		D3DXVECTOR3 min = blockpos - blockSize * 0.5f;
+		D3DXVECTOR3 max = blockpos + blockSize * 0.5f;
+
+		// AABB同士の交差チェック
+		bool isOverlap =
+			swMin.x <= max.x && swMax.x >= min.x &&
+			swMin.y <= max.y && swMax.y >= min.y &&
+			swMin.z <= max.z && swMax.z >= min.z;
+
+		if (isOverlap)
+		{
+			btScalar invMass = block->GetRigidBody()->getInvMass();
+			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
+			totalMass += mass;
 		}
 	}
 
 	if (scale == D3DXVECTOR3(1.5f, 1.0f, 1.5f))
-	{
-		m_massThreshold = 10.0f;
+	{// 重量スイッチ
+		m_massThreshold = 8.0f;
 	}
 	else if (scale == D3DXVECTOR3(1.2f, 1.0f, 1.2f))
-	{
-		// 質量のしきい値になったら沈む
+	{// 中量スイッチ
 		m_massThreshold = 8.0f;
 	}
 	else if (scale == D3DXVECTOR3(0.8f, 1.0f, 0.8f))
-	{
-		// 質量のしきい値になったら沈む
-		m_massThreshold = 3.0f;
+	{// 軽量スイッチ
+		m_massThreshold = 6.0f;
 	}
 	else
 	{
-		// 質量のしきい値になったら沈む
 		m_massThreshold = 1.0f;
 	}
 
@@ -1005,10 +1022,19 @@ void CDoorSwitchBlock::Update(void)
 		}
 
 		// ブロックの AABB を取得
-		D3DXVECTOR3 pos = block->GetPos();
-		D3DXVECTOR3 size = block->GetModelSize();
-		D3DXVECTOR3 min = pos - size * 0.5f;
-		D3DXVECTOR3 max = pos + size * 0.5f;
+		D3DXVECTOR3 blockpos = block->GetPos();
+		D3DXVECTOR3 blockModelSize = block->GetModelSize();
+		D3DXVECTOR3 blockScale = block->GetSize();// 拡大率
+
+		// 拡大率を適応する
+		D3DXVECTOR3 blockSize;
+		blockSize.x = blockModelSize.x * blockScale.x;
+		blockSize.y = blockModelSize.y * blockScale.y;
+		blockSize.z = blockModelSize.z * blockScale.z;
+
+		// 最大値と最小値を求める
+		D3DXVECTOR3 min = blockpos - blockSize * 0.5f;
+		D3DXVECTOR3 max = blockpos + blockSize * 0.5f;
 
 		// AABB同士の交差チェック
 		bool isOverlap =
@@ -1271,7 +1297,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 
-	MoveToTarget();		// チェックポイントへ向けて移動
+	//MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -3789,48 +3815,29 @@ void CWaterWheelBlock::Update(void)
 //=============================================================================
 void CWaterWheelBlock::Rotation(void)
 {
-	// 制御スイッチが存在するか確認
-	std::vector<CBlock*> blocks = CBlockManager::GetAllBlocks();
-
-	for (CBlock* block : blocks)
-	{
-		if (block->GetType() != TYPE_BRIDGESWITCH)
-		{
-			continue;
-		}
-
-		CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
-
-		if (!pSwitch /*|| !pSwitch->IsSinkOn()*/)
-		{
-			continue;
-		}
-
-		//m_isRotation = true;
-
-		//// 回転
-		//D3DXVECTOR3 rot = GetRot();
-
-		//rot.z += 0.02f;
-
-		//// 正規化
-		//if (rot.z > D3DX_PI)
-		//{
-		//	rot.z -= D3DX_PI * 2.0f;
-		//}
-		//else if (rot.z <= -D3DX_PI)
-		//{
-		//	rot.z += D3DX_PI * 2.0f;
-		//}
-
-		//// 向きの設定
-		//SetRot(rot);
-	}
-
-	if (!m_isRotation)
+	// 全てのスイッチが押されていなかったら
+	if (!CGame::GetBlockManager()->CheckAllSwitch())
 	{
 		return;
 	}
+
+	// 回転
+	D3DXVECTOR3 rot = GetRot();
+
+	rot.z += 0.02f;
+
+	// 正規化
+	if (rot.z > D3DX_PI)
+	{
+		rot.z -= D3DX_PI * 2.0f;
+	}
+	else if (rot.z <= -D3DX_PI)
+	{
+		rot.z += D3DX_PI * 2.0f;
+	}
+
+	// 向きの設定
+	SetRot(rot);
 
 	D3DXVECTOR3 playerPos = CGame::GetPlayer()->GetPos();
 	D3DXVECTOR3 disPos = playerPos - GetPos();

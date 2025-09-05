@@ -666,11 +666,29 @@ public:
 	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
 	btScalar GetRollingFriction(void) const { return 5.7f; }
 	float CarryTargetDis(void) { return 80.0f; }
-	btScalar GetMass(void) const { return 4.0f; }  // 質量の取得
+	btScalar GetMass(void) const	// 質量の取得
+	{ 
+		// 拡大率で質量を決める
+		D3DXVECTOR3 size = GetSize();
+
+		if (size == D3DXVECTOR3(1.5f, 1.5f, 1.5f))
+		{// 重量
+			return 9.0f;
+		}
+		else if (size == D3DXVECTOR3(1.1f, 1.1f, 1.1f))
+		{// 中量
+			return 4.0f;
+		}
+		else if (size == D3DXVECTOR3(0.7f, 0.7f, 0.7f))
+		{// 軽量
+			return 2.0f;
+		}
+
+		return 1.0f;// 当てはまらなかったら
+	}  
 
 private:
 	D3DXVECTOR3 m_ResPos;// リスポーン位置
-
 };
 
 

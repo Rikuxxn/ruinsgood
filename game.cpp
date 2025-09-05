@@ -208,24 +208,10 @@ void CGame::LoadObject(int stageId)
 		// ゲームBGMの再生
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_GAMEBGM);
 
-		//// ヒント壁画の生成
-		//m_pHint = CHintText::Create(CHintText::TYPE_TEXT,"data/TEXTURE/text.png", D3DXVECTOR3(-227.0f, 140.0f, 1133.0f), D3DXVECTOR3(0.0f, -90.0f, 0.0f), 110.0f, 40.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_TEXT, "data/TEXTURE/text.png", D3DXVECTOR3(480.0f, 140.0f, 115.0f), D3DXVECTOR3(0.0f, 180.0f, 0.0f), 110.0f, 40.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_TEXT,"data/TEXTURE/text.png", D3DXVECTOR3(-1108.3f, 2.0f, -6980.0f), D3DXVECTOR3(90.0f, 180.0f, 0.0f), 110.0f, 40.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_TEXT, "data/TEXTURE/text.png", D3DXVECTOR3(-1508.3f, 2.0f, -6980.0f), D3DXVECTOR3(90.0f, 180.0f, 30.0f), 110.0f, 40.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_NORMAL, "data/TEXTURE/hint8.png", D3DXVECTOR3(-712.0f, 190.0f, -6796.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 180.0f, 60.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_NORMAL, "data/TEXTURE/hint9.png", D3DXVECTOR3(-752.0f, 190.0f, -7940.0f), D3DXVECTOR3(0.0f, 180.0f, 0.0f), 180.0f, 60.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_NORMAL, "data/TEXTURE/hint10.png", D3DXVECTOR3(-2093.0f, 190.0f, -7700.0f), D3DXVECTOR3(0.0f, -90.0f, 0.0f), 180.0f, 60.0f);
-		//m_pHint = CHintText::Create(CHintText::TYPE_NORMAL, "data/TEXTURE/hint11.png", D3DXVECTOR3(-2093.0f, 190.0f, -7060.0f), D3DXVECTOR3(0.0f, -90.0f, 0.0f), 180.0f, 60.0f);
-
 		// ビルボードの生成
 		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_move.png", D3DXVECTOR3(145.0f, 130.0f, -20.0f), 85.0f, 0.0f);
 		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_jump.png", D3DXVECTOR3(-150.0f, 150.0f, 385.0f), 80.0f, 0.0f);
 		m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_NORMAL, "data/TEXTURE/ui_pick.png", D3DXVECTOR3(150.0f, 130.0f, 1220.0f), 80.0f, 0.0f);
-		//m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint.png", D3DXVECTOR3(-152.5f, 150.0f, 1133.0f), 80.0f, -50.0f);
-		//m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint2.png", D3DXVECTOR3(480.0f, 150.0f, 180.0f), 80.0f, -50.0f);
-		//m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint7.png", D3DXVECTOR3(-1108.3f, 40.0f, -6980.0f), 80.0f, -50.0f);
-		//m_pBillboard = CObjectBillboard::Create(CObjectBillboard::TYPE_HINT, "data/TEXTURE/hint12.png", D3DXVECTOR3(-1508.3f, 40.0f, -6980.0f), 80.0f, -50.0f);
 
 		// プレイヤーの生成
 		//m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 100.0f, -300.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));

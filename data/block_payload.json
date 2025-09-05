@@ -276,7 +276,7 @@
     },
     {
       "type": 55,
-      "filepath": "data/MODELS/massBlock_circle.x",
+      "filepath": "data/MODELS/massBlock.x",
       "GUItexFilepath": "data/TEXTURE/massBlock_circle.png"
     },
     {

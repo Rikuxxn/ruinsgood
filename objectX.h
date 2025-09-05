@@ -29,7 +29,7 @@ public:
 	const char* GetPath(void) { return m_szPath; }
 	D3DXVECTOR3 GetPos(void) { return m_pos; }
 	D3DXVECTOR3 GetRot(void) { return m_rot; }
-	D3DXVECTOR3 GetSize(void) { return m_size; }		// 拡大率
+	D3DXVECTOR3 GetSize(void) const { return m_size; }		// 拡大率
 	D3DXVECTOR3 GetModelSize(void) { return m_modelSize; }	// モデルの元サイズ
 	virtual D3DXCOLOR GetCol(void) const { return D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f); }
 	D3DXCOLOR GetMaterialColor(void) const;

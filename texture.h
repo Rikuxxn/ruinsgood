@@ -146,23 +146,12 @@ private:
 		"data/TEXTURE/pillar2.png",
 		"data/TEXTURE/hint6.png",
 		"data/TEXTURE/massBlock_circle.png",
-		"data/TEXTURE/massBlock_triangle.png",
-		"data/TEXTURE/massBlock_square.png",
-		"data/TEXTURE/massBlock_star.png",
 		"data/TEXTURE/hint7.png",
-		"data/TEXTURE/hint8.png",
-		"data/TEXTURE/hint9.png",
-		"data/TEXTURE/hint10.png",
-		"data/TEXTURE/hint11.png",
 		"data/TEXTURE/hint12.png",
 		"data/TEXTURE/push.png",
 		"data/TEXTURE/respawnBlock.png",
 		"data/TEXTURE/waterWheel.png",
 		"data/TEXTURE/player_statue.png",
-		"data/TEXTURE/circle.png",
-		"data/TEXTURE/triangle.png",
-		"data/TEXTURE/square.png",
-		"data/TEXTURE/star.png",
 	};
 
 	LPDIRECT3DTEXTURE9 m_apTexture[MAX_TEXTURE];

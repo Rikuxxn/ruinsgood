@@ -148,6 +148,7 @@ public:
 	const ColliderPart& GetColliderBlade(void) const { return m_colliderBlade; }
 	bool IsEditMode(void) const { return m_isEditMode; }
 	virtual btScalar GetMass(void) const { return 2.0f; }  // Ž¿—Ê‚ÌŽæ“¾
+
 	D3DXMATRIX GetWorldMatrix(void);
 	virtual btVector3 GetAngularFactor(void) const { return btVector3(1.0f, 1.0f, 1.0f); }
 	virtual btScalar GetRollingFriction(void) const { return 0.7f; }
