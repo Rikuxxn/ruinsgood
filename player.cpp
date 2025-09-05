@@ -626,7 +626,6 @@ void CPlayer::HoldBlock(void)
 			if (distance > maxCarryDistance || currentPos <= playerPos)
 			{
 				// —£‚·
-				//m_pCarryingBlock->GetRigidBody()->setAngularFactor(btVector3(1.0f, 1.0f, 1.0f));
 				m_pCarryingBlock = NULL;
 				return;
 			}

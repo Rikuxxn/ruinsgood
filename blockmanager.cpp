@@ -1031,6 +1031,25 @@ bool CBlockManager::CheckAllTorches(void)
 	return true; // すべて火がついている
 }
 //=============================================================================
+// 橋制御スイッチの押下チェック
+//=============================================================================
+bool CBlockManager::CheckAllSwitch(void)
+{
+	for (CBlock* block : CBlockManager::GetAllBlocks())
+	{
+		if (block->GetType() == CBlock::TYPE_BRIDGESWITCH)
+		{
+			CBridgeSwitchBlock* pTSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+			if (!pTSwitch->IsSwitchOn())  // 押されていないスイッチがあれば
+			{
+				return false;  // まだ全部押されていない
+			}
+		}
+	}
+
+	return true; // すべて押されている
+}
+//=============================================================================
 // 全ブロックの取得
 //=============================================================================
 const std::vector<CBlock*>& CBlockManager::GetAllBlocks(void)

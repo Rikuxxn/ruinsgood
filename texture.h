@@ -158,7 +158,7 @@ private:
 		"data/TEXTURE/push.png",
 		"data/TEXTURE/respawnBlock.png",
 		"data/TEXTURE/waterWheel.png",
-		"data/TEXTURE/pipe.png",
+		"data/TEXTURE/player_statue.png",
 		"data/TEXTURE/circle.png",
 		"data/TEXTURE/triangle.png",
 		"data/TEXTURE/square.png",

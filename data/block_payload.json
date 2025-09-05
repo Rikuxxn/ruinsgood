@@ -281,32 +281,17 @@
     },
     {
       "type": 56,
-      "filepath": "data/MODELS/massBlock_triangle.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_triangle.png"
-    },
-    {
-      "type": 57,
-      "filepath": "data/MODELS/massBlock_square.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_square.png"
-    },
-    {
-      "type": 58,
-      "filepath": "data/MODELS/massBlock_star.x",
-      "GUItexFilepath": "data/TEXTURE/massBlock_star.png"
-    },
-    {
-      "type": 59,
       "filepath": "data/MODELS/respawnBlock.x",
       "GUItexFilepath": "data/TEXTURE/respawnBlock.png"
     },
     {
-      "type": 60,
+      "type": 57,
       "filepath": "data/MODELS/waterWheel.x",
       "GUItexFilepath": "data/TEXTURE/waterWheel.png"
     },
     {
-      "type": 61,
-      "filepath": "data/MODELS/pipe.x",
-      "GUItexFilepath": "data/TEXTURE/pipe.png"
+      "type": 58,
+      "filepath": "data/MODELS/player_statue.x",
+      "GUItexFilepath": "data/TEXTURE/player_statue.png"
     }
 ]

@@ -813,7 +813,7 @@ void CWaterFlowParticle::Update(void)
 		D3DXCOLOR col = GetCol();
 
 		// 半径の設定
-		float fRadius = 5.0f + (rand() % 30);
+		float fRadius = 5.0f + (rand() % 25);
 
 		// 寿命の設定
 		int nLife = 20 + (rand() % 20);

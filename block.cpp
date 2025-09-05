@@ -97,7 +97,7 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_DOOR]				= []() -> CBlock* { return new CDoorBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_DOOR2]				= []() -> CBlock* { return new CBigDoorBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_SWITCH]				= []() -> CBlock* { return new CSwitchBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_SWITCH2]				= []() -> CBlock* { return new CBridgeSwitchBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_BRIDGESWITCH]		= []() -> CBlock* { return new CBridgeSwitchBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_AXE]					= []() -> CBlock* { return new CAxeBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_BRIDGE2]				= []() -> CBlock* { return new CBridgeBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_TARGET]				= []() -> CBlock* { return new CTargetBlock(); };
@@ -123,13 +123,10 @@ void CBlock::InitFactory(void)
 	m_BlockFactoryMap[CBlock::TYPE_STATUE2]				= []() -> CBlock* { return new CStatueBlock2(); };
 	m_BlockFactoryMap[CBlock::TYPE_EGG]					= []() -> CBlock* { return new CEggBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_DOOR_TRIGGER]		= []() -> CBlock* { return new CDoorTriggerBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_CIRCLE]	= []() -> CBlock* { return new CCircleMassBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_TRIANGLE]	= []() -> CBlock* { return new CTriangleMassBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_SQUARE]	= []() -> CBlock* { return new CSquareMassBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK_STAR]		= []() -> CBlock* { return new CStarMassBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_MASSBLOCK]			= []() -> CBlock* { return new CMassBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_RESPAWNBLOCK]		= []() -> CBlock* { return new CRespawnBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_WATERWHEEL]			= []() -> CBlock* { return new CWaterWheelBlock(); };
-	m_BlockFactoryMap[CBlock::TYPE_PIPE]				= []() -> CBlock* { return new CPipeBlock(); };
+	m_BlockFactoryMap[CBlock::TYPE_PLAYERSTATUE]		= []() -> CBlock* { return new CPlayerStatueBlock(); };
 	m_BlockFactoryMap[CBlock::TYPE_ROCK]				= []() -> CBlock*
 	{
 		CRockBlock* pRock = new CRockBlock();

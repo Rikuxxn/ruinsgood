@@ -794,7 +794,7 @@ void CSwitchBlock::Update(void)
 
 
 //=============================================================================
-// 橋制御ブロックのコンストラクタ
+// 橋制御スイッチブロックのコンストラクタ
 //=============================================================================
 CBridgeSwitchBlock::CBridgeSwitchBlock()
 {
@@ -802,19 +802,17 @@ CBridgeSwitchBlock::CBridgeSwitchBlock()
 	m_closedPos = INIT_VEC3;
 	m_isSwitchOn = false;
 	m_prevSwitchOn = false;
-	m_OnCnt = 120;
-	m_isSinkOn = false;
-	m_prevSinkOn = false;
+	m_massThreshold = 0.0f;
 }
 //=============================================================================
-// 橋制御ブロックのデストラクタ
+// 橋制御スイッチブロックのデストラクタ
 //=============================================================================
 CBridgeSwitchBlock::~CBridgeSwitchBlock()
 {
 	// なし
 }
 //=============================================================================
-// 橋制御ブロックの初期化処理
+// 橋制御スイッチブロックの初期化処理
 //=============================================================================
 HRESULT CBridgeSwitchBlock::Init(void)
 {
@@ -826,7 +824,7 @@ HRESULT CBridgeSwitchBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// 橋制御ブロックの更新処理
+// 橋制御スイッチブロックの更新処理
 //=============================================================================
 void CBridgeSwitchBlock::Update(void)
 {
@@ -850,8 +848,7 @@ void CBridgeSwitchBlock::Update(void)
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
 	{
-		if (block->GetType() == TYPE_MASSBLOCK_CIRCLE || block->GetType() == TYPE_MASSBLOCK_TRIANGLE || 
-			block->GetType() == TYPE_MASSBLOCK_SQUARE || block->GetType() == TYPE_MASSBLOCK_STAR)
+		if (block->GetType() == TYPE_MASSBLOCK)
 		{
 			// ブロックの AABB を取得
 			D3DXVECTOR3 pos = block->GetPos();
@@ -867,149 +864,66 @@ void CBridgeSwitchBlock::Update(void)
 
 			if (isOverlap)
 			{
-				// 基点のブロックから積み上げ分を再帰的に調べる
-				totalMass += CalcStackMass(block);
+				btScalar invMass = block->GetRigidBody()->getInvMass();
+				float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
+				totalMass += mass;
 			}
 		}
 	}
 
+	if (scale == D3DXVECTOR3(1.5f, 1.0f, 1.5f))
+	{
+		m_massThreshold = 10.0f;
+	}
+	else if (scale == D3DXVECTOR3(1.2f, 1.0f, 1.2f))
+	{
+		// 質量のしきい値になったら沈む
+		m_massThreshold = 8.0f;
+	}
+	else if (scale == D3DXVECTOR3(0.8f, 1.0f, 0.8f))
+	{
+		// 質量のしきい値になったら沈む
+		m_massThreshold = 3.0f;
+	}
+	else
+	{
+		// 質量のしきい値になったら沈む
+		m_massThreshold = 1.0f;
+	}
+
 	// 質量のしきい値になったら沈む
-	const float massThreshold = 10.0f;
-
-	if (totalMass == massThreshold)
+	if (totalMass >= m_massThreshold)
 	{
-		m_isSinkOn = true;
+		m_isSwitchOn = true;
 	}
 
-	bool b = m_isSinkOn;
-
-	if (b && !m_prevSinkOn)
+	if (!m_isSwitchOn)
 	{
-		// スイッチSE
-		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
+		return;
 	}
 
-	m_prevSinkOn = b;
+	// 押されている → 閉じた位置から少し下げる
+	const float kPressDepth = 10.0f; // 下がる深さ
 
-	if (m_isSinkOn)
+	float targetY = m_closedPos.y - kPressDepth;
+
+	D3DXVECTOR3 pos = GetPos();
+	if (pos.y > targetY)
 	{
-		m_OnCnt--;
-
-		if (m_OnCnt < 0)
-		{
-			m_OnCnt = 0;
-			m_isSwitchOn = true;
-		}
-
-		// 押されている → 閉じた位置から少し下げる
-		const float kPressDepth = 10.0f; // 下がる深さ
-
-		float targetY = m_closedPos.y - kPressDepth;
-
-		D3DXVECTOR3 pos = GetPos();
-		if (pos.y > targetY)
-		{
-			pos.y = max(pos.y - 1.0f, targetY);
-			SetPos(pos);
-		}
+		pos.y = max(pos.y - 1.0f, targetY);
+		SetPos(pos);
 	}
 
 	bool n = m_isSwitchOn;
 
 	if (n && !m_prevSwitchOn) // 一回だけ実行
 	{
-		// 演出カメラにする
-		CManager::GetCamera()->SetCamMode(9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
-			D3DXVECTOR3(-1527.0f, 194.0f, -4085.0f),
-			D3DXVECTOR3(0.43f, 0.23f, 0.0f));
-
-		for (CBlock* block : CBlockManager::GetAllBlocks())
-		{
-			if (block->GetType() != TYPE_ROCK)
-			{
-				continue;
-			}
-
-			CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
-			if (pRock)
-			{
-				pRock->UseBridgeSwitch(true);
-				pRock->Respawn();
-			}
-
-		}
+		// スイッチSE
+		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 	}
 
 	// フラグを更新して次のフレームに備える
 	m_prevSwitchOn = n;
-}
-//=============================================================================
-// 積み上げ質量計算
-//=============================================================================
-float CBridgeSwitchBlock::CalcStackMass(CBlock* base)
-{
-	// ブロックの質量の取得
-	float mass = base->GetMass();
-
-	for (CBlock* other : CBlockManager::GetAllBlocks())
-	{
-		if (other == base)
-		{
-			continue;
-		}
-
-		// other が base の上に物理的に乗っているかどうか判定
-		if (IsOnTop(base, other))
-		{
-			mass += CalcStackMass(other);
-			return mass;
-		}
-	}
-	return 0.0f;
-}
-//=============================================================================
-// baseの上にotherがあるか判定
-//=============================================================================
-bool CBridgeSwitchBlock::IsOnTop(CBlock* base, CBlock* other)
-{
-	// モデル本来のサイズ
-	D3DXVECTOR3 baseModelSize = base->GetModelSize();
-	D3DXVECTOR3 otherModelSize = other->GetModelSize();
-
-	// 拡大率
-	D3DXVECTOR3 baseScale = base->GetSize();
-	D3DXVECTOR3 otherScale = other->GetSize();
-
-	// 実際の大きさ（スケーリング後）
-	D3DXVECTOR3 baseSize = D3DXVECTOR3(baseModelSize.x * baseScale.x,
-		baseModelSize.y * baseScale.y,
-		baseModelSize.z * baseScale.z);
-
-	D3DXVECTOR3 otherSize = D3DXVECTOR3(otherModelSize.x * otherScale.x,
-		otherModelSize.y * otherScale.y,
-		otherModelSize.z * otherScale.z);
-
-	D3DXVECTOR3 baseMin = base->GetPos() - baseSize * 0.5f;
-	D3DXVECTOR3 baseMax = base->GetPos() + baseSize * 0.5f;
-
-	D3DXVECTOR3 otherMin = other->GetPos() - otherSize * 0.5f;
-	D3DXVECTOR3 otherMax = other->GetPos() + otherSize * 0.5f;
-
-	// --- XZ が重なっているか ---
-	bool overlapXZ =
-		(baseMin.x <= otherMax.x && baseMax.x >= otherMin.x) &&
-		(baseMin.z <= otherMax.z && baseMax.z >= otherMin.z);
-
-	if (!overlapXZ) return false;
-
-	// --- other が base の上にあるか (少しだけ隙間許容) ---
-	float epsilon = 1.0f;
-	if (otherMin.y >= baseMax.y - epsilon)
-	{
-		return true;
-	}
-
-	return false;
 }
 
 
@@ -1357,7 +1271,7 @@ void CRockBlock::Update(void)
 		Respawn();			// リスポーン処理
 	}
 
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
@@ -1594,6 +1508,7 @@ void CRockBlock::IsPlayerHit(void)
 CBridgeBlock::CBridgeBlock()
 {
 	// 値のクリア
+	m_prevSwitchOn = false;// 直前に全部のスイッチが押されたか
 }
 //=============================================================================
 // 橋ブロックのデストラクタ
@@ -1616,23 +1531,36 @@ void CBridgeBlock::Update(void)
 //=============================================================================
 void CBridgeBlock::Move(void)
 {
-	// 制御スイッチが存在するか確認
-	std::vector<CBlock*> blocks = CBlockManager::GetAllBlocks();
+	bool n = CGame::GetBlockManager()->CheckAllSwitch();
 
-	for (CBlock* block : blocks)
+	if (n && !m_prevSwitchOn)
 	{
-		if (block->GetType() != TYPE_SWITCH2)
+		// 演出カメラにする
+		CManager::GetCamera()->SetCamMode(9, D3DXVECTOR3(-1270.0f, 370.0f, -4382.0f),
+			D3DXVECTOR3(-1527.0f, 194.0f, -4085.0f),
+			D3DXVECTOR3(0.43f, 0.23f, 0.0f));
+
+		for (CBlock* block : CBlockManager::GetAllBlocks())
 		{
-			continue;
+			if (block->GetType() != TYPE_ROCK)
+			{
+				continue;
+			}
+
+			CRockBlock* pRock = dynamic_cast<CRockBlock*>(block);
+			if (pRock)
+			{
+				pRock->UseBridgeSwitch(true);
+				pRock->Respawn();
+			}
 		}
+	}
 
-		CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+	m_prevSwitchOn = n;
 
-		if (!pSwitch || !pSwitch->IsSwitchOn())
-		{
-			continue;
-		}
-
+	// 全ての橋制御スイッチが押されたら
+	if (CGame::GetBlockManager()->CheckAllSwitch())
+	{
 		// 現在位置取得
 		D3DXVECTOR3 pos = GetPos();
 
@@ -2866,7 +2794,7 @@ void CKeyFenceBlock::Update()
 {
 	CBlock::Update(); // 共通処理
 
-	if (CBlockManager::CheckAllTorches())
+	if (CGame::GetBlockManager()->CheckAllTorches())
 	{// 全ての松明に火が付いたら
 
 		const float kDownRange = 190.0f; // 下がる深さ
@@ -2880,7 +2808,7 @@ void CKeyFenceBlock::Update()
 			SetPos(pos);
 		}
 
-		bool n = CBlockManager::CheckAllTorches();
+		bool n = CGame::GetBlockManager()->CheckAllTorches();
 
 		if (n && !m_prevDown)
 		{
@@ -3785,24 +3713,24 @@ void CRespawnBlock::Update(void)
 
 
 //=============================================================================
-// 質量ブロック(〇)ブロックのコンストラクタ
+// 質量ブロックのコンストラクタ
 //=============================================================================
-CCircleMassBlock::CCircleMassBlock()
+CMassBlock::CMassBlock()
 {
 	// 値のクリア
 	m_ResPos = INIT_VEC3;
 }
 //=============================================================================
-// 質量ブロック(〇)ブロックのデストラクタ
+// 質量ブロックのデストラクタ
 //=============================================================================
-CCircleMassBlock::~CCircleMassBlock()
+CMassBlock::~CMassBlock()
 {
 	// なし
 }
 //=============================================================================
-// 質量ブロック(〇)ブロックの初期化処理
+// 質量ブロックの初期化処理
 //=============================================================================
-HRESULT CCircleMassBlock::Init(void)
+HRESULT CMassBlock::Init(void)
 {
 	// ブロックの初期化処理
 	CBlock::Init();
@@ -3815,146 +3743,9 @@ HRESULT CCircleMassBlock::Init(void)
 	return S_OK;
 }
 //=============================================================================
-// 質量ブロック(〇)ブロックの更新処理
+// 質量ブロックの更新処理
 //=============================================================================
-void CCircleMassBlock::Update(void)
-{
-	// ブロックの更新処理
-	CBlock::Update();
-
-	if (GetPos().y <= -410.0f)
-	{
-		// リスポーン処理
-		Respawn(m_ResPos);
-	}
-}
-
-//=============================================================================
-// 質量ブロック(△)ブロックのコンストラクタ
-//=============================================================================
-CTriangleMassBlock::CTriangleMassBlock()
-{
-	// 値のクリア
-	m_ResPos = INIT_VEC3;
-}
-//=============================================================================
-// 質量ブロック(△)ブロックのデストラクタ
-//=============================================================================
-CTriangleMassBlock::~CTriangleMassBlock()
-{
-	// なし
-}
-//=============================================================================
-// 質量ブロック(△)ブロックの初期化処理
-//=============================================================================
-HRESULT CTriangleMassBlock::Init(void)
-{
-	// ブロックの初期化処理
-	CBlock::Init();
-
-	m_ResPos = GetPos();
-
-	// 動的に戻す
-	SetEditMode(false);
-
-	return S_OK;
-}
-//=============================================================================
-// 質量ブロック(△)ブロックの更新処理
-//=============================================================================
-void CTriangleMassBlock::Update(void)
-{
-	// ブロックの更新処理
-	CBlock::Update();
-
-	if (GetPos().y <= -410.0f)
-	{
-		// リスポーン処理
-		Respawn(m_ResPos);
-	}
-}
-
-
-//=============================================================================
-// 質量ブロック(□)ブロックのコンストラクタ
-//=============================================================================
-CSquareMassBlock::CSquareMassBlock()
-{
-	// 値のクリア
-	m_ResPos = INIT_VEC3;
-}
-//=============================================================================
-// 質量ブロック(□)ブロックのデストラクタ
-//=============================================================================
-CSquareMassBlock::~CSquareMassBlock()
-{
-	// なし
-}
-//=============================================================================
-// 質量ブロック(□)ブロックの初期化処理
-//=============================================================================
-HRESULT CSquareMassBlock::Init(void)
-{
-	// ブロックの初期化処理
-	CBlock::Init();
-
-	m_ResPos = GetPos();
-
-	// 動的に戻す
-	SetEditMode(false);
-
-	return S_OK;
-}
-//=============================================================================
-// 質量ブロック(□)ブロックの更新処理
-//=============================================================================
-void CSquareMassBlock::Update(void)
-{
-	// ブロックの更新処理
-	CBlock::Update();
-
-	if (GetPos().y <= -410.0f)
-	{
-		// リスポーン処理
-		Respawn(m_ResPos);
-	}
-}
-
-
-//=============================================================================
-// 質量ブロック(☆)ブロックのコンストラクタ
-//=============================================================================
-CStarMassBlock::CStarMassBlock()
-{
-	// 値のクリア
-	m_ResPos = INIT_VEC3;
-}
-//=============================================================================
-// 質量ブロック(☆)ブロックのデストラクタ
-//=============================================================================
-CStarMassBlock::~CStarMassBlock()
-{
-	// なし
-}
-//=============================================================================
-// 質量ブロック(☆)ブロックの初期化処理
-//=============================================================================
-HRESULT CStarMassBlock::Init(void)
-{
-	// ブロックの初期化処理
-	CBlock::Init();
-
-	m_ResPos = GetPos();
-
-	// 動的に戻す
-	SetEditMode(false);
-
-	return S_OK;
-}
-//=============================================================================
-// 質量ブロック(☆)ブロックの更新処理
-//=============================================================================
-void CStarMassBlock::Update(void)
+void CMassBlock::Update(void)
 {
 	// ブロックの更新処理
 	CBlock::Update();
@@ -4003,37 +3794,37 @@ void CWaterWheelBlock::Rotation(void)
 
 	for (CBlock* block : blocks)
 	{
-		if (block->GetType() != TYPE_SWITCH2)
+		if (block->GetType() != TYPE_BRIDGESWITCH)
 		{
 			continue;
 		}
 
 		CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
 
-		if (!pSwitch || !pSwitch->IsSinkOn())
+		if (!pSwitch /*|| !pSwitch->IsSinkOn()*/)
 		{
 			continue;
 		}
 
-		m_isRotation = true;
+		//m_isRotation = true;
 
-		// 回転
-		D3DXVECTOR3 rot = GetRot();
+		//// 回転
+		//D3DXVECTOR3 rot = GetRot();
 
-		rot.z += 0.02f;
+		//rot.z += 0.02f;
 
-		// 正規化
-		if (rot.z > D3DX_PI)
-		{
-			rot.z -= D3DX_PI * 2.0f;
-		}
-		else if (rot.z <= -D3DX_PI)
-		{
-			rot.z += D3DX_PI * 2.0f;
-		}
+		//// 正規化
+		//if (rot.z > D3DX_PI)
+		//{
+		//	rot.z -= D3DX_PI * 2.0f;
+		//}
+		//else if (rot.z <= -D3DX_PI)
+		//{
+		//	rot.z += D3DX_PI * 2.0f;
+		//}
 
-		// 向きの設定
-		SetRot(rot);
+		//// 向きの設定
+		//SetRot(rot);
 	}
 
 	if (!m_isRotation)
@@ -4076,25 +3867,25 @@ void CWaterWheelBlock::Rotation(void)
 
 
 //=============================================================================
-// パイプブロックのコンストラクタ
+// プレイヤー石像ブロックのコンストラクタ
 //=============================================================================
-CPipeBlock::CPipeBlock()
+CPlayerStatueBlock::CPlayerStatueBlock()
 {
 	// 値のクリア
 	m_playedSoundID = -1;
 	m_isOn = false;
 }
 //=============================================================================
-// パイプブロックのデストラクタ
+// プレイヤー石像ブロックのデストラクタ
 //=============================================================================
-CPipeBlock::~CPipeBlock()
+CPlayerStatueBlock::~CPlayerStatueBlock()
 {
 	// なし
 }
 //=============================================================================
-// パイプブロックの更新処理
+// プレイヤー石像ブロックの更新処理
 //=============================================================================
-void CPipeBlock::Update(void)
+void CPlayerStatueBlock::Update(void)
 {
 	// ブロックの更新処理
 	CBlock::Update();
@@ -4104,14 +3895,14 @@ void CPipeBlock::Update(void)
 
 	for (CBlock* block : blocks)
 	{
-		if (block->GetType() != TYPE_SWITCH2)
+		if (block->GetType() != TYPE_SWITCH)
 		{
 			continue;
 		}
 
-		CBridgeSwitchBlock* pSwitch = dynamic_cast<CBridgeSwitchBlock*>(block);
+		CSwitchBlock* pSwitch = dynamic_cast<CSwitchBlock*>(block);
 
-		if (!pSwitch || !pSwitch->IsSinkOn())
+		if (!pSwitch || !pSwitch->IsSwitchOn())
 		{
 			continue;
 		}
@@ -4131,7 +3922,7 @@ void CPipeBlock::Update(void)
 	float distance = D3DXVec3Length(&disPos);
 
 	// オフセット
-	D3DXVECTOR3 localOffset(0.0f, 130.0f, 70.0f); // 松明の先端（ローカル）
+	D3DXVECTOR3 localOffset(0.0f, 50.0f, -35.0f); // 松明の先端（ローカル）
 	D3DXVECTOR3 worldOffset;
 
 	// ブロックのワールドマトリックスを取得
@@ -4140,22 +3931,22 @@ void CPipeBlock::Update(void)
 	D3DXVec3TransformCoord(&worldOffset, &localOffset, &worldMtx);
 
 	// 前方向ベクトル（Z軸)
-	D3DXVECTOR3 localForward(0.0f, 0.0f, 1.0f);
+	D3DXVECTOR3 localForward(0.0f, 0.0f, -1.0f);
 	D3DXVECTOR3 forward;
 	D3DXVec3TransformNormal(&forward, &localForward, &worldMtx);
 	D3DXVec3Normalize(&forward, &forward);
 
-	// パーティクル生成
-	pParticle = CParticle::Create(forward, worldOffset, D3DXCOLOR(0.4f, 0.6f, 1.0f, 0.7f), 0, CParticle::TYPE_WATERFLOW, 5);
-
-	// 水しぶきパーティクル生成
-	pParticle = CParticle::Create(INIT_VEC3, D3DXVECTOR3(worldOffset.x, worldOffset.y - 90.0f, worldOffset.z + 50.0f), 
-		D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 20, CParticle::TYPE_WATER, 5);
+	//// 水しぶきパーティクル生成
+	//pParticle = CParticle::Create(INIT_VEC3, D3DXVECTOR3(worldOffset.x, worldOffset.y - 90.0f, worldOffset.z + 50.0f), 
+	//	D3DXCOLOR(0.3f, 0.6f, 1.0f, 0.8f), 20, CParticle::TYPE_WATER, 5);
 
 	const float kTriggerDistance = 1180.0f; // 反応距離
 
 	if (distance < kTriggerDistance)
 	{
+		// パーティクル生成
+		pParticle = CParticle::Create(forward, worldOffset, D3DXCOLOR(0.4f, 0.6f, 1.0f, 0.7f), 0, CParticle::TYPE_WATERFLOW, 5);
+
 		if (m_playedSoundID == -1) // 再生していなければ再生開始
 		{
 			// 前の音を止める（念のため）

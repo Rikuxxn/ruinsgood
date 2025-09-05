@@ -166,6 +166,7 @@ public:
 
 	HRESULT Init(void);
 	void Update(void);
+	bool IsSwitchOn(void) { return m_isSwitchOn; }
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
@@ -184,19 +185,15 @@ public:
 
 	HRESULT Init(void);
 	void Update(void);
-	float CalcStackMass(CBlock* base);
-	bool IsOnTop(CBlock* base, CBlock* other);
 	bool IsSwitchOn(void) { return m_isSwitchOn; }
-	bool IsSinkOn(void) { return m_isSinkOn; }
 
 private:
 	bool m_isSwitchOn;				// 押されたかどうか
 	bool m_prevSwitchOn;			// 直前のスイッチ状態
 	D3DXVECTOR3 m_closedPos;		// スイッチの閉じるときの位置
-	int m_OnCnt;					// 押された後のカウンター
-	bool m_isSinkOn;				// 沈んでいるか
-	bool m_prevSinkOn;				// 直前に沈んでいたか
+	float m_massThreshold;			// 作動する質量
 };
+
 
 //*****************************************************************************
 // ドアスイッチブロッククラス
@@ -289,6 +286,7 @@ public:
 	void Move(void);
 
 private:
+	bool m_prevSwitchOn;// 直前に全部のスイッチが押されたか
 };
 
 //*****************************************************************************
@@ -653,82 +651,13 @@ private:
 };
 
 //*****************************************************************************
-// 質量ブロック(〇)クラス
+// 質量ブロッククラス
 //*****************************************************************************
-class CCircleMassBlock : public CBlock
+class CMassBlock : public CBlock
 {
 public:
-	CCircleMassBlock();
-	~CCircleMassBlock();
-
-	HRESULT Init(void);
-	void Update(void);
-
-	bool IsDynamicBlock(void) const override { return true; }
-	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
-	btScalar GetRollingFriction(void) const { return 5.7f; }
-	float CarryTargetDis(void) { return 80.0f; }
-	btScalar GetMass(void) const { return 1.0f; }  // 質量の取得
-
-private:
-	D3DXVECTOR3 m_ResPos;// リスポーン位置
-
-};
-
-//*****************************************************************************
-// 質量ブロック(△)クラス
-//*****************************************************************************
-class CTriangleMassBlock : public CBlock
-{
-public:
-	CTriangleMassBlock();
-	~CTriangleMassBlock();
-
-	HRESULT Init(void);
-	void Update(void);
-
-	bool IsDynamicBlock(void) const override { return true; }
-	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
-	btScalar GetRollingFriction(void) const { return 5.7f; }
-	float CarryTargetDis(void) { return 80.0f; }
-	btScalar GetMass(void) const { return 2.0f; }  // 質量の取得
-
-private:
-	D3DXVECTOR3 m_ResPos;// リスポーン位置
-
-};
-
-//*****************************************************************************
-// 質量ブロック(□)クラス
-//*****************************************************************************
-class CSquareMassBlock : public CBlock
-{
-public:
-	CSquareMassBlock();
-	~CSquareMassBlock();
-
-	HRESULT Init(void);
-	void Update(void);
-
-	bool IsDynamicBlock(void) const override { return true; }
-	btVector3 GetAngularFactor(void) const { return btVector3(0.0f, 0.0f, 0.0f); }
-	btScalar GetRollingFriction(void) const { return 5.7f; }
-	float CarryTargetDis(void) { return 80.0f; }
-	btScalar GetMass(void) const { return 3.0f; }  // 質量の取得
-
-private:
-	D3DXVECTOR3 m_ResPos;// リスポーン位置
-
-};
-
-//*****************************************************************************
-// 質量ブロック(☆)クラス
-//*****************************************************************************
-class CStarMassBlock : public CBlock
-{
-public:
-	CStarMassBlock();
-	~CStarMassBlock();
+	CMassBlock();
+	~CMassBlock();
 
 	HRESULT Init(void);
 	void Update(void);
@@ -743,6 +672,7 @@ private:
 	D3DXVECTOR3 m_ResPos;// リスポーン位置
 
 };
+
 
 //*****************************************************************************
 // リスポーンブロッククラス
@@ -774,13 +704,13 @@ private:
 };
 
 //*****************************************************************************
-// パイプブロッククラス
+// プレイヤー石像ブロッククラス
 //*****************************************************************************
-class CPipeBlock : public CBlock
+class CPlayerStatueBlock : public CBlock
 {
 public:
-	CPipeBlock();
-	~CPipeBlock();
+	CPlayerStatueBlock();
+	~CPlayerStatueBlock();
 
 	void Update(void);
 
