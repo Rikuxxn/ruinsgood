@@ -260,6 +260,7 @@ public:
 	btScalar GetMass(void) const { return 100.0f; }  // 質量の取得
 
 private:
+	static constexpr float RESET_HEIGHT = -480.0f;// リスポーンする高さ
 	std::vector<D3DXVECTOR3> m_pathPoints;		// チェックポイントの配列 (代入用)
 	int m_currentTargetIndex;					// 今の目標地点インデックス
 	float m_speed;								// 力の強さ（速度の代わり）
@@ -671,7 +672,7 @@ public:
 		// 拡大率で質量を決める
 		D3DXVECTOR3 size = GetSize();
 
-		if (size == D3DXVECTOR3(1.5f, 1.5f, 1.5f))
+		if (size == D3DXVECTOR3(1.6f, 1.6f, 1.6f))
 		{// 重量
 			return 9.0f;
 		}

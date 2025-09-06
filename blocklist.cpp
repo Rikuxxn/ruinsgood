@@ -901,7 +901,7 @@ void CBridgeSwitchBlock::Update(void)
 	}
 	else if (scale == D3DXVECTOR3(0.8f, 1.0f, 0.8f))
 	{// 軽量スイッチ
-		m_massThreshold = 6.0f;
+		m_massThreshold = 4.0f;
 	}
 	else
 	{
@@ -1290,14 +1290,12 @@ void CRockBlock::Update(void)
 		return;
 	}
 
-	const float RESET_HEIGHT = -480.0f;
-
 	if (GetPos().y < RESET_HEIGHT)
 	{
 		Respawn();			// リスポーン処理
 	}
 
-	//MoveToTarget();		// チェックポイントへ向けて移動
+	MoveToTarget();		// チェックポイントへ向けて移動
 
 	IsPlayerHit();		// プレイヤーとの接触判定
 }
