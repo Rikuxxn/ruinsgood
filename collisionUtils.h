@@ -30,6 +30,12 @@ public:
 		const D3DXVECTOR3& cylinderCenter, float cylinderRadius, float cylinderHeight,
 		const D3DXVECTOR3& cylinderDir, bool flag);
 
+	// AABBとAABBの当たり判定
+	static bool CheckCollisionAABB(D3DXVECTOR3 pos1, D3DXVECTOR3 modelSize1, D3DXVECTOR3 scale1,
+		D3DXVECTOR3 pos2, D3DXVECTOR3 modelSize2, D3DXVECTOR3 scale2);
+
+	// AABBとカプセルの当たり判定(カプセルをAABB変換)
+
 };
 
 

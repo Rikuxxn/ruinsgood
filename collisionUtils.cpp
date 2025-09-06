@@ -93,9 +93,6 @@ bool CCollision::CheckCylinderAABBCollisionWithHitDistance(
 		if (y > maxY) maxY = y;
 	}
 
-	// 円（シリンダー半径）と矩形（AABB断面）との2D判定
-	// 円の中心は(0,0)、半径はcylinderRadius
-
 	// 矩形の最近接点を円の中心に投影（クランプ）
 	float closestX = std::max(minX, std::min(0.0f, maxX));
 	float closestY = std::max(minY, std::min(0.0f, maxY));
@@ -180,6 +177,66 @@ bool CCollision::CheckCapsuleCylinderCollision_Dir(
 	if (axisDist <= collisionCapsuleRadius + collisionCylinderRadius &&
 		radialDist <= collisionCapsuleRadius + collisionCylinderRadius)
 	{
+		return true;
+	}
+
+	return false;
+}
+//=============================================================================
+// AABBとAABBの当たり判定
+//=============================================================================
+bool CCollision::CheckCollisionAABB(D3DXVECTOR3 pos1, D3DXVECTOR3 modelSize1, D3DXVECTOR3 scale1, 
+	D3DXVECTOR3 pos2, D3DXVECTOR3 modelSize2, D3DXVECTOR3 scale2)
+{
+	//=========================================================================
+	// ブロック1の情報
+	//=========================================================================
+
+	// AABBを取得
+	D3DXVECTOR3 Pos_1 = pos1;				// ブロックの位置
+	D3DXVECTOR3 ModelSize_1 = modelSize1;	// ブロックの元のサイズ（中心原点）
+	D3DXVECTOR3 Scale_1 = scale1;			// ブロックの拡大率
+
+	// 元サイズに拡大率を適用する
+	D3DXVECTOR3 Size_1;
+	Size_1.x = ModelSize_1.x * Scale_1.x;
+	Size_1.y = ModelSize_1.y * Scale_1.y;
+	Size_1.z = ModelSize_1.z * Scale_1.z;
+
+	// 最小値と最大値を求める
+	D3DXVECTOR3 Min_1 = Pos_1 - Size_1 * 0.5f;
+	D3DXVECTOR3 Max_1 = Pos_1 + Size_1 * 0.5f;
+
+
+	//=========================================================================
+	// ブロック2の情報
+	//=========================================================================
+
+	// AABBを取得
+	D3DXVECTOR3 Pos_2 = pos2;				// ブロックの位置
+	D3DXVECTOR3 ModelSize_2 = modelSize2;	// ブロックの元のサイズ（中心原点）
+	D3DXVECTOR3 Scale_2 = scale2;			// ブロックの拡大率
+
+	// 元サイズに拡大率を適用する
+	D3DXVECTOR3 Size_2;
+	Size_2.x = ModelSize_2.x * Scale_2.x;
+	Size_2.y = ModelSize_2.y * Scale_2.y;
+	Size_2.z = ModelSize_2.z * Scale_2.z;
+
+	// 最小値と最大値を求める
+	D3DXVECTOR3 Min_2 = Pos_2 - Size_2 * 0.5f;
+	D3DXVECTOR3 Max_2 = Pos_2 + Size_2 * 0.5f;
+
+	//=========================================================================
+	// AABB同士の交差チェック
+	//=========================================================================
+	bool isOverlap =
+		Min_1.x <= Max_2.x && Max_1.x >= Min_2.x &&
+		Min_1.y <= Max_2.y && Max_1.y >= Min_2.y &&
+		Min_1.z <= Max_2.z && Max_1.z >= Min_2.z;
+
+	if (isOverlap)
+	{// 交差している
 		return true;
 	}
 

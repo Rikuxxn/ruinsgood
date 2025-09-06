@@ -247,21 +247,6 @@ void CWaterBlock::Update(void)
 //=============================================================================
 void CWaterBlock::ApplyToBlocks(void)
 {
-	// 水の AABB を取得
-	D3DXVECTOR3 wtPos = GetPos();
-	D3DXVECTOR3 modelSize = GetModelSize();
-	D3DXVECTOR3 scale = GetSize();
-
-	D3DXVECTOR3 wtSize;
-
-	// 拡大率を適用する
-	wtSize.x = modelSize.x * scale.x;
-	wtSize.y = modelSize.y * scale.y;
-	wtSize.z = modelSize.z * scale.z;
-
-	D3DXVECTOR3 wtMin = wtPos - wtSize * 0.5f;
-	D3DXVECTOR3 wtMax = wtPos + wtSize * 0.5f;
-
 	// ブロックの浮力設定
 	const float B_maxLiftSpeed = 40.0f;
 
@@ -275,20 +260,10 @@ void CWaterBlock::ApplyToBlocks(void)
 			continue; // 自分 or 静的ブロックは無視
 		}
 
-		// ブロックの AABB を取得
-		D3DXVECTOR3 pos = block->GetPos();
-		D3DXVECTOR3 size = block->GetModelSize();
-		D3DXVECTOR3 min = pos - size * 0.5f;
-		D3DXVECTOR3 max = pos + size * 0.5f;
-
-		// AABB同士の交差チェック
-		bool isOverlap =
-			wtMin.x <= max.x && wtMax.x >= min.x &&
-			wtMin.y <= max.y && wtMax.y >= min.y &&
-			wtMin.z <= max.z && wtMax.z >= min.z;
-
-		if (!isOverlap)
-		{// 当たってなかったら
+		// AABB当たり判定
+		if (!CCollision::CheckCollisionAABB(GetPos(), GetModelSize(), GetSize(),
+			block->GetPos(), block->GetModelSize(), block->GetSize()))
+		{
 			continue;
 		}
 
@@ -679,20 +654,6 @@ void CSwitchBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 
-	// スイッチの AABB を取得
-	D3DXVECTOR3 swPos = GetPos();
-	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
-	D3DXVECTOR3 scale = GetSize();// 拡大率
-
-	// 拡大率を適用する
-	D3DXVECTOR3 swSize;
-	swSize.x = modelSize.x * scale.x;
-	swSize.y = modelSize.y * scale.y;
-	swSize.z = modelSize.z * scale.z;
-
-	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
-	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
-
 	float totalMass = 0.0f;
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
@@ -702,28 +663,9 @@ void CSwitchBlock::Update(void)
 			continue; // 自分 or 静的ブロックは無視
 		}
 
-		// ブロックの AABB を取得
-		D3DXVECTOR3 blockpos = block->GetPos();
-		D3DXVECTOR3 blockModelSize = block->GetModelSize();
-		D3DXVECTOR3 blockScale = block->GetSize();// 拡大率
-
-		// 拡大率を適応する
-		D3DXVECTOR3 blockSize;
-		blockSize.x = blockModelSize.x * blockScale.x;
-		blockSize.y = blockModelSize.y * blockScale.y;
-		blockSize.z = blockModelSize.z * blockScale.z;
-
-		// 最大値と最小値を求める
-		D3DXVECTOR3 min = blockpos - blockSize * 0.5f;
-		D3DXVECTOR3 max = blockpos + blockSize * 0.5f;
-
-		// AABB同士の交差チェック
-		bool isOverlap =
-			swMin.x <= max.x && swMax.x >= min.x &&
-			swMin.y <= max.y && swMax.y >= min.y &&
-			swMin.z <= max.z && swMax.z >= min.z;
-
-		if (isOverlap)
+		// AABB当たり判定
+		if (CCollision::CheckCollisionAABB(GetPos(), GetModelSize(), GetSize(),
+			block->GetPos(), block->GetModelSize(), block->GetSize()))
 		{
 			btScalar invMass = block->GetRigidBody()->getInvMass();
 			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
@@ -759,7 +701,7 @@ void CSwitchBlock::Update(void)
 	bool n = m_isSwitchOn;
 
 	if (n && !m_prevSwitchOn)
-	{
+	{// 一回だけ通す
 		// スイッチSE
 		CManager::GetSound()->Play(CSound::SOUND_LABEL_SWITCH);
 
@@ -839,20 +781,6 @@ void CBridgeSwitchBlock::Update(void)
 {
 	CBlock::Update(); // 共通処理
 
-	// スイッチの AABB を取得
-	D3DXVECTOR3 swPos = GetPos();
-	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
-	D3DXVECTOR3 scale = GetSize();// 拡大率
-
-	// 拡大率を適用する
-	D3DXVECTOR3 swSize;
-	swSize.x = modelSize.x * scale.x;
-	swSize.y = modelSize.y * scale.y;
-	swSize.z = modelSize.z * scale.z;
-
-	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
-	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
-
 	float totalMass = 0.0f;
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
@@ -862,34 +790,17 @@ void CBridgeSwitchBlock::Update(void)
 			continue; // 自分 or 静的ブロックは無視
 		}
 
-		// ブロックの AABB を取得
-		D3DXVECTOR3 blockpos = block->GetPos();
-		D3DXVECTOR3 blockModelSize = block->GetModelSize();
-		D3DXVECTOR3 blockScale = block->GetSize();// 拡大率
-
-		// 拡大率を適応する
-		D3DXVECTOR3 blockSize;
-		blockSize.x = blockModelSize.x * blockScale.x;
-		blockSize.y = blockModelSize.y * blockScale.y;
-		blockSize.z = blockModelSize.z * blockScale.z;
-
-		// 最大値と最小値を求める
-		D3DXVECTOR3 min = blockpos - blockSize * 0.5f;
-		D3DXVECTOR3 max = blockpos + blockSize * 0.5f;
-
-		// AABB同士の交差チェック
-		bool isOverlap =
-			swMin.x <= max.x && swMax.x >= min.x &&
-			swMin.y <= max.y && swMax.y >= min.y &&
-			swMin.z <= max.z && swMax.z >= min.z;
-
-		if (isOverlap)
-		{
+		// AABB当たり判定
+		if (CCollision::CheckCollisionAABB(GetPos(), GetModelSize(), GetSize(),
+			block->GetPos(), block->GetModelSize(), block->GetSize()))
+		{// 質量を加える
 			btScalar invMass = block->GetRigidBody()->getInvMass();
 			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
 			totalMass += mass;
 		}
 	}
+
+	D3DXVECTOR3 scale = GetSize();// スイッチの拡大率を取得
 
 	if (scale == D3DXVECTOR3(1.5f, 1.0f, 1.5f))
 	{// 重量スイッチ
@@ -998,20 +909,6 @@ void CDoorSwitchBlock::Update(void)
 		m_isSetCam = true;
 	}
 
-	// スイッチの AABB を取得
-	D3DXVECTOR3 swPos = GetPos();
-	D3DXVECTOR3 modelSize = GetModelSize(); // スイッチの元のサイズ（中心原点）
-	D3DXVECTOR3 scale = GetSize();// 拡大率
-
-	// 拡大率を適用する
-	D3DXVECTOR3 swSize;
-	swSize.x = modelSize.x * scale.x;
-	swSize.y = modelSize.y * scale.y;
-	swSize.z = modelSize.z * scale.z;
-
-	D3DXVECTOR3 swMin = swPos - swSize * 0.5f;
-	D3DXVECTOR3 swMax = swPos + swSize * 0.5f;
-
 	float totalMass = 0.0f;
 
 	for (CBlock* block : CBlockManager::GetAllBlocks())
@@ -1021,28 +918,9 @@ void CDoorSwitchBlock::Update(void)
 			continue; // 自分 or 静的ブロックは無視
 		}
 
-		// ブロックの AABB を取得
-		D3DXVECTOR3 blockpos = block->GetPos();
-		D3DXVECTOR3 blockModelSize = block->GetModelSize();
-		D3DXVECTOR3 blockScale = block->GetSize();// 拡大率
-
-		// 拡大率を適応する
-		D3DXVECTOR3 blockSize;
-		blockSize.x = blockModelSize.x * blockScale.x;
-		blockSize.y = blockModelSize.y * blockScale.y;
-		blockSize.z = blockModelSize.z * blockScale.z;
-
-		// 最大値と最小値を求める
-		D3DXVECTOR3 min = blockpos - blockSize * 0.5f;
-		D3DXVECTOR3 max = blockpos + blockSize * 0.5f;
-
-		// AABB同士の交差チェック
-		bool isOverlap =
-			swMin.x <= max.x && swMax.x >= min.x &&
-			swMin.y <= max.y && swMax.y >= min.y &&
-			swMin.z <= max.z && swMax.z >= min.z;
-
-		if (isOverlap)
+		// AABB当たり判定
+		if (CCollision::CheckCollisionAABB(GetPos(), GetModelSize(), GetSize(),
+			block->GetPos(), block->GetModelSize(), block->GetSize()))
 		{
 			btScalar invMass = block->GetRigidBody()->getInvMass();
 			float mass = (invMass == 0.0f) ? 0.0f : 1.0f / invMass;
